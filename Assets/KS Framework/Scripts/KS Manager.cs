@@ -4,17 +4,32 @@ using UnityEngine;
 
 public class KSManager : MonoBehaviour {
 
-	[Header("Game Data")]
-	public string gameName = "Default Title";
-	public string 
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+	// - Public Vars
+	[Header("Game Data")]
+
+	/// <summary>
+	/// Name of the game, used by game file management
+	/// </summary>
+	public string gameName = "Default Title";
+
+	/// <summary>
+	/// Location of game saves and config files for Windows
+	/// </summary>
+	public KS_FileHelper.DataLocation windowsDataLocation = KS_FileHelper.DataLocation.MyDocuments;
+
+	/// <summary>
+	/// Location of game saves and config files for Mac
+	/// </summary>
+	public KS_FileHelper.DataLocation macDataLocation = KS_FileHelper.DataLocation.MyDocuments;
+
+	/// <summary>
+	/// Location of game saves and config files for Linux
+	/// </summary>
+	public KS_FileHelper.DataLocation linuxDataLocation = KS_FileHelper.DataLocation.MyDocuments;
+
+
+	// - Private Vars
+	private KS_FileHelper fileHelper = new KS_FileHelper(gameName, windowsDataLocation);
+
 }
