@@ -1,0 +1,5 @@
+info=Localisation test string
+multiSep=Testing spereation doesnt break with more = signs
+again=another string
+subtest=Subtitle test string from localisation file
+subtest2=Subtitle test string from localisation file with custom timer
