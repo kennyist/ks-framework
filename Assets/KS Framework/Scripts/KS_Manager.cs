@@ -39,12 +39,20 @@ public class KS_Manager : MonoBehaviour {
 
 	// - Private Vars
 	private KS_FileHelper fileHelper;
+    private KS_Console consoleHelper;
+    private ConsoleCommands commands;
 
     void Awake()
     {
         Debug.Log("Loading Manager");
         // Setup helpers
         fileHelper = new KS_FileHelper(gameName, windowsDataLocation, localDataFolder);
+        consoleHelper = new KS_Console();
+        commands = new ConsoleCommands();
+    }
+
+    void Update()
+    {
     }
 
 }
