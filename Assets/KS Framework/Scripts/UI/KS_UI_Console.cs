@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class KS_UI_Console : MonoBehaviour {
 
@@ -18,6 +19,11 @@ public class KS_UI_Console : MonoBehaviour {
     void OnLogUpdate(string text)
     {
         logTextBox.text += text;
+
+        if(logTextBox.text.Length > 3000)
+        {
+            logTextBox.text = logTextBox.text.Remove(logTextBox.text.LastIndexOf(Environment.NewLine));
+        }
     }
 	
 	// Update is called once per frame

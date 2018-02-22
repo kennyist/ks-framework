@@ -149,13 +149,14 @@ public class KS_TimeManager : MonoBehaviour {
     {
         secondTimer += Time.deltaTime;
 
-        if(secondTimer >= secondsPerMinute)
+        if (secondTimer >= secondsPerMinute)
         {
             secondTimer = 0f;
+            currentSecond = 0;
 
             currentMinute++;
 
-            if(currentMinute > minutesPerDay)
+            if (currentMinute > minutesPerDay)
             {
                 currentMinute = 0;
             }
@@ -165,10 +166,27 @@ public class KS_TimeManager : MonoBehaviour {
 
             CheckZone();
 
-            if (OnTimeUpdate != null) {
-                int[] time = GetTime();
-                OnTimeUpdate(time[0], time[1], time[2], currentZone);
+            UpdateTime();
+        }
+        else
+        {
+            float t = (secondTimer / secondsPerMinute) * 60;
+
+            if ((int)t % 5 == 0)
+            {
+                currentSecond = (int)t;
+
+                UpdateTime();
             }
+        }        
+    }
+
+    private void UpdateTime()
+    {
+        if (OnTimeUpdate != null)
+        {
+            int[] time = GetTime();
+            OnTimeUpdate(time[0], time[1], time[2], currentZone);
         }
     }
 
@@ -209,7 +227,7 @@ public class KS_TimeManager : MonoBehaviour {
         int h = (int)currentMinute / 60;
         int m = (int)currentMinute % 60;
 
-        return new int[] { h, m, Mathf.RoundToInt(currentSecond) };
+        return new int[] { h, m, currentSecond };
     }
 
     public string GetTimeFormatted()
