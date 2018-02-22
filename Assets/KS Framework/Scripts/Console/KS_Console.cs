@@ -41,6 +41,9 @@ public class ConsoleCommands : KS_ConsoleCommands
         KS_Console.Instance.RegisterCommand("help", help, "Show all commands, add page number after to change page", "$i", false);
         KS_Console.Instance.RegisterCommand("test", test, "Show all commands", "$s $i $f $b", true);
         KS_Console.Instance.RegisterCommand("findcmd", findCmd, "Search commands by string", "$s $i", false);
+        KS_Console.Instance.RegisterCommand("time.set", settime, "Set the time - time.set [hour 0-23] [minute 0-59]", "$i $i", true);
+        KS_Console.Instance.RegisterCommand("time.scale", settimescale, "Set the time scale. time.scale [0.01 - 60.0]", "$f", true);
+        KS_Console.Instance.RegisterCommand("env.daynight.setlonglat", setlatLong, "Set latitudde and longitude for lighting. env.daynight.setlatlong [-89.99 - 89.99] [0.01 - 179.99]", "$f $f", true);
     }
 
     void exitgame(string[] args)
@@ -149,6 +152,23 @@ public class ConsoleCommands : KS_ConsoleCommands
                             " of " +
                             totalPages,
                             Color.cyan);
+    }
+
+    // Env
+
+    void settime(string[] Args)
+    {
+        KS_TimeManager.Instance.SetTime(int.Parse(Args[0]), int.Parse(Args[1]));
+    }
+
+    void settimescale(string[] Args)
+    {
+
+    }
+
+    void setlatLong(string[] Args)
+    {
+
     }
 }
 

@@ -21,10 +21,10 @@ public class KS_TimeManager : MonoBehaviour {
         }
     }
 
-    public delegate void TimeUpdate(int h, int m, int s);
+    public delegate void TimeUpdate(int h, int m, int s, DayTimeZone zone);
     public event TimeUpdate OnTimeUpdate;
 
-    public enum TimeZone
+    public enum DayTimeZone
     {
         Dawn,
         Morning,
@@ -41,11 +41,12 @@ public class KS_TimeManager : MonoBehaviour {
     public int duskStartTime = 18 * 60;
     public int midnightStartTime = 23 * 60;
 
-    private TimeZone currentZone = TimeZone.afternoon;
+    private DayTimeZone currentZone = DayTimeZone.afternoon;
 
     // ---
 
     public bool realTime = false;
+    public bool paused = false;
 
 
     public float secondsPerMinute = 3f;
@@ -57,22 +58,90 @@ public class KS_TimeManager : MonoBehaviour {
     private int currentSecond = 0;
     float secondTimer = 0;
 
+
+    private bool setTimeOverTime = false;
+    private float setTimeOverTime_time = 0f;
+    private float setTimeOverTime_value = 0f;
+    private int setTimeOverTime_maxValue = 0;
+    private int setTimeOverTime_lastRemovedValue = 0;
+    private float setTimeOverTime_counter = 0.0f;
+
     // ---
 
-    private void Start()
+    private void Awake()
     {
         instance = this;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            SetTimeOverTime(12, 0, 8);
+        }
+    }
+
     private void FixedUpdate()
     {
-        if (!realTime)
+        if (!paused)
         {
-            UpTime();
+            if (!realTime)
+            {
+                UpTime();
+            }
+            else
+            {
+
+            }
         }
         else
         {
+            if (setTimeOverTime)
+            {
 
+                if(setTimeOverTime_counter < 1.0f)
+                {
+                    setTimeOverTime_value = Mathf.Lerp(0, setTimeOverTime_maxValue, setTimeOverTime_counter);
+                    //Debug.Log("Val: " + setTimeOverTime_value + " Last Removed value: " + setTimeOverTime_lastRemovedValue);
+
+
+                    int total = (int)setTimeOverTime_value - setTimeOverTime_lastRemovedValue;
+                    setTimeOverTime_lastRemovedValue = (int)setTimeOverTime_value;
+
+                    AddMinutes(total);
+
+                    setTimeOverTime_counter += Time.fixedDeltaTime / setTimeOverTime_time;
+
+                }
+                else
+                {
+                    int total = (int)setTimeOverTime_maxValue - setTimeOverTime_lastRemovedValue;
+
+                    AddMinutes(total);
+
+                    setTimeOverTime = false;
+                    paused = false;
+                }
+            }
+        }
+    }
+
+    private void AddMinutes(int minutes)
+    {
+        Debug.Log("Added minutes: " + minutes);
+        currentMinute += minutes;
+
+        if(currentMinute > minutesPerDay)
+        {
+            currentMinute = 0 + (currentMinute - minutesPerDay);
+        }
+
+        CheckZone();
+
+        if (OnTimeUpdate != null)
+        {
+            int[] time = GetTime();
+            OnTimeUpdate(time[0], time[1], time[2], currentZone);
         }
     }
 
@@ -91,16 +160,14 @@ public class KS_TimeManager : MonoBehaviour {
                 currentMinute = 0;
             }
 
-            currentSecond = (int)((currentSecond / secondsPerMinute) * 59);
-            if (currentSecond > 59) currentSecond = 59;
+            /*currentSecond = (int)((currentSecond / secondsPerMinute) * 59);
+            if (currentSecond > 59) currentSecond = 59;*/
 
             CheckZone();
 
-            Debug.Log(GetTimeFormatted());
-
             if (OnTimeUpdate != null) {
                 int[] time = GetTime();
-                OnTimeUpdate(time[0], time[1], time[2]);
+                OnTimeUpdate(time[0], time[1], time[2], currentZone);
             }
         }
     }
@@ -109,27 +176,27 @@ public class KS_TimeManager : MonoBehaviour {
     {
         if (currentMinute >= dawnStartTime && currentMinute < morningStartTime)
         {
-            currentZone = TimeZone.Dawn;
+            currentZone = DayTimeZone.Dawn;
         }
         else if (currentMinute >= morningStartTime && currentMinute <= middayStartTime)
         {
-            currentZone = TimeZone.Morning;
+            currentZone = DayTimeZone.Morning;
         }
         else if (currentMinute >= middayStartTime && currentMinute <= afternoonStartTime)
         {
-            currentZone = TimeZone.Midday;
+            currentZone = DayTimeZone.Midday;
         }
         else if (currentMinute >= afternoonStartTime && currentMinute <= duskStartTime)
         {
-            currentZone = TimeZone.afternoon;
+            currentZone = DayTimeZone.afternoon;
         }
         else if (currentMinute >= duskStartTime && currentMinute <= midnightStartTime)
         {
-            currentZone = TimeZone.Dusk;
+            currentZone = DayTimeZone.Dusk;
         }
         else
         {
-            currentZone = TimeZone.Midnight;
+            currentZone = DayTimeZone.Midnight;
         }
     }
 
@@ -185,4 +252,45 @@ public class KS_TimeManager : MonoBehaviour {
 
         currentMinute = (hours * 60) + minuets;
     }
+
+    public void SetTimeScale(float scale)
+    {
+        if (scale < 0.01) scale = 0.01f;
+        if (scale > 59.99) scale = 60f;
+
+        secondsPerMinute = scale;
+    }
+
+    public void SetTimeOverTime(int h, int m, int time)
+    {
+        // Target Time in minutes
+        int total = (h * 60) + m;
+
+        // 
+        int minsToAdd = 0;
+
+        if(total > (int)currentMinute)
+        {
+            minsToAdd = (total - (int)currentMinute);
+        }
+        else
+        {
+            int leftToday = minutesPerDay - (int)currentMinute;
+
+            minsToAdd = leftToday + total;
+        }
+
+        Debug.Log("Mins to add: " + minsToAdd + " over: " + time + " Seconds");
+
+        setTimeOverTime_time = time;
+        setTimeOverTime_value = 0;
+        setTimeOverTime_maxValue = minsToAdd;
+        setTimeOverTime_lastRemovedValue = 0;
+        setTimeOverTime_counter = 0;
+
+        paused = true;
+        setTimeOverTime = true;
+    }
+
+
 }
