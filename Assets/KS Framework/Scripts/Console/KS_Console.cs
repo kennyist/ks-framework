@@ -12,6 +12,8 @@ public class KS_ConsoleCommands
     public KS_ConsoleCommands()
     {
         KS_Console.Instance.OnCommand += OnCommand;
+
+        KS_Console.Instance.RegisterCommand("debugoutput", debugOutput, "Enable/Dissable Unity debug log to console", "$b");
     }
 
     private void OnCommand(CommandHandeler handler, string[] args)
@@ -22,7 +24,13 @@ public class KS_ConsoleCommands
     public void Destroy()
     {
         KS_Console.Instance.OnCommand -= OnCommand;
-    }                                                                   
+    }   
+    
+    public void debugOutput(string[] Args)
+    {
+        KS_Console.Instance.OutputUnityDebug = Boolean.Parse(Args[0]);
+        Debug.Log("Console Debug Output: " + Boolean.Parse(Args[0]));
+    }
 }
 
 public class ConsoleCommands : KS_ConsoleCommands
@@ -238,6 +246,19 @@ public class KS_Console : KS_EventListener {
     private List<string> lastUsed = new List<string>();
     private Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>();
 
+    private bool outputUnityDebug = true;
+    public bool OutputUnityDebug
+    {
+        get
+        {
+            return outputUnityDebug;
+        }
+
+        set
+        {
+            outputUnityDebug = value;
+        }
+    }
 
     // -
 
@@ -245,6 +266,31 @@ public class KS_Console : KS_EventListener {
     {
         instance = this;
         KS_EventManager.registerListener(this);
+        Application.logMessageReceived += HandleLog;
+    }
+
+    void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        if (!outputUnityDebug)
+            return;
+
+        switch (type)
+        {
+            case LogType.Log:
+            default:
+                AppendLog(logString, Color.grey);
+                break;
+
+            case LogType.Assert:
+            case LogType.Exception:
+            case LogType.Error:
+                AppendLog(logString, Color.red);
+                break;
+
+            case LogType.Warning:
+                AppendLog(logString, Color.yellow);
+                break;
+        }
     }
 
     public void RegisterCommand(string command, CommandHandeler handler, string help, string format, bool requiresAllParams = true)
@@ -278,7 +324,10 @@ public class KS_Console : KS_EventListener {
         string[] args = Regex.Split(StringImplode(full, 1), "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
         for (int i = 0; i < args.Length; i++)
+        {
             args[i] = args[i].Replace("\"", string.Empty);
+
+        }
 
         if(args.Length == 1 && string.IsNullOrEmpty(args[0]))
         {
@@ -319,17 +368,17 @@ public class KS_Console : KS_EventListener {
             }
             else
             {
+                if (toRun.requiresAllParams)
+                { 
+                    if (Args == null || toRun.numParams != Args.Length)
+                    {
+                        AppendLog("Number of parameters does not match the command", Color.red);
+                        return;
+                    }
+                }
+
                 if (Args != null)
                 {
-                    if (toRun.requiresAllParams)
-                    {
-                        if (toRun.numParams != Args.Length)
-                        {
-                            AppendLog("Number of parameters does not match the command", Color.red);
-                            return;
-                        }
-                    }
-
                     if (!CheckCommandArgsFormat(toRun, Args))
                     {
                         return;
@@ -338,14 +387,18 @@ public class KS_Console : KS_EventListener {
 
                 if (OnCommand != null)
                     OnCommand(toRun.handler, Args);
+
+               
             }
         }
     }
 
     private bool CheckCommandArgsFormat(ConsoleCommand command, string[] args)
     {
-        int[] errors = new int[command.numParams];
+        List<string> errors = new List<string>();
         bool error = false;
+
+        Debug.Log(args.Length);
 
         for(int i = 0; i < args.Length; i++)
         {
@@ -359,7 +412,7 @@ public class KS_Console : KS_EventListener {
                     int j = 0;
                     if (!int.TryParse(args[i], out j ))
                     {
-                        errors[i] = 1;
+                        errors.Add("Parameter " + (i + 1) + " Expected INT");
                         error = true;
                     }
                     break;
@@ -368,7 +421,7 @@ public class KS_Console : KS_EventListener {
                     float k = 0f;
                     if(!float.TryParse(args[i], out k))
                     {
-                        errors[i] = 1;
+                        errors.Add("Parameter " + (i + 1) + " Expected Float");
                         error = true;
                     }
                     break;
@@ -377,7 +430,7 @@ public class KS_Console : KS_EventListener {
                     bool l = false;
                     if(!bool.TryParse(args[i], out l))
                     {
-                        errors[i] = 1;
+                        errors.Add("Parameter " + (i + 1) + " Expected Bool");
                         error = true;
                     }
                     break;
@@ -386,26 +439,21 @@ public class KS_Console : KS_EventListener {
 
         if (error)
         {
-            string errorText = "Parameters ";
+            string errorText = "Command Errors: ";
             bool first = true;
 
-            for(int i = 0; i < errors.Length; i++)
+            for (int i = 0; i < errors.Count; i++)
             {
-                if(errors[i] == 1)
+                if (first)
                 {
-                    if (first)
-                    {
-                        errorText += (i + 1) + "";
-                        first = false;
-                    }
-                    else
-                    {
-                        errorText += ", " + (i + 1);
-                    }
+                    errorText += errors[i] + "";
+                    first = false;
+                }
+                else
+                {
+                    errorText += ", " + errors[i];
                 }
             }
-
-            errorText += " are incorrect values";
 
             AppendLog(errorText, Color.red);
 

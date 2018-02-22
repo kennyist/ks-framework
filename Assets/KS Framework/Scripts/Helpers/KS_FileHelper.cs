@@ -211,7 +211,23 @@ public class KS_FileHelper {
 		return true;
 	}
 
-	public object LoadFile(Folders from, string fileName)
+    public bool SaveGameFile(GameDataFolders Type, String fileName, string data)
+    {
+        string basePath = getApplicationbasePath(Type);
+
+        try
+        {
+            File.WriteAllText(basePath + fileName, data);
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public object LoadFile(Folders from, string fileName)
 	{
 		string basePath = getBaseDirectoryStr (_dataLocationWin, from);
 
