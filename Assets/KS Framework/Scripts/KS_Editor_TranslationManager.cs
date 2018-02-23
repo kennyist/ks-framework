@@ -4,60 +4,22 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using System;
+using System.Linq;
 
-public class KS_Editor_TranslationManager : EditorWindow {
+public class KS_Editor_TranslationManager : EditorWindow
+{
 
-    KS_FileHelper IO;
-    KS_Localisation translationManager;
-    string[] files;
+    public KS_Storage_Translations translations;
 
     [SerializeField] TreeViewState treeViewState;
     KS_Edtior_TranslationsTreeView fileTreeView;
 
-    bool AddFile = false;
+    private string searchString = "";
+    private string lastSearchString = "";
 
-    // Use this for initialization
-    void OnEnable () { 
-        IO = new KS_FileHelper("KSFW Example", KS_FileHelper.DataLocation.MyDocuments, "KS_Data");
-        files = IO.GetApplicationDataContents(KS_FileHelper.GameDataFolders.Translate);
-
-        for(int i = 0; i < files.Length; i++)
-        {
-            files[i] = files[i].Replace(".txt", "");
-        }
-
-        translationManager = new KS_Localisation();
-
-        if (treeViewState == null)
-            treeViewState = new TreeViewState();
-
-        LoadLanguages();
-
-        fileTreeView = new KS_Edtior_TranslationsTreeView(treeViewState, files, keys.ToArray());
-
-    }
-
-    void ReloadData()
-    {
-        files = IO.GetApplicationDataContents(KS_FileHelper.GameDataFolders.Translate);
-
-        keys.Clear();
-        languages.Clear();
-
-        for (int i = 0; i < files.Length; i++)
-        {
-            files[i] = files[i].Replace(".txt", "");
-        }
-
-        translationManager = new KS_Localisation();
-
-        if (treeViewState == null)
-            treeViewState = new TreeViewState();
-
-        LoadLanguages();
-
-        fileTreeView = new KS_Edtior_TranslationsTreeView(treeViewState, files, keys.ToArray());
-    }
+    private bool addBox = false;
+    private bool addBox_isString = false;
+    private string addBox_String = "";
 
     [MenuItem("KS: Framework/Translation Manager")]
     static void Init()
@@ -67,172 +29,266 @@ public class KS_Editor_TranslationManager : EditorWindow {
         window.Show();
     }
 
-    string searchString = "";
-    Vector2 scrollPos = new Vector2();
-
-    private Dictionary<string, Dictionary<string, string>> languages = new Dictionary<string, Dictionary<string, string>>();
-    private List<string> keys;
-
-    private void LoadLanguages()
+    void OnEnable()
     {
-        keys.Clear();
-
-        foreach(string s in files)
+        if (EditorPrefs.HasKey("ObjectPath"))
         {
-            string replaced = s.Replace(".txt", "");
-
-            Debug.Log(replaced);
-
-            languages.Add(s, parseTranslationFile(replaced));
+            string objectPath = EditorPrefs.GetString("ObjectPath");
+            translations = AssetDatabase.LoadAssetAtPath(objectPath, typeof(KS_Storage_Translations)) as KS_Storage_Translations;
+            ReloadData();
         }
 
-        Dictionary<string, string> lang = languages[files[0]];
-        
-
-        foreach(KeyValuePair<string,string> kvp in lang)
-        {
-            keys.Add(kvp.Key);
-        }
+        if (treeViewState == null)
+            treeViewState = new TreeViewState();
 
     }
 
-    private Dictionary<string,string> parseTranslationFile(string name)
+    private void OnGUI()
     {
-        string file = IO.LoadGameFile(KS_FileHelper.GameDataFolders.Translate, name + ".txt");
 
-        Debug.Log("file: " + file);
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-        Dictionary<string, string> loadedLines = new Dictionary<string, string>();
-
-        if (!string.IsNullOrEmpty(file))
+        if (!translations)
         {
-
-            string[] lines = file.Split(
-                        new[] { Environment.NewLine },
-                        StringSplitOptions.None
-                    );
-
-            foreach (string s in lines)
+            if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
             {
-                if (!string.IsNullOrEmpty(s))
-                {
-                    string[] line = s.Split(new[] { '=' }, 2);
-
-                    loadedLines.Add(line[0], line[1]);
-                }
+                OpenDatabase();
             }
 
-            Debug.Log(loadedLines.Count + " Lines loaded");
+            if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
+            {
+                CreateDatabase();
+            }
         }
+        else
+        {
+            if (GUILayout.Button("Close Database", EditorStyles.toolbarButton))
+            {
+                CloseDatabase();
+            }
 
-        return loadedLines;
-    }
+            if (GUILayout.Button("Add", EditorStyles.toolbarDropDown))
+            {
+                GenericMenu toolsMenu = new GenericMenu();
+                toolsMenu.AddItem(new GUIContent("Language"), false, AddLanguage);
+                toolsMenu.AddItem(new GUIContent("string"), false, AddString);
+                toolsMenu.DropDown(new Rect(5, 0, 0, 16));
+                EditorGUIUtility.ExitGUI();
+            }
 
+            GUILayout.Space(5);
 
-    // GUI
+            searchString = GUILayout.TextField(searchString, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(100));
+            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+            {
+                // Remove focus if cleared
+                searchString = "";
+                GUI.FocusControl(null);
+            }
 
-    void OnGUI()
-    {
-        // Menu
-        GUILayout.BeginHorizontal(EditorStyles.toolbar);
-        DrawToolStrip();
+            if (searchString != lastSearchString)
+            {
+                lastSearchString = searchString;
+
+                fileTreeView.searchString = searchString;
+            }
+
+            GUILayout.Space(5);
+        }
+        GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
-        if (AddFile)
-        {
-            DrawAddFile();
-            return;
-        } 
-
-        GUILayout.BeginScrollView(scrollPos);
-        DrawMain();
-        GUILayout.EndScrollView();
-    }
-
-    string addFileName = "";
-
-    void DrawAddFile()
-    {
-        GUILayout.BeginVertical();
-        GUILayout.Label("New Translation Name:");
+        if (!translations) return; //
 
         GUILayout.BeginHorizontal();
-        addFileName = GUILayout.TextField(addFileName);
-        GUILayout.Label(".txt");
+
+        if (addBox)
+        {
+            GUILayout.Label("Add new " + ((addBox_isString) ? " string key:" : " language name:"));
+            addBox_String = GUILayout.TextField(addBox_String);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add"))
+            {
+                if (addBox_isString)
+                {
+                    AddString(addBox_String);
+                }
+                else
+                {
+                    AddLanguage(addBox_String);
+                }
+
+                addBox_String = "";
+                addBox = false;
+            }
+            if (GUILayout.Button("Cancle"))
+            {
+                addBox = false;
+            }
+            GUILayout.EndHorizontal();
+        }
+        else
+        {
+            Rect test = new Rect(0, 20, 150, 300);
+            GUILayout.BeginArea(test);
+            fileTreeView.OnGUI(test);
+            GUILayout.EndArea();
+
+            GUILayout.BeginVertical();
+            GUILayout.Label("string: ");
+            
+
+
+            GUILayout.EndVertical();
+        }
+
         GUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Add File"))
-        {
-            CreateNewTranslationFile();
-            AddFile = false;
-        }
-
-        GUILayout.EndVertical();
     }
 
-    void CreateNewTranslationFile()
+    void OpenDatabase()
     {
+        string absPath = EditorUtility.OpenFilePanel("Select Translation Database", "", "");
+        if (absPath.StartsWith(Application.dataPath))
+        {
+            string relPath = absPath.Substring(Application.dataPath.Length - "Assets".Length);
+            translations = AssetDatabase.LoadAssetAtPath(relPath, typeof(KS_Storage_Translations)) as KS_Storage_Translations;
 
-        if (string.IsNullOrEmpty(addFileName)) return;
-
-        IO.SaveGameFile(KS_FileHelper.GameDataFolders.Translate, addFileName + ".txt", "");
+            if (translations)
+            {
+                EditorPrefs.SetString("ObjectPath", relPath);
+            }
+        }
 
         ReloadData();
-
-        addFileName = "";
     }
 
-    void DrawMain()
+    void ReloadData()
     {
-        Rect test = new Rect(0, 0, 300, 300);
+        fileTreeView = new KS_Edtior_TranslationsTreeView(treeViewState, GetLanguages(), GetStrings());
 
-        fileTreeView.OnGUI(test);
+        fileTreeView.OnSelectedChange += LoadString;
     }
 
-    void DrawToolStrip()
+    void CreateDatabase()
     {
-        if (GUILayout.Button("Add New", EditorStyles.toolbarDropDown))
+        string absPath = EditorUtility.SaveFilePanel("Create Translation Database", "", "Translations", "asset");
+        if (absPath.StartsWith(Application.dataPath))
         {
-            Debug.Log("testsetsetset");
-            GenericMenu toolsMenu = new GenericMenu();
-            toolsMenu.AddItem(new GUIContent("Language"), false, one);
-            toolsMenu.AddItem(new GUIContent("string"), false, two);
-            toolsMenu.DropDown(new Rect(5, 0, 0, 16));
-            EditorGUIUtility.ExitGUI();
+            translations = ScriptableObject.CreateInstance<KS_Storage_Translations>();
+
+            Debug.Log(absPath);
+            absPath = absPath.Replace(Application.dataPath, "");
+            Debug.Log(absPath);
+
+            absPath = "Assets" + absPath;
+
+            AssetDatabase.CreateAsset(translations, absPath);
+            AssetDatabase.SaveAssets();
         }
 
-        GUILayout.Space(5);
+        ReloadData();
+    }
 
-        searchString = GUILayout.TextField(searchString, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(100));
-        if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+    void CloseDatabase()
+    {
+        translations = null;
+    }
+
+    string[] GetStrings()
+    {
+        List<string> keys = new List<string>();
+
+        foreach (KS_Storage_Translations.Language l in translations.languages)
         {
-            // Remove focus if cleared
-            searchString = "";
-            GUI.FocusControl(null);
+            foreach (KS_Storage_Translations.Language.TranslationString s in l.strings)
+            {
+                if (!keys.Contains(s.lineID))
+                {
+                    keys.Add(s.lineID);
+                }
+            }
         }
 
-        GUILayout.Space(5);
-
-        GUILayout.Label(keys.Count + " Strings found", EditorStyles.miniLabel);
-
-        GUILayout.FlexibleSpace();
+        return keys.ToArray();
     }
 
-    void one() {
-        AddFile = true;
-    }
-    void two() { }
+    string[] GetLanguages()
+    {
+        List<string> ret = new List<string>();
 
-    // Update is called once per frame
-    void Update () {
-		
-	}
+        foreach (KS_Storage_Translations.Language l in translations.languages)
+        {
+            ret.Add(l.language);
+        }
+
+        return ret.ToArray();
+    }
+
+    void AddLanguage()
+    {
+        addBox_isString = false;
+        addBox = true;
+    }
+
+    void AddLanguage(string language)
+    {
+        KS_Storage_Translations.Language l = new KS_Storage_Translations.Language();
+        l.language = language;
+
+        foreach (string s in GetStrings())
+        {
+            KS_Storage_Translations.Language.TranslationString ts = new KS_Storage_Translations.Language.TranslationString();
+            ts.lineID = s;
+            ts.lineText = "# Line not set #";
+        }
+
+        translations.languages.Add(l);
+
+        ReloadData();
+    }
+
+    void AddString()
+    {
+        addBox_isString = true;
+        addBox = true;
+    }
+
+    void AddString(string key)
+    {
+        foreach (KS_Storage_Translations.Language l in translations.languages)
+        {
+            KS_Storage_Translations.Language.TranslationString ts = new KS_Storage_Translations.Language.TranslationString();
+            ts.lineID = key;
+            l.strings.Add(ts);
+        }
+
+        ReloadData();
+    }
+
+    KeyValuePair<string, string>[] LoadString(string key)
+    {
+    }
+
+    void DeleteString()
+    {
+
+    }
+
+    void EditString()
+    {
+
+    }
+
 }
 
 class KS_Edtior_TranslationsTreeView : TreeView
 {
     string[] files;
     string[] keys;
+
+    public delegate void SelectedChange(string key);
+    public event SelectedChange OnSelectedChange;
 
     public KS_Edtior_TranslationsTreeView(TreeViewState treeViewState, string[] files, string[] keys)
         : base(treeViewState)
@@ -242,14 +298,23 @@ class KS_Edtior_TranslationsTreeView : TreeView
         Reload();
     }
 
+    protected override void SelectionChanged(IList<int> selectedIds)
+    {
+
+        if (selectedIds[0] > 999)
+        {
+
+            if (OnSelectedChange != null)
+            {
+                OnSelectedChange(this.keys[selectedIds[0] - 999]);
+            }
+        }
+
+        base.SelectionChanged(selectedIds);
+    }
+
     protected override TreeViewItem BuildRoot()
     {
-        // BuildRoot is called every time Reload is called to ensure that TreeViewItems 
-        // are created from data. Here we create a fixed set of items. In a real world example,
-        // a data model should be passed into the TreeView and the items created from the model.
-
-        // This section illustrates that IDs should be unique. The root item is required to 
-        // have a depth of -1, and the rest of the items increment from that.
         var root = new TreeViewItem { id = 0, depth = -1, displayName = "Translations" };
         var allItems = new List<TreeViewItem>();
         int i = 1;
@@ -263,6 +328,7 @@ class KS_Edtior_TranslationsTreeView : TreeView
             i++;
         }
 
+        i = 999;
         allItems.Add(new TreeViewItem { id = i, depth = 0, displayName = "Strings" });
 
         foreach (string s in keys)
@@ -278,4 +344,5 @@ class KS_Edtior_TranslationsTreeView : TreeView
         // Return root of the tree
         return root;
     }
+
 }
