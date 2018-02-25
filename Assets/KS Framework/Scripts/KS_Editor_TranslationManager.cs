@@ -11,15 +11,18 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     public KS_Storage_Translations translations;
 
-    [SerializeField] TreeViewState treeViewState;
-    KS_Edtior_TranslationsTreeView fileTreeView;
-
     private string searchString = "";
     private string lastSearchString = "";
 
     private bool addBox = false;
     private bool addBox_isString = false;
     private string addBox_String = "";
+    private bool addBox_Error = false;
+
+    private string[] keys;
+    private string[] languages;
+    
+    private KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] loadedLines;
 
     [MenuItem("KS: Framework/Translation Manager")]
     static void Init()
@@ -35,116 +38,45 @@ public class KS_Editor_TranslationManager : EditorWindow
         {
             string objectPath = EditorPrefs.GetString("ObjectPath");
             translations = AssetDatabase.LoadAssetAtPath(objectPath, typeof(KS_Storage_Translations)) as KS_Storage_Translations;
-            ReloadData();
         }
 
-        if (treeViewState == null)
-            treeViewState = new TreeViewState();
-
+        GUISetup();
     }
 
     private void OnGUI()
     {
 
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-        if (!translations)
-        {
-            if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
-            {
-                OpenDatabase();
-            }
-
-            if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
-            {
-                CreateDatabase();
-            }
-        }
-        else
-        {
-            if (GUILayout.Button("Close Database", EditorStyles.toolbarButton))
-            {
-                CloseDatabase();
-            }
-
-            if (GUILayout.Button("Add", EditorStyles.toolbarDropDown))
-            {
-                GenericMenu toolsMenu = new GenericMenu();
-                toolsMenu.AddItem(new GUIContent("Language"), false, AddLanguage);
-                toolsMenu.AddItem(new GUIContent("string"), false, AddString);
-                toolsMenu.DropDown(new Rect(5, 0, 0, 16));
-                EditorGUIUtility.ExitGUI();
-            }
-
-            GUILayout.Space(5);
-
-            searchString = GUILayout.TextField(searchString, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(100));
-            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
-            {
-                // Remove focus if cleared
-                searchString = "";
-                GUI.FocusControl(null);
-            }
-
-            if (searchString != lastSearchString)
-            {
-                lastSearchString = searchString;
-
-                fileTreeView.searchString = searchString;
-            }
-
-            GUILayout.Space(5);
-        }
-        GUILayout.FlexibleSpace();
+        DrawToolBar();
         GUILayout.EndHorizontal();
 
         if (!translations) return; //
 
         GUILayout.BeginHorizontal();
-
-        if (addBox)
+        DrawKeyMenu();
+        if (!addBox)
         {
-            GUILayout.Label("Add new " + ((addBox_isString) ? " string key:" : " language name:"));
-            addBox_String = GUILayout.TextField(addBox_String);
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add"))
-            {
-                if (addBox_isString)
-                {
-                    AddString(addBox_String);
-                }
-                else
-                {
-                    AddLanguage(addBox_String);
-                }
-
-                addBox_String = "";
-                addBox = false;
-            }
-            if (GUILayout.Button("Cancle"))
-            {
-                addBox = false;
-            }
-            GUILayout.EndHorizontal();
+            DrawMainArea();
         }
         else
         {
-            Rect test = new Rect(0, 20, 150, 300);
-            GUILayout.BeginArea(test);
-            fileTreeView.OnGUI(test);
-            GUILayout.EndArea();
-
-            GUILayout.BeginVertical();
-            GUILayout.Label("string: ");
-            
-
-
-            GUILayout.EndVertical();
+            DrawAddBox();
         }
-
         GUILayout.EndHorizontal();
 
     }
+
+    GUIStyle keyLabel = new GUIStyle(EditorStyles.label);
+
+    void GUISetup()
+    {
+        keyLabel.fixedWidth = 100f;
+        keyLabel.onActive.textColor = Color.blue;
+        keyLabel.alignment = TextAnchor.MiddleLeft;
+        keyLabel.fixedHeight = 15f;
+        keyLabel.margin = new RectOffset(5, 0, 0, 0);
+    }
+
 
     void OpenDatabase()
     {
@@ -160,14 +92,7 @@ public class KS_Editor_TranslationManager : EditorWindow
             }
         }
 
-        ReloadData();
-    }
-
-    void ReloadData()
-    {
-        fileTreeView = new KS_Edtior_TranslationsTreeView(treeViewState, GetLanguages(), GetStrings());
-
-        fileTreeView.OnSelectedChange += LoadString;
+        UpdateDisplayData();
     }
 
     void CreateDatabase()
@@ -187,25 +112,215 @@ public class KS_Editor_TranslationManager : EditorWindow
             AssetDatabase.SaveAssets();
         }
 
-        ReloadData();
+        UpdateDisplayData();
     }
 
-    void CloseDatabase()
+    void SaveDatabase()
     {
-        translations = null;
+        translations.languages[0].strings.Add(new KS_Storage_Translations.Language.TranslationString());
     }
 
-    string[] GetStrings()
+    // Update display data
+
+    void UpdateDisplayData()
+    {
+        loadedLines = new KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[0];
+
+        keys = GetAllKeys();
+        languages = GetAllLanguages(); 
+    }
+
+    // GUI
+
+    void DrawToolBar()
+    {
+        if (!translations)
+        {
+            if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
+            {
+                OpenDatabase();
+            }
+
+            if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
+            {
+                CreateDatabase();
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
+            {
+                OpenDatabase();
+            }
+
+            if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
+            {
+                CreateDatabase();
+            }
+
+
+            if (GUILayout.Button("Add", EditorStyles.toolbarDropDown))
+            {
+                GenericMenu toolsMenu = new GenericMenu();
+                toolsMenu.AddItem(new GUIContent("Language"), false, AddBoxLanguage);
+                toolsMenu.AddItem(new GUIContent("string"), false, AddBoxString);
+                toolsMenu.DropDown(new Rect(5, 0, 0, 16));
+                EditorGUIUtility.ExitGUI();
+            }
+
+            GUILayout.Space(5);
+
+            searchString = GUILayout.TextField(searchString, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(100));
+            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+            {
+                // Remove focus if cleared
+                searchString = "";
+                GUI.FocusControl(null);
+            }
+
+            if (searchString != lastSearchString)
+            {
+                lastSearchString = searchString;
+            }
+
+            GUILayout.Space(5);
+        }
+        GUILayout.FlexibleSpace();
+    }
+
+    Vector2 scrollPos = new Vector2();
+
+    void DrawKeyMenu()
+    {
+        GUILayout.BeginVertical(GUILayout.Width(120));
+        GUILayout.Label("Languages");
+
+        if(languages != null || languages.Length > 0)
+        {
+            for(int i = 0; i < languages.Length; i++)
+            {
+                if(GUILayout.Button(languages[i], keyLabel))
+                {
+
+                }
+            }
+        }
+
+        GUILayout.Space(10);
+
+        GUILayout.Label("Keys");
+
+        GUILayout.BeginScrollView(scrollPos);
+
+
+        if(keys != null || keys.Length > 0)
+        {
+            for(int i = 0; i < keys.Length; i++)
+            {
+                if (GUILayout.Button(keys[i], EditorStyles.miniButton))
+                {
+                    loadedLines = GetKeyData(i);
+                }
+            }
+        }
+
+        GUILayout.EndScrollView();
+        GUILayout.EndVertical();
+    }
+
+    void DrawMainArea()
+    {
+        GUILayout.BeginVertical();
+
+        if(loadedLines != null && loadedLines.Length > 0)
+        {
+            for(int i = 0; i < loadedLines.Length; i++)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(loadedLines[i].Key, GUILayout.Width(100));
+                loadedLines[i].Value.lineText = GUILayout.TextArea(loadedLines[i].Value.lineText, GUILayout.ExpandWidth(true));
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        GUILayout.EndVertical();
+    }
+
+    void DrawAddBox()
+    {
+        GUILayout.BeginVertical();
+        string postfix = (addBox_isString) ? "line ID" : "language";
+
+        GUILayout.Label("Add new " + postfix);
+        addBox_String = GUILayout.TextField(addBox_String);
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add"))
+        {
+            if (addBox_isString)
+            {
+                if (DoesKeyExist(addBox_String))
+                {
+                    addBox_Error = true;
+                }
+                else
+                {
+                    AddString(addBox_String);
+                    addBox = false;
+                    addBox_String = "";
+                    addBox_Error = false;
+                }
+            }
+            else
+            {
+                if (DoesLanguageExist(addBox_String))
+                {
+                    addBox_Error = true;
+                }
+                else
+                {
+                    AddLanguage(addBox_String);
+                    addBox = false;
+                    addBox_String = "";
+                    addBox_Error = false;
+                }
+            }
+        }
+        if (GUILayout.Button("Cancle"))
+        {
+            addBox = false;
+            addBox_String = "";
+            addBox_Error = false;
+        }
+        GUILayout.EndHorizontal();
+
+        if (addBox_Error)
+        {
+            GUILayout.Label("Already exists in database");
+        }
+        GUILayout.EndVertical();
+    }
+
+    // Get
+
+    string[] GetAllKeys()
     {
         List<string> keys = new List<string>();
 
-        foreach (KS_Storage_Translations.Language l in translations.languages)
+        if (translations.languages.Count <= 0)
         {
-            foreach (KS_Storage_Translations.Language.TranslationString s in l.strings)
+            return keys.ToArray();
+        }
+
+        for(int i = 0; i < translations.languages.Count; i++)
+        {
+            if(translations.languages[i].strings.Count > 0)
             {
-                if (!keys.Contains(s.lineID))
+                for(int j = 0; j < translations.languages[i].strings.Count; j++)
                 {
-                    keys.Add(s.lineID);
+                    if (!keys.Contains(translations.languages[i].strings[j].lineID))
+                    {
+                        keys.Add(translations.languages[i].strings[j].lineID);
+                    }
                 }
             }
         }
@@ -213,136 +328,132 @@ public class KS_Editor_TranslationManager : EditorWindow
         return keys.ToArray();
     }
 
-    string[] GetLanguages()
+    string[] GetAllLanguages()
     {
-        List<string> ret = new List<string>();
+        List<string> languages = new List<string>();
+
+        if(translations.languages.Count <= 0)
+        {
+            return languages.ToArray();
+        }
 
         foreach (KS_Storage_Translations.Language l in translations.languages)
         {
-            ret.Add(l.language);
+            languages.Add(l.language);
         }
 
-        return ret.ToArray();
+        return languages.ToArray();
     }
 
-    void AddLanguage()
+    KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] GetKeyData(int index)
     {
-        addBox_isString = false;
-        addBox = true;
-    }
+        Debug.Log(index);
 
-    void AddLanguage(string language)
-    {
-        KS_Storage_Translations.Language l = new KS_Storage_Translations.Language();
-        l.language = language;
+        List<KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>> lines = new List<KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>>();
 
-        foreach (string s in GetStrings())
+        if (translations.languages.Count <= 0) return null;
+
+        for(int i = 0; i < translations.languages.Count; i++)
         {
-            KS_Storage_Translations.Language.TranslationString ts = new KS_Storage_Translations.Language.TranslationString();
-            ts.lineID = s;
-            ts.lineText = "# Line not set #";
-        }
-
-        translations.languages.Add(l);
-
-        ReloadData();
-    }
-
-    void AddString()
-    {
-        addBox_isString = true;
-        addBox = true;
-    }
-
-    void AddString(string key)
-    {
-        foreach (KS_Storage_Translations.Language l in translations.languages)
-        {
-            KS_Storage_Translations.Language.TranslationString ts = new KS_Storage_Translations.Language.TranslationString();
-            ts.lineID = key;
-            l.strings.Add(ts);
-        }
-
-        ReloadData();
-    }
-
-    KeyValuePair<string, string>[] LoadString(string key)
-    {
-    }
-
-    void DeleteString()
-    {
-
-    }
-
-    void EditString()
-    {
-
-    }
-
-}
-
-class KS_Edtior_TranslationsTreeView : TreeView
-{
-    string[] files;
-    string[] keys;
-
-    public delegate void SelectedChange(string key);
-    public event SelectedChange OnSelectedChange;
-
-    public KS_Edtior_TranslationsTreeView(TreeViewState treeViewState, string[] files, string[] keys)
-        : base(treeViewState)
-    {
-        this.files = files;
-        this.keys = keys;
-        Reload();
-    }
-
-    protected override void SelectionChanged(IList<int> selectedIds)
-    {
-
-        if (selectedIds[0] > 999)
-        {
-
-            if (OnSelectedChange != null)
+            if(translations.languages[i].strings.Count > 0)
             {
-                OnSelectedChange(this.keys[selectedIds[0] - 999]);
+                for(int j = 0; j < translations.languages[i].strings.Count; j++)
+                {
+                    if(translations.languages[i].strings[j].lineID == GetAllKeys()[index])
+                    {
+                        lines.Add(new KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>(translations.languages[i].language, translations.languages[i].strings[j]));
+                    }
+                }
             }
         }
 
-        base.SelectionChanged(selectedIds);
+        return lines.ToArray();
     }
 
-    protected override TreeViewItem BuildRoot()
+    // check
+
+    bool DoesKeyExist(string key)
     {
-        var root = new TreeViewItem { id = 0, depth = -1, displayName = "Translations" };
-        var allItems = new List<TreeViewItem>();
-        int i = 1;
+        List<string> keys = GetAllKeys().ToList<string>();
 
-        allItems.Add(new TreeViewItem { id = i, depth = 0, displayName = "Translations" });
-        i++;
-
-        foreach (string s in files)
+        if (keys.Contains(key))
         {
-            allItems.Add(new TreeViewItem { id = i, depth = 1, displayName = s });
-            i++;
+            return true;
         }
 
-        i = 999;
-        allItems.Add(new TreeViewItem { id = i, depth = 0, displayName = "Strings" });
-
-        foreach (string s in keys)
-        {
-            i++;
-            allItems.Add(new TreeViewItem { id = i, depth = 1, displayName = s });
-        }
-
-
-        // Utility method that initializes the TreeViewItem.children and .parent for all items.
-        SetupParentsAndChildrenFromDepths(root, allItems);
-
-        // Return root of the tree
-        return root;
+        return false;
     }
 
+    bool DoesLanguageExist(string language)
+    {
+        Debug.Log("Got language: " + language);
+        if(translations.languages.Count <= 0)
+        {
+            return false;
+        }
+
+        foreach(KS_Storage_Translations.Language l in translations.languages)
+        {
+            Debug.Log(l.language + " : " + language);
+            if (l.language == language) return true;
+        }
+
+        return false;
+    }
+
+    // Add box buttons
+
+    void AddBoxString()
+    {
+        addBox_isString = true;
+        addBox = true;
+        addBox_Error = false;
+        addBox_String = "";
+    }
+
+    void AddBoxLanguage()
+    {
+        addBox_isString = false;
+        addBox = true;
+        addBox_Error = false;
+        addBox_String = "";
+    }
+
+    // Add
+
+    void AddLanguage(string name)
+    {
+        KS_Storage_Translations.Language l = new KS_Storage_Translations.Language();
+        l.language = name;
+        translations.languages.Add(l);
+
+        if(GetAllKeys().Length > 0)
+        {
+            for(int i = 0; i < GetAllKeys().Length; i++)
+            {
+                KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
+                s.lineID = GetAllKeys()[i];
+
+                l.strings.Add(s);
+            }
+        }
+
+        UpdateDisplayData();
+    }
+
+    void AddString(string ID)
+    {
+        KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
+        s.lineID = ID;
+
+        if(translations.languages.Count > 0)
+        {
+            for(int i = 0; i < translations.languages.Count; i++)
+            {
+                translations.languages[i].strings.Add(s);
+            }
+        }
+
+        UpdateDisplayData();
+    }
 }

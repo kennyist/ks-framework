@@ -23,111 +23,99 @@ public class KS_Localisation : MonoBehaviour {
         }
     }
 
+    public static event EventHandler LanguageChanged;
+    public KS_Storage_Translations translationFile;
 
-    private KS_FileHelper io;
-    private ArrayList languages = new ArrayList();
-    private Dictionary<string, string> loadedLines = new Dictionary<string, string>();
-    private int loadedLanguage;
+    private int selectedLanguage = 0;
 
     void Start () {
         instance = this;
 
-        io = KS_FileHelper.Instance;
-
-        LoadLanguages();
-        parseTranslationFile(0);
+        ChangeLanguage(0);
 	}
 
-    void LoadLanguages()
+    private void OnLanguageChange()
     {
-        string[] lang = io.GetApplicationDataContents(KS_FileHelper.GameDataFolders.Translate);
-
-        for(int i = 0; i < lang.Length; i++)
-        {
-            lang[i] = lang[i].Replace(".txt", "");
-            languages.Add(lang[i]);
-            Debug.Log(lang[i]);
-        }
+        if (LanguageChanged != null)
+            LanguageChanged(this, new EventArgs());
     }
 
-    public bool LoadLanguage(int index)
+    public bool ChangeLanguage(int index)
     {
-        return parseTranslationFile(index);
-    }
-
-    public bool LoadLanguage(string name)
-    {
-        return false;
-    }
-
-    public string[] Languages
-    {
-        get
-        {
-            return (string[])languages.ToArray();
-        }
-    }
-
-    public string Language
-    {
-        get
-        {
-            return languages[loadedLanguage].ToString();
-        }
-    }
-
-    public int LanguageIndex
-    {
-        get
-        {
-            return loadedLanguage;
-        }
-    }
-
-    private bool parseTranslationFile(int index)
-    {
-        string file = io.LoadGameFile(KS_FileHelper.GameDataFolders.Translate, languages[index] + ".txt");
-
-        if (file != null) {
-            loadedLanguage = index;
-
-            Debug.Log(file);
-
-            string[] lines = file.Split(
-                        new[] { Environment.NewLine },
-                        StringSplitOptions.None
-                    );
-
-            foreach (string s in lines)
-            {
-                string[] line = s.Split(new[] { '=' }, 2);
-                Debug.Log(line);
-
-                Debug.Log(line[0] + " --- " + line[1]);
-
-                loadedLines.Add(line[0], line[1]);
-            }
-
-            Debug.Log(loadedLines.Count + " Lines loaded");
-            return true;
-        }
-        else
+        if(translationFile == null || translationFile.languages.Count <= 0 || index < 0 || index > translationFile.languages.Count)
         {
             return false;
         }
+
+        selectedLanguage = index;
+
+        OnLanguageChange();
+
+        return true;
+    }
+
+    public bool ChangeLanguage(string language)
+    {
+        if (FindLanguage(language))
+        {
+            for(int i = 0; i < translationFile.languages.Count; i++)
+            {
+                if(translationFile.languages[i].language == language)
+                {
+                    selectedLanguage = i;
+                }
+            }
+            return true;
+        }
+
+        OnLanguageChange();
+
+        return false;
+    }
+
+    private bool FindLanguage(string name)
+    {
+        if (translationFile == null || translationFile.languages.Count <= 0) return false;
+
+        foreach(KS_Storage_Translations.Language l in translationFile.languages)
+        {
+            if(name == l.language)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public string[] GetLanguages()
+    {
+        if (translationFile == null || translationFile.languages.Count <= 0) return null;
+
+        List<string> languages = new List<string>();
+
+        foreach(KS_Storage_Translations.Language l in translationFile.languages)
+        {
+            languages.Add(l.language);
+        }
+
+        return (string[]) languages.ToArray();        
     }
 
     public string GetLine(string lineID)
     {
-        if (lineID.Length <= 0) return "";
-        if (loadedLines.ContainsKey(lineID))
+        Debug.Log(translationFile.languages[selectedLanguage].strings.Count + " : " +lineID);
+
+        if(translationFile.languages[selectedLanguage].strings.Count >= 0)
         {
-            return loadedLines[lineID];
+            foreach (KS_Storage_Translations.Language.TranslationString s in translationFile.languages[selectedLanguage].strings)
+            {
+                Debug.Log(s.lineID + " : " + lineID);
+                if (s.lineID.ToLower() == lineID.ToLower()) return s.lineText;
+            }
         }
-        else
-        {
-            return "# Line not found #";
-        }
+
+        return "# Line not found #";
     }
 
 }
