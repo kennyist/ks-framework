@@ -203,6 +203,7 @@ public class KS_FileHelper {
         try
         {
             File.WriteAllText(basePath + fileName, data);
+            Debug.Log("File written: " + basePath + fileName);
         }
         catch (IOException e) {
             return false;
@@ -210,6 +211,23 @@ public class KS_FileHelper {
 
 		return true;
 	}
+
+    public bool SaveFile(Folders Type, String fileName, byte[] data)
+    {
+        string basePath = getBaseDirectoryStr(_dataLocationWin, Type);
+
+        try
+        {
+            File.WriteAllBytes(basePath + fileName, data);
+            Debug.Log("File written: " + basePath + fileName);
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
     public bool SaveGameFile(GameDataFolders Type, String fileName, string data)
     {
