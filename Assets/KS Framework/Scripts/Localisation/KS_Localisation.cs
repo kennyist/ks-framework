@@ -18,7 +18,8 @@ public class KS_Localisation : MonoBehaviour {
             }
             else
             {
-                return new KS_Localisation();
+                instance = new KS_Localisation();
+                return instance;
             }
         }
     }
@@ -104,9 +105,11 @@ public class KS_Localisation : MonoBehaviour {
 
     public string GetLine(string lineID)
     {
+        if (translationFile == null || translationFile.languages.Count <= 0) return "";
+
         Debug.Log(translationFile.languages[selectedLanguage].strings.Count + " : " +lineID);
 
-        if(translationFile.languages[selectedLanguage].strings.Count >= 0)
+        if(translationFile.languages[selectedLanguage].strings.Count > 0)
         {
             foreach (KS_Storage_Translations.Language.TranslationString s in translationFile.languages[selectedLanguage].strings)
             {

@@ -13,6 +13,7 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     private string searchString = "";
     private string lastSearchString = "";
+    private bool IsSearching = false;
 
     private bool addBox = false;
     private bool addBox_isString = false;
@@ -22,7 +23,8 @@ public class KS_Editor_TranslationManager : EditorWindow
     private string[] keys;
     private string[] languages;
     
-    private KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] loadedLines;
+    private KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] loadedLines = null;
+    private string loadedString = null;
 
     [MenuItem("KS: Framework/Translation Manager")]
     static void Init()
@@ -41,10 +43,32 @@ public class KS_Editor_TranslationManager : EditorWindow
         }
 
         GUISetup();
+
+        if (translations)
+        {
+            UpdateDisplayData();
+        }
     }
 
     private void OnGUI()
     {
+        if(searchString != lastSearchString)
+        {
+            lastSearchString = searchString;
+
+            if (string.IsNullOrEmpty(searchString))
+            {
+                IsSearching = false;
+            }
+            else if (!IsSearching)
+            {
+                IsSearching = true;
+            }
+
+            Debug.Log("Search string: " + searchString);
+
+            UpdateDisplayData();
+        }
 
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
         DrawToolBar();
@@ -111,23 +135,28 @@ public class KS_Editor_TranslationManager : EditorWindow
             AssetDatabase.CreateAsset(translations, absPath);
             AssetDatabase.SaveAssets();
         }
-
+        
         UpdateDisplayData();
     }
 
     void SaveDatabase()
     {
-        translations.languages[0].strings.Add(new KS_Storage_Translations.Language.TranslationString());
+        UpdateDisplayData();
     }
 
     // Update display data
 
     void UpdateDisplayData()
     {
-        loadedLines = new KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[0];
+        if (translations)
+        {
+            EditorUtility.SetDirty(translations);
+            AssetDatabase.SaveAssets();
+        }
 
         keys = GetAllKeys();
-        languages = GetAllLanguages(); 
+        languages = GetAllLanguages();
+        Debug.Log("");
     }
 
     // GUI
@@ -153,6 +182,14 @@ public class KS_Editor_TranslationManager : EditorWindow
                 OpenDatabase();
             }
 
+            if (translations)
+            {
+                if (GUILayout.Button("Save Database", EditorStyles.toolbarButton))
+                {
+                    SaveDatabase();
+                }
+            }
+
             if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
             {
                 CreateDatabase();
@@ -164,7 +201,7 @@ public class KS_Editor_TranslationManager : EditorWindow
                 GenericMenu toolsMenu = new GenericMenu();
                 toolsMenu.AddItem(new GUIContent("Language"), false, AddBoxLanguage);
                 toolsMenu.AddItem(new GUIContent("string"), false, AddBoxString);
-                toolsMenu.DropDown(new Rect(5, 0, 0, 16));
+                toolsMenu.DropDown(new Rect(280, 0, 0, 16));
                 EditorGUIUtility.ExitGUI();
             }
 
@@ -176,11 +213,6 @@ public class KS_Editor_TranslationManager : EditorWindow
                 // Remove focus if cleared
                 searchString = "";
                 GUI.FocusControl(null);
-            }
-
-            if (searchString != lastSearchString)
-            {
-                lastSearchString = searchString;
             }
 
             GUILayout.Space(5);
@@ -219,7 +251,9 @@ public class KS_Editor_TranslationManager : EditorWindow
             {
                 if (GUILayout.Button(keys[i], EditorStyles.miniButton))
                 {
+                    loadedLines = null;
                     loadedLines = GetKeyData(i);
+                    loadedString = GetKeyData(i)[0].Value.lineID;
                 }
             }
         }
@@ -231,16 +265,31 @@ public class KS_Editor_TranslationManager : EditorWindow
     void DrawMainArea()
     {
         GUILayout.BeginVertical();
-
-        if(loadedLines != null && loadedLines.Length > 0)
+        if (loadedString != null)
         {
-            for(int i = 0; i < loadedLines.Length; i++)
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("LineID: " + loadedString);
+            EditorGUILayout.Separator();
+            if (GUILayout.Button("Delete Line", EditorStyles.miniButton))
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(loadedLines[i].Key, GUILayout.Width(100));
-                loadedLines[i].Value.lineText = GUILayout.TextArea(loadedLines[i].Value.lineText, GUILayout.ExpandWidth(true));
-                GUILayout.EndHorizontal();
+                DeleteString(loadedString);
             }
+            GUILayout.EndHorizontal();
+
+            if (loadedLines != null && loadedLines.Length > 0)
+            {
+                for (int i = 0; i < loadedLines.Length; i++)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(loadedLines[i].Key, GUILayout.Width(100));
+                    loadedLines[i].Value.lineText = GUILayout.TextArea(loadedLines[i].Value.lineText, GUILayout.ExpandWidth(true));
+                    GUILayout.EndHorizontal();
+                }
+            }
+        }
+        else
+        {
+            GUILayout.Label("No lineID selected, Select one from te left menu.");
         }
 
         GUILayout.EndVertical();
@@ -325,6 +374,11 @@ public class KS_Editor_TranslationManager : EditorWindow
             }
         }
 
+        if (IsSearching)
+        {
+            keys = keys.FindAll(s => s.Contains(searchString));
+        }
+
         return keys.ToArray();
     }
 
@@ -359,7 +413,7 @@ public class KS_Editor_TranslationManager : EditorWindow
             {
                 for(int j = 0; j < translations.languages[i].strings.Count; j++)
                 {
-                    if(translations.languages[i].strings[j].lineID == GetAllKeys()[index])
+                    if(translations.languages[i].strings[j].lineID.Equals(GetAllKeys()[index]))
                     {
                         lines.Add(new KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>(translations.languages[i].language, translations.languages[i].strings[j]));
                     }
@@ -443,16 +497,49 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     void AddString(string ID)
     {
-        KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
-        s.lineID = ID;
 
         if(translations.languages.Count > 0)
         {
             for(int i = 0; i < translations.languages.Count; i++)
             {
+                KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
+                s.lineID = ID;
+                s.lineText = "# Not Set #";
+
                 translations.languages[i].strings.Add(s);
             }
         }
+
+        UpdateDisplayData();
+
+        loadedLines = null;
+        loadedLines = GetKeyData(keys.Length - 1);
+        loadedString = ID;
+    }
+
+    // Delete
+
+    private void DeleteString(string lineID)
+    {
+        if (translations.languages.Count > 0)
+        {
+            for (int i = 0; i < translations.languages.Count; i++)
+            {
+                Debug.Log("DELSTR: Language - " + translations.languages[i].language);
+                for(int j = 0; j < translations.languages[i].strings.Count; j++)
+                {
+                    Debug.Log("DELSTR: Line - " + translations.languages[i].strings[j].lineID);
+                    if (translations.languages[i].strings[j].lineID == lineID)
+                    {
+                        Debug.Log("DELSTR: DELETED");
+                        translations.languages[i].strings.RemoveAt(j);
+                    }
+                }
+            }
+        }
+
+        loadedLines = null;
+        loadedString = null;
 
         UpdateDisplayData();
     }

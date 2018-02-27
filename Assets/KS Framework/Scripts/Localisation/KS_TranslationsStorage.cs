@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Translations", menuName = "KS_Framework/Translation/Database", order = 1)]
+[System.Serializable]
 public class KS_Storage_Translations : ScriptableObject {
 
     [System.Serializable]
@@ -11,16 +12,15 @@ public class KS_Storage_Translations : ScriptableObject {
         [System.Serializable]
         public class TranslationString
         {
-            public string lineID;
-            public string lineText;
+            [SerializeField]public string lineID;
+            [SerializeField] public string lineText;
         }
 
-        public string language = "English";
-        public List<TranslationString> strings = new List<TranslationString>();
+        [SerializeField] public string language = "English";
+        [SerializeField] public List<TranslationString> strings = new List<TranslationString>();
     }
 
-    public List<Language> languages = new List<Language>();
-    public string DefaultLanguage = "English";
-    public string SelectedLanguage = "English";
+    [SerializeField] public List<Language> languages = new List<Language>();
+    [SerializeField] public string DefaultLanguage = "English";
     
 }

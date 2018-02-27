@@ -7,10 +7,9 @@ using UnityEditor;
 using UnityEngine.UI;
 
 [AddComponentMenu("UI/Text Translate")]
-[ExecuteInEditMode]
 public class KS_TextTranslate : Text
 {
-    public string lineId = null;
+    public string lineId = "";
 
     void Awake()
     {
@@ -24,7 +23,6 @@ public class KS_TextTranslate : Text
 
     public void Refresh()
     {
-        Debug.Log(lineId);
         if (lineId.Length > 0 && lineId != null)
         {
             text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
