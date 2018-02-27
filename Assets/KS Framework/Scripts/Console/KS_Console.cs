@@ -289,7 +289,7 @@ public class KS_Console : KS_EventListener {
     private List<string> lastUsed = new List<string>();
     private Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>();
 
-    private bool outputUnityDebug = true;
+    private bool outputUnityDebug = false;
     public bool OutputUnityDebug
     {
         get

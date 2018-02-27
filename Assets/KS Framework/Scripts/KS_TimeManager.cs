@@ -160,9 +160,6 @@ public class KS_TimeManager : MonoBehaviour {
                 currentMinute = 0;
             }
 
-            /*currentSecond = (int)((currentSecond / secondsPerMinute) * 59);
-            if (currentSecond > 59) currentSecond = 59;*/
-
             CheckZone();
 
             UpdateTime();
@@ -171,7 +168,7 @@ public class KS_TimeManager : MonoBehaviour {
         {
             float t = (secondTimer / secondsPerMinute) * 60;
 
-            if ((int)t % 5 == 0)
+            if ((int)t % 2 == 0)
             {
                 currentSecond = (int)t;
 

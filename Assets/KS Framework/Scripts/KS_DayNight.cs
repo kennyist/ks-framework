@@ -74,24 +74,6 @@ public class KS_DayNight : MonoBehaviour {
         UpdateEnvironment();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            CalculateSunPosition(9, 30, 0, 50.376316, -4.123820);
-        }
-
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            CalculateSunPosition(20, 10, 0, 50.376316, -4.123820);
-        }
-
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            CalculateSunPosition(12, 30, 0, 50.376316, -4.123820);
-        }
-    }
-
     private void UpdateSunPos(int h, int m, int s)
     {
         Vector2 sunPos = CalculateSunPosition(h, m, s, latitude, longitude);

@@ -20,7 +20,7 @@ public class KS_LoadScreen : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.L))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             StartCoroutine(LoadScene(1));
         }

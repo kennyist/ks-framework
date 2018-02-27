@@ -24,7 +24,8 @@ public class KS_Localisation : MonoBehaviour {
         }
     }
 
-    public static event EventHandler LanguageChanged;
+    public delegate void VoidDelegate();
+    public static event VoidDelegate LanguageChanged;
     public KS_Storage_Translations translationFile;
 
     private int selectedLanguage = 0;
@@ -38,7 +39,7 @@ public class KS_Localisation : MonoBehaviour {
     private void OnLanguageChange()
     {
         if (LanguageChanged != null)
-            LanguageChanged(this, new EventArgs());
+            LanguageChanged();
     }
 
     public bool ChangeLanguage(int index)

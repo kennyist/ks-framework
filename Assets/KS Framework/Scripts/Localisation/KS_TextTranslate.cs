@@ -17,16 +17,42 @@ public class KS_TextTranslate : Text
         Refresh();
     }
 
+    protected override void OnEnable()
+    {
+        KS_Localisation.LanguageChanged += LanguageChanged;
+        base.OnDisable();
+    }
+
+    protected override void OnDisable()
+    {
+        KS_Localisation.LanguageChanged -= LanguageChanged;
+        base.OnDisable();
+    }
+
     protected override void Start()
+    {
+        lastID = lineId;
+
+        GetLine();
+
+        base.Start();
+    }
+
+    private void LanguageChanged()
+    {
+        GetLine();
+    }
+
+    private bool GetLine()
     {
         if (lineId.Length > 0 && lineId != null)
         {
             text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
+
+            return true;
         }
 
-        lastID = lineId;
-
-        base.Start();
+        return false;
     }
 
     public void Update()
@@ -38,12 +64,9 @@ public class KS_TextTranslate : Text
     {
         if (!lineId.Equals(lastID))
         {
-            if (lineId.Length > 0 && lineId != null)
+            if (!GetLine())
             {
-                text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
-            }
-            else
-            {
+
                 text = "";
             }
 

@@ -115,14 +115,16 @@ public class KS_Subtitle : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Keypad4))
         {
-            KS_Localisation.Instance.ChangeLanguage("German");
+            KS_Localisation.Instance.ChangeLanguage(1);
             ShowText("Changed to german", 1f);
+            Debug.Log(KS_Localisation.Instance.GetLine("TestString"));
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
             KS_Localisation.Instance.ChangeLanguage(0);
             ShowText("Changed to english", 1f);
+            Debug.Log(KS_Localisation.Instance.GetLine("TestString"));
         }
     }
 }
