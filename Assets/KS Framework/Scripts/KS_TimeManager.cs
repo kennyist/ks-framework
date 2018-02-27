@@ -128,7 +128,6 @@ public class KS_TimeManager : MonoBehaviour {
 
     private void AddMinutes(int minutes)
     {
-        Debug.Log("Added minutes: " + minutes);
         currentMinute += minutes;
 
         if(currentMinute > minutesPerDay)

@@ -16,17 +16,17 @@ public class KS_UI_Console : MonoBehaviour {
         inputText.onEndEdit.AddListener(delegate { OnEnter(inputText.text); });
     }
 
-    void OnLogUpdate(string text)
+    private void OnLogUpdate(string text)
     {
-        logTextBox.text += text;
+        logTextBox.text = KS_Console.Instance.GetLog;
 
         if(logTextBox.text.Length > 3000)
         {
             logTextBox.text = logTextBox.text.Remove(logTextBox.text.LastIndexOf(Environment.NewLine));
         }
     }
-	
-	// Update is called once per frame
+    
+    // Update is called once per frame
 	void Update () {
 
         if (Input.GetKeyDown(KeyCode.BackQuote))

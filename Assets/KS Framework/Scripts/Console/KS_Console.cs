@@ -284,7 +284,7 @@ public class KS_Console : KS_EventListener {
     }
 
     private int lastUsedIndex = -1;
-    private string log = "";
+    private List<string> log = new List<string>();
 
     private List<string> lastUsed = new List<string>();
     private Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>();
@@ -513,7 +513,12 @@ public class KS_Console : KS_EventListener {
     {
         string add = "\n<color=#" + ColorUtility.ToHtmlStringRGBA(colour) + ">" +
                         text + "</color>";
-        log += add;
+        log.Add(add);
+
+        if(log.Count > 100)
+        {
+            log.RemoveAt(0);
+        }
 
         if (OnLogUpdate != null)
         {
@@ -554,11 +559,23 @@ public class KS_Console : KS_EventListener {
         }
     }
 
+    private string GetLogString()
+    {
+        string logText = "";
+
+        foreach(string s in log)
+        {
+            logText += s;
+        }
+
+        return logText;
+    }
+
     public string GetLog
     {
         get
         {
-            return log;
+            return GetLogString();
         }
     }
 
@@ -569,6 +586,7 @@ public class KS_Console : KS_EventListener {
             lastUsedIndex++;
 
             if (lastUsedIndex >= lastUsed.Count) lastUsedIndex--;
+
 
             return GetUsed(lastUsedIndex);
         }
@@ -586,13 +604,26 @@ public class KS_Console : KS_EventListener {
 
     private string GetUsed(int index)
     {
-        if(index < 0)
+        int i;
+
+        if (index < 0) return "";
+
+        if(index <= 0)
+        {
+            i = lastUsed.Count - 1;
+        }
+        else
+        {
+            i = (lastUsed.Count - 1) - index;
+        }
+        
+        if(i < 0)
         {
             return "";
         }
         else
         {
-            return lastUsed[index];
+            return lastUsed[i];
         }
     }
 

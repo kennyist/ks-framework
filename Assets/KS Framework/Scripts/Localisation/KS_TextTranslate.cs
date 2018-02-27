@@ -10,10 +10,23 @@ using UnityEngine.UI;
 public class KS_TextTranslate : Text
 {
     public string lineId = "";
+    private string lastID = null;
 
     void Awake()
     {
         Refresh();
+    }
+
+    protected override void Start()
+    {
+        if (lineId.Length > 0 && lineId != null)
+        {
+            text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
+        }
+
+        lastID = lineId;
+
+        base.Start();
     }
 
     public void Update()
@@ -23,9 +36,17 @@ public class KS_TextTranslate : Text
 
     public void Refresh()
     {
-        if (lineId.Length > 0 && lineId != null)
+        if (!lineId.Equals(lastID))
         {
-            text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
+            if (lineId.Length > 0 && lineId != null)
+            {
+                text = KS_Localisation.Instance.GetLine(lineId).Replace("\\n", "\n");
+            }
+            else
+            {
+                text = "";
+            }
+
         }
     }
 
