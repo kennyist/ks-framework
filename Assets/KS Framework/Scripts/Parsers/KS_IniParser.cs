@@ -9,6 +9,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 /// <summary>
 /// An .ini file parser that Creates and edits .ini files, With functions to fetch and delete values.
@@ -48,7 +49,8 @@ public class KS_IniParser
     /// <param name="file">The selected file.</param>
     public bool DoesExist(string file)
     {
-        return File.Exists(Application.dataPath + "/" + file + ".ini") ? true : false;
+        //return File.Exists(Application.dataPath + "/" + file + ".ini") ? true : false;
+        return IO.GetFile(KS_FileHelper.Folders.Configs, file + ".cfg");
     }
 
     /// <summary>
@@ -205,8 +207,10 @@ public class KS_IniParser
     /// <param name="file">The file name.</param>
     public void Save(string file)
     {
-        using (StreamWriter wr = new StreamWriter(Application.dataPath + "/" + file + ".ini"))
-        {
+        //using (StreamWriter wr = new StreamWriter(Application.dataPath + "/" + file + ".ini"))
+        //{
+        string fileString = "";
+
             List<string> noDup = new List<string>();
             for (int i = 0; i < subSections.Count; i++)
             {
@@ -230,18 +234,21 @@ public class KS_IniParser
                     {
                         if (!noDup[i].Equals(""))
                         {
-                            wr.WriteLine("\n[" + noDup[i] + "]\n");
+                        //wr.WriteLine("\n[" + noDup[i] + "]\n");
+                        fileString += "\n[" + noDup[i] + "]\n";
                         }
                     }
                     if (!comsC[pos].Equals(""))
                     {
                         string p1 = keysC[pos] + "=" + valsC[pos];
                         int tabs = (commentMargin - p1.Length) / 4;
-                        wr.WriteLine(p1 + new string('\t', tabs) + "; " + comsC[pos]);
+                    //wr.WriteLine(p1 + new string('\t', tabs) + "; " + comsC[pos]);
+                    fileString += p1 + new string('\t', tabs) + "; " + comsC[pos] + "\n";
                     }
                     else
                     {
-                        wr.WriteLine(keysC[pos] + "=" + valsC[pos]);
+                    //wr.WriteLine(keysC[pos] + "=" + valsC[pos]);
+                    fileString += keysC[pos] + "=" + valsC[pos] + "\n";
                     }
                     subsC.RemoveAt(pos);
                     keysC.RemoveAt(pos);
@@ -250,7 +257,9 @@ public class KS_IniParser
                     cur++;
                 }
             }
-        }
+
+        IO.SaveFile(KS_FileHelper.Folders.Configs, file + ".cfg", fileString);
+        //}
         Debug.Log(file + ".ini Saved");
     }
 
@@ -265,9 +274,13 @@ public class KS_IniParser
         string line = "", dir = Application.dataPath + "/" + file + ".ini", catagory = "";
         int offset = 0, comment = 0, subcat = 0;
 
+        byte[] fileString = IO.LoadFile(KS_FileHelper.Folders.Configs, file + ".cfg");
+
         try
         {
-            using (StreamReader sr = new StreamReader(dir))
+            MemoryStream stream = new MemoryStream(fileString);
+
+            using (StreamReader sr = new StreamReader(stream))
             {
                 while ((line = sr.ReadLine()) != null)
                 {

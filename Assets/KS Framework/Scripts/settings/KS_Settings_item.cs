@@ -20,6 +20,7 @@ public class KS_Settings_database : ScriptableObject {
     public class KS_Settings_database_option
     {
         public enum Type{
+            stepSlider,
             slider,
             toggle,
             dropdown,
@@ -27,6 +28,8 @@ public class KS_Settings_database : ScriptableObject {
             radio,
         }
 
+        public string configID;
+        public string configHelp;
         public string displayText;
         public Type type;
         public string defult;

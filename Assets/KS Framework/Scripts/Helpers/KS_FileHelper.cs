@@ -245,11 +245,11 @@ public class KS_FileHelper {
         return true;
     }
 
-    public object LoadFile(Folders from, string fileName)
+    public byte[] LoadFile(Folders from, string fileName)
 	{
 		string basePath = getBaseDirectoryStr (_dataLocationWin, from);
 
-		return true;
+		return File.ReadAllBytes(basePath + fileName);
 	}
 
     public string LoadGameFile(GameDataFolders from, string fileName)
@@ -299,7 +299,15 @@ public class KS_FileHelper {
 
 	public string[] GetFolderContents(Folders folder)
 	{
-        string[] files = GetFiles(getBaseDirectoryStr(_dataLocationWin, Folders.Saves)).ToArray<string>();
+        string[] files = GetFiles(getBaseDirectoryStr(_dataLocationWin, folder)).ToArray<string>();
+
+        if(files.Length > 0)
+        {
+            for(int i = 0; i < files.Length; i++)
+            {
+                files[i] = files[i].Replace(getBaseDirectoryStr(_dataLocationWin, folder), "");
+            }
+        }
 
         return files;
 	}
@@ -329,5 +337,22 @@ public class KS_FileHelper {
 
             yield return file;
         }
+    }
+
+    public bool GetFile(Folders folder, string filename)
+    {
+        string[] path = GetFolderContents(folder);
+
+        Debug.Log(path.Length);
+
+        if (path == null || path.Length <= -1) return false;
+
+        foreach(string s in path)
+        {
+            Debug.Log(filename + ":" + s);
+            if (s.Equals(filename)) return true;
+        }
+
+        return false;
     }
 }
