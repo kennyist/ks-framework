@@ -13,6 +13,10 @@ public class settingsUItest : MonoBehaviour {
     private int currentSettingsMenu = 0;
     public GameObject settingsContainer;
 
+    // buttons
+
+    public Button saveSettignsBtn;
+
     // Element containers
 
     public GameObject settingsTitleContainer;
@@ -24,6 +28,7 @@ public class settingsUItest : MonoBehaviour {
     public GameObject ButtonPrefab;
     public GameObject SliderPrefab;
     public GameObject togglePrefab;
+    public GameObject dropdownprefab;
 
     private List<Holder> menuHolder = new List<Holder>();
 
@@ -46,7 +51,14 @@ public class settingsUItest : MonoBehaviour {
         settingsControler = KS_Settings.Instance;
         PopulateSettingsMenu();
         PopulateSettings();
+
+        saveSettignsBtn.onClick.AddListener(delegate { SaveSettings(); });
 	}
+
+    private void SaveSettings()
+    {
+        settingsControler.Save();
+    }
 
     void OnMenuClick(int i)
     {
@@ -55,6 +67,17 @@ public class settingsUItest : MonoBehaviour {
         menuHolder[i].gameObject.SetActive(true);
 
         currentSettingsMenu = i;
+    }
+
+    void OnLanguageClick(int i)
+    {
+        Debug.Log("Langauge: " + i);
+        KS_Localisation.Instance.ChangeLanguage(i);
+    }
+
+    void OnChange(string key, string value)
+    {
+        settingsControler.SetString(key, value);
     }
 
     void PopulateSettingsMenu()
@@ -102,12 +125,18 @@ public class settingsUItest : MonoBehaviour {
                                 obj.GetComponentInChildren<Slider>().maxValue = o.Maxvalue;
                                 obj.GetComponentInChildren<Slider>().value = float.Parse(settingsControler.GetSetting(o.configID));
 
+                                var clickEvent = obj.GetComponentInChildren<Slider>().onValueChanged;
+                                clickEvent.AddListener(delegate { OnChange(o.configID, obj.GetComponentInChildren<Slider>().value.ToString("0")); });
+
                                 break;
 
                             case KS_Settings_database.KS_Settings_database_option.Type.toggle:
                                 GameObject obj2 = GameObject.Instantiate(togglePrefab, parent.transform);
                                 obj2.GetComponentInChildren<Text>().text = o.displayText;
                                 obj2.GetComponentInChildren<Toggle>().isOn = bool.Parse(settingsControler.GetSetting(o.configID));
+
+                                var clickEvent2 = obj2.GetComponentInChildren<Toggle>().onValueChanged;
+                                clickEvent2.AddListener(delegate { OnChange(o.configID, obj2.GetComponentInChildren<Toggle>().isOn.ToString()); });
 
                                 break;
 
@@ -118,6 +147,59 @@ public class settingsUItest : MonoBehaviour {
                                 obj3.GetComponentInChildren<Slider>().minValue = o.minValue;
                                 obj3.GetComponentInChildren<Slider>().maxValue = o.Maxvalue;
                                 obj3.GetComponentInChildren<Slider>().value = float.Parse(settingsControler.GetSetting(o.configID));
+
+                                var clickEvent3 = obj3.GetComponentInChildren<Slider>().onValueChanged;
+                                clickEvent3.AddListener(delegate { OnChange(o.configID, obj3.GetComponentInChildren<Slider>().value.ToString("0")); });
+
+                                break;
+
+                            case KS_Settings_database.KS_Settings_database_option.Type.Language:
+                                GameObject obj4 = GameObject.Instantiate(dropdownprefab, parent.transform);
+                                obj4.GetComponentInChildren<Text>().text = o.displayText;
+
+                                string[] languages = KS_Localisation.Instance.GetLanguages();
+                                List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
+
+                                for(int i = 0; i < languages.Length; i++)
+                                {
+                                    options.Add(new Dropdown.OptionData(languages[i]));
+                                }
+
+                                obj4.GetComponentInChildren<Dropdown>().options = options;
+
+                                Dropdown dropdown = obj4.GetComponentInChildren<Dropdown>();
+                                Debug.Log(settingsControler.GetSetting(o.configID));
+                                dropdown.value = int.Parse(settingsControler.GetSetting(o.configID));
+
+                                var clickObject2 = obj4.GetComponentInChildren<Dropdown>().onValueChanged;
+                                clickObject2.AddListener(delegate { OnLanguageClick(dropdown.value); });
+
+                                var clickEvent4 = obj4.GetComponentInChildren<Dropdown>().onValueChanged;
+                                clickEvent4.AddListener(delegate { OnChange(o.configID, obj4.GetComponentInChildren<Dropdown>().value.ToString()); });
+                                break;
+
+                            case KS_Settings_database.KS_Settings_database_option.Type.dropdown:
+                                GameObject obj5 = GameObject.Instantiate(dropdownprefab, parent.transform);
+                                obj5.GetComponentInChildren<Text>().text = o.displayText;
+
+                                List<Dropdown.OptionData> options2 = new List<Dropdown.OptionData>();
+
+                                for (int i = 0; i < o.dropdownOptions.Length; i++)
+                                {
+                                    options2.Add(new Dropdown.OptionData(o.dropdownOptions[i]));
+                                }
+
+                                Debug.Log("OPTIONS2: " + options2.Count);
+
+                                obj5.GetComponentInChildren<Dropdown>().options = options2;
+
+                                Dropdown dropdown2 = obj5.GetComponentInChildren<Dropdown>();
+                                dropdown2.value = int.Parse(settingsControler.GetSetting(o.configID));
+                                var clickObject3 = obj5.GetComponentInChildren<Dropdown>().onValueChanged;
+                                //clickObject3.AddListener(delegate { void j(); });
+
+                                var clickEvent5 = obj5.GetComponentInChildren<Dropdown>().onValueChanged;
+                                clickEvent5.AddListener(delegate { OnChange(o.configID, obj5.GetComponentInChildren<Dropdown>().value.ToString()); });
 
                                 break;
                         }

@@ -25,7 +25,7 @@ public class KS_Settings_database : ScriptableObject {
             toggle,
             dropdown,
             key,
-            radio,
+            Language
         }
 
         public string configID;
@@ -37,6 +37,9 @@ public class KS_Settings_database : ScriptableObject {
         //
         public int minValue;
         public int Maxvalue;
+
+        //
+        public string[] dropdownOptions;
 
 
     }

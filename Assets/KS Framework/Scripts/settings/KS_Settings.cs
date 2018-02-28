@@ -60,4 +60,19 @@ public class KS_Settings : MonoBehaviour {
     {
         return settingsConfig.Get(settingID);
     }
+
+    public void SetString(string key, string value)
+    {
+        string[] setting = settingsConfig.GetLine(key);
+
+        if(setting != null || setting.Length > -1)
+        {
+            settingsConfig.Set(setting[0], setting[1], value, setting[3]);
+        }
+    }
+
+    public void Save()
+    {
+        settingsConfig.Save(configName);
+    }
 }
