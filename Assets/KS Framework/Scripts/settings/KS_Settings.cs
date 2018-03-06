@@ -22,10 +22,7 @@ public class KS_Settings : MonoBehaviour {
     private void Awake()
     {
         instance = this;
-    }
 
-    // Use this for initialization
-    void Start () {
         settingsConfig = new KS_IniParser();
 
         if (!settingsConfig.DoesExist(configName))
