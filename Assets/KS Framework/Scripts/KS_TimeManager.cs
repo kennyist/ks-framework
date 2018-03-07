@@ -44,7 +44,9 @@ public class KS_TimeManager : MonoBehaviour {
     private DayTimeZone currentZone = DayTimeZone.afternoon;
 
     // ---
-
+    
+    [Range(0, 1439)]
+    public int startTime = 900;
     public bool realTime = false;
     public bool paused = false;
 
@@ -71,6 +73,9 @@ public class KS_TimeManager : MonoBehaviour {
     private void Awake()
     {
         instance = this;
+
+        currentMinute = startTime;
+        UpTime();
     }
 
     private void Update()
