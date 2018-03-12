@@ -58,8 +58,20 @@ public class KS_DayNight : MonoBehaviour {
     public GameObject SunContanier;
     public GameObject sun;
 
+    // Star system
+    public Transform starContainer;
+    public AnimationCurve starIntensity;
+    
+
+    private void Awake()
+    {
+        StarAwake();
+    }
+
     // Use this for initialization
     void Start () {
+        StarStart(); 
+
         timeManager = KS_TimeManager.Instance;
 
         timeManager.OnTimeUpdate += OnTimeUpdate;
@@ -85,6 +97,7 @@ public class KS_DayNight : MonoBehaviour {
 
         sun.transform.localRotation = Quaternion.Euler(sRot);
         SunContanier.transform.localRotation = Quaternion.Euler(cRot);
+        starContainer.transform.rotation = Quaternion.Euler(new Vector3((float)latitude, 0, 360 * timeManager.TimeOfDay));
     }
 
     private void UpdateEnvironment()
@@ -109,6 +122,8 @@ public class KS_DayNight : MonoBehaviour {
 
         i = ((dayAtmospherThickness - nightAtmosphereThickness) * dot) + nightAtmosphereThickness;
         skyMat.SetFloat("_AtmosphereThickness", i);
+
+        SetStarIntensity(timeManager.TimeOfDay);
     }
 
     private const double Deg2Rad = Math.PI / 180.0;
@@ -287,4 +302,94 @@ public class KS_DayNight : MonoBehaviour {
             return angleInRadians;
         }
     }
+
+    // Star System
+
+    public ParticleSystem particals;
+    public int maxParticals = 150;
+
+    public bool useFile = false;
+    public TextAsset starFile;
+
+    public int starSeed = 1001;
+    public float minStarSize = 0.05f;
+    public float maxStarSize = 0.5f;
+    public float maxStarDistance = 40f;
+
+    private float farClipPlane;
+
+    public float colourMulti = 1.0f;
+
+    void StarAwake()
+    {
+        Debug.Log("star awake");
+        var main = particals.main;
+
+        main.maxParticles = maxParticals;
+        /*ParticleSystem.Burst burst = new ParticleSystem.Burst();
+        main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        burst.minCount = (short) maxParticals;
+        burst.maxCount = (short) maxParticals;
+        burst.time = 0.0f;
+        particals.emission.SetBurst(1, burst);*/
+
+        farClipPlane = Camera.main.farClipPlane;
+    }
+
+    void StarStart()
+    {
+        Debug.Log("star start");
+        if (useFile)
+        {
+            PopulateStartsFile();
+        }
+        else
+        {
+            PopulateStarsSeed();
+        }
+    }
+
+    void PopulateStartsFile()
+    {
+
+    }
+
+    Color[] startCols;
+
+    void PopulateStarsSeed()
+    {
+        Debug.Log("star seed");
+        UnityEngine.Random.InitState(starSeed);
+
+        ParticleSystem.Particle[] points = new ParticleSystem.Particle[maxParticals];
+        startCols = new Color[maxParticals];
+        particals.GetParticles(points);
+
+        for (int i = 0; i < maxParticals; i++)
+        {
+            points[i].position = UnityEngine.Random.insideUnitSphere * maxStarDistance;
+            points[i].startSize = UnityEngine.Random.Range(minStarSize, maxStarSize);
+            startCols[i] = Color.white * UnityEngine.Random.Range(0.5f, 1f);
+            points[i].startColor = startCols[i];
+            points[i].axisOfRotation = starContainer.transform.position;
+            points[i].startLifetime = Mathf.Infinity;
+            points[i].remainingLifetime = Mathf.Infinity;
+        }
+
+        particals.SetParticles(points, points.Length);
+    }
+
+    void SetStarIntensity(float t)
+    {
+        ParticleSystem.Particle[] points = new ParticleSystem.Particle[maxParticals];
+        particals.GetParticles(points);
+
+        for (int i = 0; i < maxParticals; i++)
+        {
+            points[i].startColor = startCols[i] * starIntensity.Evaluate(t);
+        }
+
+        particals.SetParticles(points, points.Length);
+    }
+
 }

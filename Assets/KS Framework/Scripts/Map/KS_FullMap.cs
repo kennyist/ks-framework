@@ -33,6 +33,7 @@ public class KS_FullMap : MonoBehaviour {
     public float miniMapScale = 50f;
     public bool oreintToPlayer = false;
     public RawImage minimapDisplay;
+    public RenderTextureFormat renderFormat;
 
     private RenderTexture miniMapTexture;
 
@@ -45,6 +46,7 @@ public class KS_FullMap : MonoBehaviour {
     public float minCameraScale = 10f;
     public float cameraZoomSpeed = 5f;
     private float targetScale = 50f;
+    public float cameraMouseWheelZoomeSpeed = 5f;
 
     public LayerMask UiCompenentRayTraceMask;
 
@@ -67,7 +69,7 @@ public class KS_FullMap : MonoBehaviour {
     private void Awake()
     {
         instance = this;
-        miniMapTexture = new RenderTexture(Screen.width, Screen.height, 16, RenderTextureFormat.ARGB32);
+        miniMapTexture = new RenderTexture(Screen.width, Screen.height, 16, renderFormat);
         miniMapTexture.Create();
     }
 
@@ -145,8 +147,6 @@ public class KS_FullMap : MonoBehaviour {
         if (useMinimap && !mapActive)
         {
             targetPosition = player.transform.position;
-            targetPosition.y = miniMapScale;
-
             targetScale = miniMapScale;
         }
 
@@ -183,7 +183,14 @@ public class KS_FullMap : MonoBehaviour {
 
         // Apply
 
-        camera.transform.position = Vector3.Lerp(camera.transform.position, targetPosition, Time.deltaTime * cameraSmoothTime);
+        if (!mapActive && useMinimap)
+        {
+            camera.transform.position = targetPosition;
+        }
+        else
+        {
+            camera.transform.position = Vector3.Lerp(camera.transform.position, targetPosition, Time.deltaTime * cameraSmoothTime);
+        }
 
         // end
 
@@ -192,20 +199,29 @@ public class KS_FullMap : MonoBehaviour {
         {
             if (Input.GetKey(KeyCode.Minus))
             {
-                targetScale += cameraZoomSpeed;
+                targetScale += cameraZoomSpeed * ScalePercent;
+            }
 
-                if (targetScale > maxCameraScale) targetScale = maxCameraScale;
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            {
+                targetScale += cameraMouseWheelZoomeSpeed;
             }
 
             if (Input.GetKey(KeyCode.Equals))
             {
-                targetScale -= cameraZoomSpeed;
+                targetScale -= cameraZoomSpeed * ScalePercent;
+            }
 
-                if (targetScale < minCameraScale) targetScale = minCameraScale;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                targetScale -= cameraMouseWheelZoomeSpeed;
             }
         }
 
-        if(targetScale != camera.GetComponent<Camera>().orthographicSize)
+        if (targetScale < minCameraScale) targetScale = minCameraScale;
+        if (targetScale > maxCameraScale) targetScale = maxCameraScale;
+
+        if (targetScale != camera.GetComponent<Camera>().orthographicSize)
         {
             if (OnScale != null)
                 OnScale(ScalePercent);
