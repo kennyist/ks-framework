@@ -25,6 +25,12 @@ public class KS_FullMap : MonoBehaviour {
     public static event MiniMapToggle OnMinimap;
     public static event MiniMapToggle OffMiniMap;
 
+    // Waypoints and markers
+
+    [Header("Waypoints & Markers")]
+    public bool allowMarkers = true;
+    public int maxMarkers = 4;
+
     // Minimap
 
     [Header("Minimap")]
@@ -266,6 +272,10 @@ public class KS_FullMap : MonoBehaviour {
 
             Debug.DrawRay(ray.origin, ray.direction * 5000, Color.red, Time.deltaTime);
         }
+
+        // Waypoint marker
+
+
     }
 
     Vector2 CameraOffsetBounds()
