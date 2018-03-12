@@ -9,15 +9,16 @@ public class KS_MapObject : MonoBehaviour {
     {
         Settlement,
         chest,
-
+        Waypoint,
     }
 
     public string displayName = "Place/item";
     public MapItemType type;
-    public Texture2D mapIcon;
+    public Sprite mapIcon;
 
     public bool showOnMinimap = true;
     private bool miniMapActive = false;
+    public bool WaypointTarget = false;
 
     public float minimapIconScaleUp = 2f;
 
@@ -96,8 +97,8 @@ public class KS_MapObject : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
-
+    void Awake () {
+        
         startScale = transform.localScale;
         displayText.text = displayName;
 
@@ -105,10 +106,39 @@ public class KS_MapObject : MonoBehaviour {
         KS_FullMap.OnMinimap += OnMiniMap;
         KS_FullMap.OffMiniMap += OffMiniMap;
 
+
+        if (mapIcon)
+        {
+            displayImage.sprite = mapIcon;
+        }
+
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    void SetWaypointTarget()
+    {
+
+    }
+
+    void UnSetWaypointTarget()
+    {
+
+    }
+
+    public bool IsTargeted
+    {
+        get { return WaypointTarget; }
+    }
+
+    private void Start()
+    {
+        KS_FullMap.Instance.RegisterMapObject(this);
+    }
+
+    private void OnDestroy()
+    {
+        KS_FullMap.Instance.UnregisterMapObject(this);
+        KS_FullMap.OnScale -= OnScale;
+        KS_FullMap.OnMinimap -= OnMiniMap;
+        KS_FullMap.OffMiniMap -= OffMiniMap;
+    }
 }

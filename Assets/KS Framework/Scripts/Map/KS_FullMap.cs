@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
+using System.Linq;
 
 public class KS_FullMap : MonoBehaviour {
+
+    private List<KS_MapObject> mapObject;
 
     // Instancing
 
@@ -21,15 +25,21 @@ public class KS_FullMap : MonoBehaviour {
 
     public delegate void ScaleHandler(float scale);
     public delegate void MiniMapToggle();
+    public delegate void Vector3Handler(Vector3 position);
     public static event ScaleHandler OnScale;
     public static event MiniMapToggle OnMinimap;
     public static event MiniMapToggle OffMiniMap;
+    public static event Vector3Handler WayPointMarkerAdded;
+    public static event MiniMapToggle WayPointRemoved;
 
     // Waypoints and markers
 
     [Header("Waypoints & Markers")]
     public bool allowMarkers = true;
     public int maxMarkers = 4;
+    public GameObject wayPointPrefab;
+    private GameObject wayPoint;
+    public LayerMask waypointMask;
 
     // Minimap
 
@@ -77,6 +87,7 @@ public class KS_FullMap : MonoBehaviour {
         instance = this;
         miniMapTexture = new RenderTexture(Screen.width, Screen.height, 16, renderFormat);
         miniMapTexture.Create();
+        mapObject = new List<KS_MapObject>();
     }
 
     private void Start()
@@ -275,7 +286,85 @@ public class KS_FullMap : MonoBehaviour {
 
         // Waypoint marker
 
+        if (mapActive)
+        {
+            if (Input.GetMouseButtonDown(0)) {
 
+                if (hoverMapObject != null)
+                {
+                    KS_MapObject mapObj;
+                    if (mapObj = hoverMapObject.GetComponent<KS_MapObject>())
+                    {
+                        if (GetTargetedMapObject())
+                        {
+                            Debug.Log("Removing targeted");
+                            if (mapObj.IsTargeted)
+                            {
+                                RemoveWaypoint();
+                                mapObj.WaypointTarget = false;
+                                return;
+                            }
+
+                            GetTargetedMapObject().WaypointTarget = false;
+                        }
+
+                        // If map object is a waypoint
+                        if (mapObj.type == KS_MapObject.MapItemType.Waypoint)
+                        {
+                            Debug.Log("Waypoint - Removing");
+                            RemoveWaypoint();
+                            return;
+                        }
+
+                        // If not set as waypoint on not waypoint, create
+                        Debug.Log("Creating waypoint on: " + mapObj.displayName);
+                        SetWaypoint(hoverMapObject.transform.position);
+                        wayPoint.GetComponent<Collider>().enabled = false;
+                        mapObj.WaypointTarget = true;
+
+                        return;
+                    }
+                }
+
+                RaycastHit hit;
+                Ray ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+
+                if(Physics.Raycast(ray, out hit))
+                {
+                    if (hit.collider.gameObject)
+                    {
+                        SetWaypoint(hit.point);
+                    }
+                }
+            }
+        }
+
+    }
+
+    void SetWaypoint(Vector3 target)
+    {
+        if (wayPoint)
+        {
+            wayPoint.transform.position = target;
+            wayPoint.GetComponent<Collider>().enabled = true;
+        }
+        else
+        {
+            wayPoint = GameObject.Instantiate(wayPointPrefab,
+                                                    target,
+                                                    Quaternion.identity);
+        }
+
+        if (WayPointMarkerAdded != null)
+            WayPointMarkerAdded(target);
+    }
+
+    void RemoveWaypoint()
+    {
+        Destroy(wayPoint);
+
+        if (WayPointRemoved != null)
+            WayPointRemoved();
     }
 
     Vector2 CameraOffsetBounds()
@@ -323,5 +412,37 @@ public class KS_FullMap : MonoBehaviour {
     public float ScalePercent
     {
         get { return camera.GetComponent<Camera>().orthographicSize / maxCameraScale; }
+    }
+
+    public void RegisterMapObject(KS_MapObject obj)
+    {
+        mapObject.Add(obj);
+    }
+
+    public void UnregisterMapObject(KS_MapObject obj)
+    {
+        mapObject.Remove(obj);
+    }
+
+    public int GetTotalMapObjectsOfType(KS_MapObject.MapItemType type)
+    {
+        return mapObject.Count(i => i.type == type);
+    }
+
+    public KS_MapObject GetTargetedMapObject()
+    {
+        if (mapObject.Count <= 0) return null;
+
+        for(int i = 0; i < mapObject.Count - 1; i++)
+        {
+            if (mapObject[i].IsTargeted) return mapObject[i];
+        }
+
+        return null;
+    }
+
+    public void NewWaypoint(Vector3 position)
+    {
+        SetWaypoint(position);
     }
 }
