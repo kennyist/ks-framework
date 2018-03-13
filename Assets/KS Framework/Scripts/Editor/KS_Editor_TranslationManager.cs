@@ -9,7 +9,7 @@ using System.Linq;
 public class KS_Editor_TranslationManager : EditorWindow
 {
 
-    public KS_Storage_Translations translations;
+    public KS_Scriptable_Translations translations;
 
     private string searchString = "";
     private string lastSearchString = "";
@@ -23,7 +23,7 @@ public class KS_Editor_TranslationManager : EditorWindow
     private string[] keys;
     private string[] languages;
     
-    private KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] loadedLines = null;
+    private KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>[] loadedLines = null;
     private string loadedString = null;
 
     [MenuItem("KS: Framework/Translation Manager")]
@@ -39,7 +39,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         if (EditorPrefs.HasKey("ObjectPath"))
         {
             string objectPath = EditorPrefs.GetString("ObjectPath");
-            translations = AssetDatabase.LoadAssetAtPath(objectPath, typeof(KS_Storage_Translations)) as KS_Storage_Translations;
+            translations = AssetDatabase.LoadAssetAtPath(objectPath, typeof(KS_Scriptable_Translations)) as KS_Scriptable_Translations;
         }
 
         GUISetup();
@@ -90,15 +90,15 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     }
 
-    GUIStyle keyLabel = new GUIStyle(EditorStyles.label);
+    /*GUIStyle keyLabel = new GUIStyle(EditorStyles.label);*/
 
     void GUISetup()
     {
-        keyLabel.fixedWidth = 100f;
+        /*keyLabel.fixedWidth = 100f;
         keyLabel.onActive.textColor = Color.blue;
         keyLabel.alignment = TextAnchor.MiddleLeft;
         keyLabel.fixedHeight = 15f;
-        keyLabel.margin = new RectOffset(5, 0, 0, 0);
+        keyLabel.margin = new RectOffset(5, 0, 0, 0);*/
     }
 
 
@@ -108,7 +108,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         if (absPath.StartsWith(Application.dataPath))
         {
             string relPath = absPath.Substring(Application.dataPath.Length - "Assets".Length);
-            translations = AssetDatabase.LoadAssetAtPath(relPath, typeof(KS_Storage_Translations)) as KS_Storage_Translations;
+            translations = AssetDatabase.LoadAssetAtPath(relPath, typeof(KS_Scriptable_Translations)) as KS_Scriptable_Translations;
 
             if (translations)
             {
@@ -124,7 +124,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         string absPath = EditorUtility.SaveFilePanel("Create Translation Database", "", "Translations", "asset");
         if (absPath.StartsWith(Application.dataPath))
         {
-            translations = ScriptableObject.CreateInstance<KS_Storage_Translations>();
+            translations = ScriptableObject.CreateInstance<KS_Scriptable_Translations>();
 
             Debug.Log(absPath);
             absPath = absPath.Replace(Application.dataPath, "");
@@ -150,8 +150,8 @@ public class KS_Editor_TranslationManager : EditorWindow
     {
         if (translations)
         {
-            EditorUtility.SetDirty(translations);
-            AssetDatabase.SaveAssets();
+            //EditorUtility.SetDirty(translations);
+            //AssetDatabase.SaveAssets();
         }
 
         keys = GetAllKeys();
@@ -231,7 +231,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         {
             for(int i = 0; i < languages.Length; i++)
             {
-                if(GUILayout.Button(languages[i], keyLabel))
+                if(GUILayout.Button(languages[i]/*, keyLabel*/))
                 {
 
                 }
@@ -391,7 +391,7 @@ public class KS_Editor_TranslationManager : EditorWindow
             return languages.ToArray();
         }
 
-        foreach (KS_Storage_Translations.Language l in translations.languages)
+        foreach (KS_Scriptable_Translations_Language l in translations.languages)
         {
             languages.Add(l.language);
         }
@@ -399,11 +399,11 @@ public class KS_Editor_TranslationManager : EditorWindow
         return languages.ToArray();
     }
 
-    KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>[] GetKeyData(int index)
+    KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>[] GetKeyData(int index)
     {
         Debug.Log(index);
 
-        List<KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>> lines = new List<KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>>();
+        List<KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>> lines = new List<KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>>();
 
         if (translations.languages.Count <= 0) return null;
 
@@ -415,7 +415,7 @@ public class KS_Editor_TranslationManager : EditorWindow
                 {
                     if(translations.languages[i].strings[j].lineID.Equals(GetAllKeys()[index]))
                     {
-                        lines.Add(new KeyValuePair<string, KS_Storage_Translations.Language.TranslationString>(translations.languages[i].language, translations.languages[i].strings[j]));
+                        lines.Add(new KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>(translations.languages[i].language, translations.languages[i].strings[j]));
                     }
                 }
             }
@@ -446,7 +446,7 @@ public class KS_Editor_TranslationManager : EditorWindow
             return false;
         }
 
-        foreach(KS_Storage_Translations.Language l in translations.languages)
+        foreach(KS_Scriptable_Translations_Language l in translations.languages)
         {
             Debug.Log(l.language + " : " + language);
             if (l.language == language) return true;
@@ -477,7 +477,7 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     void AddLanguage(string name)
     {
-        KS_Storage_Translations.Language l = new KS_Storage_Translations.Language();
+        KS_Scriptable_Translations_Language l = new KS_Scriptable_Translations_Language();
         l.language = name;
         translations.languages.Add(l);
 
@@ -485,7 +485,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         {
             for(int i = 0; i < GetAllKeys().Length; i++)
             {
-                KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
+                KS_Scriptable_Translations_Language.TranslationString s = new KS_Scriptable_Translations_Language.TranslationString();
                 s.lineID = GetAllKeys()[i];
 
                 l.strings.Add(s);
@@ -502,7 +502,7 @@ public class KS_Editor_TranslationManager : EditorWindow
         {
             for(int i = 0; i < translations.languages.Count; i++)
             {
-                KS_Storage_Translations.Language.TranslationString s = new KS_Storage_Translations.Language.TranslationString();
+                KS_Scriptable_Translations_Language.TranslationString s = new KS_Scriptable_Translations_Language.TranslationString();
                 s.lineID = ID;
                 s.lineText = "# Not Set #";
 

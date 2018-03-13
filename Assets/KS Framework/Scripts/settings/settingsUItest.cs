@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class settingsUItest : MonoBehaviour {
 
-    public KS_Settings_database settings;
+    public KS_Scriptable_Settings settings;
     public KS_Settings settingsControler;
 
     //
@@ -86,9 +86,9 @@ public class settingsUItest : MonoBehaviour {
         {
             for (int i = 0; i < settings.Menus.Count; i++)
             {
-                KS_Settings_database.KS_Settings_database_menu m = settings.Menus[i];
+                KS_Scriptable_Settings_menu m = settings.Menus[i];
                 GameObject obj = GameObject.Instantiate(ButtonPrefab, settingsTitleContainer.transform);
-                obj.GetComponentInChildren<Text>().text = m.menuTitle;
+                obj.GetComponentInChildren<KS_TextTranslate>().lineId = m.menuTitle;
                 var clickEvent = obj.GetComponent<Button>().onClick;
                 int x = i;
                 clickEvent.AddListener(() => OnMenuClick(x));
@@ -102,7 +102,7 @@ public class settingsUItest : MonoBehaviour {
     {
         if(settings.Menus[0].settings.Count > 0)
         {
-            foreach(KS_Settings_database.KS_Settings_database_menu m in settings.Menus)
+            foreach(KS_Scriptable_Settings_menu m in settings.Menus)
             {
                 GameObject parent = GameObject.Instantiate(settingsOptionsPanel, settingsOptionContainer.transform);
                 parent.name = m.menuTitle;
@@ -114,13 +114,13 @@ public class settingsUItest : MonoBehaviour {
 
                 if(m.settings.Count > 0)
                 {
-                    foreach(KS_Settings_database.KS_Settings_database_option o in m.settings)
+                    foreach(KS_Scriptable_Settings_option o in m.settings)
                     {
                         switch (o.type)
                         {
-                            case KS_Settings_database.KS_Settings_database_option.Type.slider:
+                            case KS_Scriptable_Settings_Type.slider:
                                 GameObject obj = GameObject.Instantiate(SliderPrefab, parent.transform);
-                                obj.GetComponentInChildren<Text>().text = o.displayText;
+                                obj.GetComponentInChildren<KS_TextTranslate>().lineId = o.displayText;
                                 obj.GetComponentInChildren<Slider>().minValue = o.minValue;
                                 obj.GetComponentInChildren<Slider>().maxValue = o.Maxvalue;
                                 obj.GetComponentInChildren<Slider>().value = float.Parse(settingsControler.GetSetting(o.configID));
@@ -130,9 +130,9 @@ public class settingsUItest : MonoBehaviour {
 
                                 break;
 
-                            case KS_Settings_database.KS_Settings_database_option.Type.toggle:
+                            case KS_Scriptable_Settings_Type.toggle:
                                 GameObject obj2 = GameObject.Instantiate(togglePrefab, parent.transform);
-                                obj2.GetComponentInChildren<Text>().text = o.displayText;
+                                obj2.GetComponentInChildren<KS_TextTranslate>().lineId = o.displayText;
                                 obj2.GetComponentInChildren<Toggle>().isOn = bool.Parse(settingsControler.GetSetting(o.configID));
 
                                 var clickEvent2 = obj2.GetComponentInChildren<Toggle>().onValueChanged;
@@ -140,9 +140,9 @@ public class settingsUItest : MonoBehaviour {
 
                                 break;
 
-                            case KS_Settings_database.KS_Settings_database_option.Type.stepSlider:
+                            case KS_Scriptable_Settings_Type.stepSlider:
                                 GameObject obj3 = GameObject.Instantiate(SliderPrefab, parent.transform);
-                                obj3.GetComponentInChildren<Text>().text = o.displayText;
+                                obj3.GetComponentInChildren<KS_TextTranslate>().lineId = o.displayText;
                                 obj3.GetComponentInChildren<Slider>().wholeNumbers = true;
                                 obj3.GetComponentInChildren<Slider>().minValue = o.minValue;
                                 obj3.GetComponentInChildren<Slider>().maxValue = o.Maxvalue;
@@ -153,9 +153,9 @@ public class settingsUItest : MonoBehaviour {
 
                                 break;
 
-                            case KS_Settings_database.KS_Settings_database_option.Type.Language:
+                            case KS_Scriptable_Settings_Type.Language:
                                 GameObject obj4 = GameObject.Instantiate(dropdownprefab, parent.transform);
-                                obj4.GetComponentInChildren<Text>().text = o.displayText;
+                                obj4.GetComponentInChildren<KS_TextTranslate>().lineId = o.displayText;
 
                                 string[] languages = KS_Localisation.Instance.GetLanguages();
                                 List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
@@ -178,9 +178,9 @@ public class settingsUItest : MonoBehaviour {
                                 clickEvent4.AddListener(delegate { OnChange(o.configID, obj4.GetComponentInChildren<Dropdown>().value.ToString()); });
                                 break;
 
-                            case KS_Settings_database.KS_Settings_database_option.Type.dropdown:
+                            case KS_Scriptable_Settings_Type.dropdown:
                                 GameObject obj5 = GameObject.Instantiate(dropdownprefab, parent.transform);
-                                obj5.GetComponentInChildren<Text>().text = o.displayText;
+                                obj5.GetComponentInChildren<KS_TextTranslate>().lineId = o.displayText;
 
                                 List<Dropdown.OptionData> options2 = new List<Dropdown.OptionData>();
 

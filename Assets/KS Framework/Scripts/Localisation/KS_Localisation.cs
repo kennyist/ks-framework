@@ -26,11 +26,12 @@ public class KS_Localisation : MonoBehaviour {
 
     public delegate void VoidDelegate();
     public static event VoidDelegate LanguageChanged;
-    public KS_Storage_Translations translationFile;
+    public KS_Scriptable_Translations translationFile;
 
+    public KS_Scriptable_GameConfig gameConfig;
     private int selectedLanguage = 0;
 
-    void Start () {
+    public KS_Localisation () {
         instance = this;
 
         ChangeLanguage(0);
@@ -79,7 +80,7 @@ public class KS_Localisation : MonoBehaviour {
     {
         if (translationFile == null || translationFile.languages.Count <= 0) return false;
 
-        foreach(KS_Storage_Translations.Language l in translationFile.languages)
+        foreach(KS_Scriptable_Translations_Language l in translationFile.languages)
         {
             if(name == l.language)
             {
@@ -96,7 +97,7 @@ public class KS_Localisation : MonoBehaviour {
 
         List<string> languages = new List<string>();
 
-        foreach(KS_Storage_Translations.Language l in translationFile.languages)
+        foreach(KS_Scriptable_Translations_Language l in translationFile.languages)
         {
             languages.Add(l.language);
         }
@@ -112,14 +113,17 @@ public class KS_Localisation : MonoBehaviour {
 
         if(translationFile.languages[selectedLanguage].strings.Count > 0)
         {
-            foreach (KS_Storage_Translations.Language.TranslationString s in translationFile.languages[selectedLanguage].strings)
+            foreach (KS_Scriptable_Translations_Language.TranslationString s in translationFile.languages[selectedLanguage].strings)
             {
                 Debug.Log(s.lineID + " : " + lineID);
                 if (s.lineID.ToLower() == lineID.ToLower()) return s.lineText;
             }
         }
 
-        return "# Line not found #";
+        if (gameConfig.loc_returnNotFound)
+            return gameConfig.loc_NotFoundLine;
+        else
+            return lineID;
     }
 
 }

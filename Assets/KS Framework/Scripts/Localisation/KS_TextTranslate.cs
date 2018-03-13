@@ -20,7 +20,8 @@ public class KS_TextTranslate : Text
     protected override void OnEnable()
     {
         KS_Localisation.LanguageChanged += LanguageChanged;
-        base.OnDisable();
+        GetLine();
+        base.OnEnable();
     }
 
     protected override void OnDisable()

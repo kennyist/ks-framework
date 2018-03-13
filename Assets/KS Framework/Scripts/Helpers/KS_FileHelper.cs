@@ -66,42 +66,32 @@ public class KS_FileHelper {
 		Screenshots
 	}
 
-    public enum GameDataFolders
+    public enum ScreenShotSaveLocation
     {
-        /// <summary>
-        /// Translate files folder
-        /// </summary>
-        Translate
+        MyPictures,
+        DataLocation
     }
 
-	private string _gameName;
-    private string _localFolder;
-	private DataLocation _dataLocationWin = DataLocation.MyDocuments;
     private string[] ignoreExt = { ".meta" };
 
-	public KS_FileHelper(string gameName, DataLocation loc, string localFolder){
-        Debug.Log("File Helper Loading");
+    private KS_Scriptable_GameConfig gameConfig;
+
+    public KS_FileHelper(KS_Scriptable_GameConfig config)
+    {
+        gameConfig = config;
         instance = this;
-
-        _gameName = gameName;
-		_dataLocationWin = loc;
-        _localFolder = localFolder;
-
-		// Setup class, loading files
-		setup ();
-
-        Debug.Log("File Helper Loaded");
+        Setup();
     }
 
-	private void setup(){
-        CheckDirectories ();
+	private void Setup(){
+        CheckDirectories (gameConfig.windowsDataLocation);
 	}
 
-	private void CheckDirectories()
+	private void CheckDirectories(DataLocation location)
 	{
         Debug.Log("Checking public directories");
 
-        string path = getBaseDirectoryStr(_dataLocationWin);
+        string path = getBaseDirectoryStr(location);
 
         if (!Directory.Exists(path))
         {
@@ -109,7 +99,7 @@ public class KS_FileHelper {
             Debug.Log("Created Game Data folder");
         }
 
-        path = getBaseDirectoryStr(_dataLocationWin, Folders.Configs);
+        path = getBaseDirectoryStr(location, Folders.Configs);
 
 		if (!Directory.Exists(path))
 		{
@@ -117,7 +107,7 @@ public class KS_FileHelper {
             Debug.Log("Created Configs folder");
         }
 
-		path = getBaseDirectoryStr(_dataLocationWin, Folders.Saves);
+		path = getBaseDirectoryStr(location, Folders.Saves);
 
 		if (!Directory.Exists(path))
 		{
@@ -125,30 +115,12 @@ public class KS_FileHelper {
             Debug.Log("Created Saves folder");
         }
 
-		path = getBaseDirectoryStr(_dataLocationWin, Folders.Screenshots);
+		path = getBaseDirectoryStr(location, Folders.Screenshots);
 
 		if (!Directory.Exists(path))
 		{
 			Directory.CreateDirectory(path);
             Debug.Log("Created Screenshot folder");
-        }
-
-        Debug.Log("Checking Game Data directories");
-
-        path = getApplicationbasePath();
-
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-            Debug.Log("Created Application Data folder");
-        }
-
-        path = getApplicationbasePath(GameDataFolders.Translate);
-
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-            Debug.Log("Created Translation folder");
         }
     }
 
@@ -159,19 +131,19 @@ public class KS_FileHelper {
         switch (location)
         {
             case DataLocation.MyDocuments:
-                path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/" + _gameName + "/";
+                path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/" + gameConfig.gameName + "/";
                 break;
 
             case DataLocation.MyGames:
-                path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/My Games/" + _gameName + "/";
+                path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/My Games/" + gameConfig.gameName + "/";
                 break;
 
             case DataLocation.UserData:
-                path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/" + _gameName + "/";
+                path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/" + gameConfig.gameName + "/";
                 break;
 
             case DataLocation.GameFolder:
-                path = Application.dataPath + "/" + _gameName + "/";
+                path = Application.dataPath + "/" + gameConfig.gameName + "/";
                 break;
         }
 
@@ -183,22 +155,12 @@ public class KS_FileHelper {
 		return getBaseDirectoryStr(location) + folder.ToString() + "/";
 	}
 
-    private string getApplicationbasePath()
-    {
-        return Application.dataPath + "/" + _localFolder + "/";
-    }
-
-    private string getApplicationbasePath(GameDataFolders folder)
-    {
-        return Application.dataPath + "/" + _localFolder + "/" + folder.ToString() + "/";
-    }
-
     // Public 
 
 
     public bool SaveFile(Folders Type, String fileName, string data)
 	{
-		string basePath = getBaseDirectoryStr (_dataLocationWin, Type);
+		string basePath = getBaseDirectoryStr (gameConfig.windowsDataLocation, Type);
 
         try
         {
@@ -214,7 +176,7 @@ public class KS_FileHelper {
 
     public bool SaveFile(Folders Type, String fileName, byte[] data)
     {
-        string basePath = getBaseDirectoryStr(_dataLocationWin, Type);
+        string basePath = getBaseDirectoryStr(gameConfig.windowsDataLocation, Type);
 
         try
         {
@@ -229,51 +191,19 @@ public class KS_FileHelper {
         return true;
     }
 
-    public bool SaveGameFile(GameDataFolders Type, String fileName, string data)
-    {
-        string basePath = getApplicationbasePath(Type);
-
-        try
-        {
-            File.WriteAllText(basePath + fileName, data);
-        }
-        catch (IOException e)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     public byte[] LoadFile(Folders from, string fileName)
 	{
-		string basePath = getBaseDirectoryStr (_dataLocationWin, from);
+		string basePath = getBaseDirectoryStr (gameConfig.windowsDataLocation, from);
 
 		return File.ReadAllBytes(basePath + fileName);
 	}
-
-    public string LoadGameFile(GameDataFolders from, string fileName)
-    {
-        string ret = null;
-
-        try
-        {
-            ret = File.ReadAllText(getApplicationbasePath(GameDataFolders.Translate) + fileName);
-        } 
-        catch(IOException e)
-        {
-            Debug.LogError(e);
-        }
-
-        return ret;
-    }
 
     public bool RenameFile(Folders folder, string file, string newName)
     {
         try
         {
-            File.Move(getBaseDirectoryStr(_dataLocationWin, folder) + file,
-                getBaseDirectoryStr(_dataLocationWin, folder) + newName);
+            File.Move(getBaseDirectoryStr(gameConfig.windowsDataLocation, folder) + file,
+                getBaseDirectoryStr(gameConfig.windowsDataLocation, folder) + newName);
         }
         catch (IOException e)
         {
@@ -287,7 +217,7 @@ public class KS_FileHelper {
     {
         try
         {
-            File.Delete(getBaseDirectoryStr(_dataLocationWin, folder) + file);
+            File.Delete(getBaseDirectoryStr(gameConfig.windowsDataLocation, folder) + file);
         }
         catch(IOException e)
         {
@@ -299,30 +229,18 @@ public class KS_FileHelper {
 
 	public string[] GetFolderContents(Folders folder)
 	{
-        string[] files = GetFiles(getBaseDirectoryStr(_dataLocationWin, folder)).ToArray<string>();
+        string[] files = GetFiles(getBaseDirectoryStr(gameConfig.windowsDataLocation, folder)).ToArray<string>();
 
         if(files.Length > 0)
         {
             for(int i = 0; i < files.Length; i++)
             {
-                files[i] = files[i].Replace(getBaseDirectoryStr(_dataLocationWin, folder), "");
+                files[i] = files[i].Replace(getBaseDirectoryStr(gameConfig.windowsDataLocation, folder), "");
             }
         }
 
         return files;
 	}
-
-    public string[] GetApplicationDataContents(GameDataFolders folder)
-    {
-        string[] files = GetFiles(getApplicationbasePath(GameDataFolders.Translate)).ToArray<string>();
-
-        for (int i = 0;i < files.Length; i++)
-        {
-            files[i] = files[i].Replace(getApplicationbasePath(GameDataFolders.Translate), "");
-        }
-
-        return files;
-    }
 
     private IEnumerable<string> GetFiles(string path)
     {

@@ -47,6 +47,12 @@ public class KS_TimeManager : MonoBehaviour {
     
     [Range(0, 1439)]
     public int startTime = 900;
+    [Range(1, 31)]
+    public int Day = 1;
+    [Range(1, 12)]
+    public int Month = 1;
+    [Range(1900, 2100)]
+    public int Year = 2018;
     public bool realTime = false;
     public bool paused = false;
 

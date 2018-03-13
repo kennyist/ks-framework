@@ -207,59 +207,56 @@ public class KS_IniParser
     /// <param name="file">The file name.</param>
     public void Save(string file)
     {
-        //using (StreamWriter wr = new StreamWriter(Application.dataPath + "/" + file + ".ini"))
-        //{
         string fileString = "";
 
-            List<string> noDup = new List<string>();
-            for (int i = 0; i < subSections.Count; i++)
+        List<string> noDup = new List<string>();
+        for (int i = 0; i < subSections.Count; i++)
+        {
+            if (!noDup.Contains(subSections[i]))
             {
-                if (!noDup.Contains(subSections[i]))
-                {
-                    noDup.Add(subSections[i]);
-                }
+                noDup.Add(subSections[i]);
             }
-            noDup.Sort();
-            List<string> keysC = keys;
-            List<string> valsC = vals;
-            List<string> comsC = comments;
-            List<string> subsC = subSections;
-            for (int i = 0; i < noDup.Count; i++)
+        }
+        noDup.Sort();
+        List<string> keysC = keys.GetRange(0, keys.Count);
+        List<string> valsC = vals.GetRange(0, keys.Count);
+        List<string> comsC = comments.GetRange(0, keys.Count);
+        List<string> subsC = subSections.GetRange(0, keys.Count);
+        for (int i = 0; i < noDup.Count; i++)
+        {
+            int cur = 0;
+            while (subsC.Contains(noDup[i]))
             {
-                int cur = 0;
-                while (subsC.Contains(noDup[i]))
+                int pos = subsC.IndexOf(noDup[i]);
+                if (cur == 0)
                 {
-                    int pos = subsC.IndexOf(noDup[i]);
-                    if (cur == 0)
+                    if (!noDup[i].Equals(""))
                     {
-                        if (!noDup[i].Equals(""))
-                        {
                         //wr.WriteLine("\n[" + noDup[i] + "]\n");
                         fileString += "\n[" + noDup[i] + "]\n";
-                        }
                     }
-                    if (!comsC[pos].Equals(""))
-                    {
-                        string p1 = keysC[pos] + "=" + valsC[pos];
-                        int tabs = (commentMargin - p1.Length) / 4;
+                }
+                if (!comsC[pos].Equals(""))
+                {
+                    string p1 = keysC[pos] + "=" + valsC[pos];
+                    int tabs = (commentMargin - p1.Length) / 4;
                     //wr.WriteLine(p1 + new string('\t', tabs) + "; " + comsC[pos]);
                     fileString += p1 + new string('\t', tabs) + "; " + comsC[pos] + "\n";
-                    }
-                    else
-                    {
+                }
+                else
+                {
                     //wr.WriteLine(keysC[pos] + "=" + valsC[pos]);
                     fileString += keysC[pos] + "=" + valsC[pos] + "\n";
-                    }
-                    subsC.RemoveAt(pos);
-                    keysC.RemoveAt(pos);
-                    comsC.RemoveAt(pos);
-                    valsC.RemoveAt(pos);
-                    cur++;
                 }
+                subsC.RemoveAt(pos);
+                keysC.RemoveAt(pos);
+                comsC.RemoveAt(pos);
+                valsC.RemoveAt(pos);
+                cur++;
             }
+        }
 
         IO.SaveFile(KS_FileHelper.Folders.Configs, file + ".cfg", fileString);
-        //}
         Debug.Log(file + ".ini Saved");
     }
 
@@ -271,7 +268,7 @@ public class KS_IniParser
     {
         Clear();
 
-        string line = "", dir = Application.dataPath + "/" + file + ".ini", catagory = "";
+        string line = "", catagory = "";
         int offset = 0, comment = 0, subcat = 0;
 
         byte[] fileString = IO.LoadFile(KS_FileHelper.Folders.Configs, file + ".cfg");
@@ -310,7 +307,6 @@ public class KS_IniParser
         }
         catch (IOException e)
         {
-            Debug.Log("Error opening " + file + ".ini");
             Debug.LogWarning(e);
         }
     }

@@ -7,7 +7,7 @@ using System.Linq;
 
 public class KS_FullMap : MonoBehaviour {
 
-    private List<KS_MapObject> mapObject;
+    private List<KS_MapMarker> mapObject;
 
     // Instancing
 
@@ -26,11 +26,13 @@ public class KS_FullMap : MonoBehaviour {
     public delegate void ScaleHandler(float scale);
     public delegate void MiniMapToggle();
     public delegate void Vector3Handler(Vector3 position);
+    public delegate void FilterHandler(KS_MapMarker.MapMarkerType type, bool filtered);
     public static event ScaleHandler OnScale;
     public static event MiniMapToggle OnMinimap;
     public static event MiniMapToggle OffMiniMap;
     public static event Vector3Handler WayPointMarkerAdded;
     public static event MiniMapToggle WayPointRemoved;
+    public static event FilterHandler OnFilter;
 
     // Waypoints and markers
 
@@ -69,7 +71,7 @@ public class KS_FullMap : MonoBehaviour {
     private Vector2 bottomLeft = new Vector2();
     private Vector2 topRight = new Vector2();
 
-    public List<GameObject> mapObjects = new List<GameObject>();
+    public List<KS_MapMarker> mapObjects = new List<KS_MapMarker>();
 
     public GameObject player;
     public GameObject camera;
@@ -87,7 +89,7 @@ public class KS_FullMap : MonoBehaviour {
         instance = this;
         miniMapTexture = new RenderTexture(Screen.width, Screen.height, 16, renderFormat);
         miniMapTexture.Create();
-        mapObject = new List<KS_MapObject>();
+        mapObject = new List<KS_MapMarker>();
     }
 
     private void Start()
@@ -167,6 +169,15 @@ public class KS_FullMap : MonoBehaviour {
             targetScale = miniMapScale;
         }
 
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            SetFilter(KS_MapMarker.MapMarkerType.Other, false);
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            SetFilter(KS_MapMarker.MapMarkerType.Other, true);
+        }
 
         if (mapActive)
         {
@@ -259,16 +270,16 @@ public class KS_FullMap : MonoBehaviour {
             {
                 if (hit.collider.gameObject)
                 {
-                    if (hoverMapObject == null && hit.collider.gameObject.GetComponent<KS_MapObject>())
+                    if (hoverMapObject == null && hit.collider.gameObject.GetComponent<KS_MapMarker>())
                     {
                         hoverMapObject = hit.collider.gameObject;
-                        hoverMapObject.GetComponent<KS_MapObject>().OnHover();
+                        hoverMapObject.GetComponent<KS_MapMarker>().OnHover();
                     }
-                    else if (hit.collider.gameObject != hoverMapObject && hit.collider.gameObject.GetComponent<KS_MapObject>())
+                    else if (hit.collider.gameObject != hoverMapObject && hit.collider.gameObject.GetComponent<KS_MapMarker>())
                     {
-                        hoverMapObject.GetComponent<KS_MapObject>().OffHover();
+                        hoverMapObject.GetComponent<KS_MapMarker>().OffHover();
                         hoverMapObject = hit.collider.gameObject;
-                        hoverMapObject.GetComponent<KS_MapObject>().OnHover();
+                        hoverMapObject.GetComponent<KS_MapMarker>().OnHover();
                     }
                 }
             }
@@ -276,7 +287,7 @@ public class KS_FullMap : MonoBehaviour {
             {
                 if (hoverMapObject != null)
                 {
-                    hoverMapObject.GetComponent<KS_MapObject>().OffHover();
+                    hoverMapObject.GetComponent<KS_MapMarker>().OffHover();
                     hoverMapObject = null;
                 }
             }
@@ -292,35 +303,35 @@ public class KS_FullMap : MonoBehaviour {
 
                 if (hoverMapObject != null)
                 {
-                    KS_MapObject mapObj;
-                    if (mapObj = hoverMapObject.GetComponent<KS_MapObject>())
+                    KS_MapMarker mapObj;
+                    if (mapObj = hoverMapObject.GetComponent<KS_MapMarker>())
                     {
                         if (GetTargetedMapObject())
                         {
                             Debug.Log("Removing targeted");
-                            if (mapObj.IsTargeted)
+                            /*if (mapObj.IsTargeted)
                             {
                                 RemoveWaypoint();
                                 mapObj.WaypointTarget = false;
                                 return;
-                            }
+                            }*/
 
-                            GetTargetedMapObject().WaypointTarget = false;
+                            //GetTargetedMapObject().IsWaypointTarget = false;
                         }
 
                         // If map object is a waypoint
-                        if (mapObj.type == KS_MapObject.MapItemType.Waypoint)
+                        /*if (mapObj.type == KS_MapObject.MapItemType.Waypoint)
                         {
                             Debug.Log("Waypoint - Removing");
                             RemoveWaypoint();
                             return;
-                        }
+                        }*/
 
                         // If not set as waypoint on not waypoint, create
-                        Debug.Log("Creating waypoint on: " + mapObj.displayName);
+                        Debug.Log("Creating waypoint on: " + mapObj.LocationName);
                         SetWaypoint(hoverMapObject.transform.position);
                         wayPoint.GetComponent<Collider>().enabled = false;
-                        mapObj.WaypointTarget = true;
+                        //mapObj.IsWaypointTarget = true;
 
                         return;
                     }
@@ -353,6 +364,8 @@ public class KS_FullMap : MonoBehaviour {
             wayPoint = GameObject.Instantiate(wayPointPrefab,
                                                     target,
                                                     Quaternion.identity);
+
+            wayPoint.GetComponent<KS_MapMarker>().OffMiniMap();
         }
 
         if (WayPointMarkerAdded != null)
@@ -414,28 +427,30 @@ public class KS_FullMap : MonoBehaviour {
         get { return camera.GetComponent<Camera>().orthographicSize / maxCameraScale; }
     }
 
-    public void RegisterMapObject(KS_MapObject obj)
+    public int RegisterMapObject(KS_MapMarker obj)
     {
         mapObject.Add(obj);
+
+        return mapObject.Count - 1;
     }
 
-    public void UnregisterMapObject(KS_MapObject obj)
+    public void UnregisterMapObject(KS_MapMarker obj)
     {
         mapObject.Remove(obj);
     }
 
-    public int GetTotalMapObjectsOfType(KS_MapObject.MapItemType type)
+    public int GetTotalMapObjectsOfType(KS_MapMarker.MapMarkerType type)
     {
-        return mapObject.Count(i => i.type == type);
+        return mapObject.Count(i => i.MarkerType == type);
     }
 
-    public KS_MapObject GetTargetedMapObject()
+    public KS_MapMarker GetTargetedMapObject()
     {
         if (mapObject.Count <= 0) return null;
 
-        for(int i = 0; i < mapObject.Count - 1; i++)
+        for (int i = 0; i < mapObject.Count - 1; i++)
         {
-            if (mapObject[i].IsTargeted) return mapObject[i];
+            if (mapObject[i].IsWaypointTarget) return mapObject[i];
         }
 
         return null;
@@ -444,5 +459,11 @@ public class KS_FullMap : MonoBehaviour {
     public void NewWaypoint(Vector3 position)
     {
         SetWaypoint(position);
+    }
+
+    public void SetFilter(KS_MapMarker.MapMarkerType type, bool show)
+    {
+        if (OnFilter != null)
+            OnFilter(type, show);
     }
 }

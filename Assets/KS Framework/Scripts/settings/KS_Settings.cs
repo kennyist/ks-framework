@@ -14,37 +14,37 @@ public class KS_Settings : MonoBehaviour {
         }
     }
 
-    public KS_Settings_database settings;
-    public string configName = "Settings";
+    public KS_Scriptable_Settings settings;
+    public KS_Scriptable_GameConfig gameConfig;
 
     private KS_IniParser settingsConfig;
 
-    private void Awake()
+    private void Start()
     {
         instance = this;
 
         settingsConfig = new KS_IniParser();
 
-        if (!settingsConfig.DoesExist(configName))
+        if (!settingsConfig.DoesExist(gameConfig.SettingsConfigName))
         {
             Debug.Log("Doesnt exist");
             PopulateWithDefaults();
-            settingsConfig.Save(configName);
-            Debug.Log(configName + " created");
+            settingsConfig.Save(gameConfig.SettingsConfigName);
+            Debug.Log(gameConfig.SettingsConfigName + " created");
         }
 
-        settingsConfig.Load(configName);
+        settingsConfig.Load(gameConfig.SettingsConfigName);
 	}
 
     void PopulateWithDefaults()
     {
         if(settings.Menus.Count > 0)
         {
-            foreach(KS_Settings_database.KS_Settings_database_menu m in settings.Menus)
+            foreach(KS_Scriptable_Settings_menu m in settings.Menus)
             {
                 if(m.settings.Count > 0)
                 {
-                    foreach(KS_Settings_database.KS_Settings_database_option o in m.settings)
+                    foreach(KS_Scriptable_Settings_option o in m.settings)
                     {
                         settingsConfig.Set(m.menuTitle, o.configID, o.defult, o.configHelp);
                     } 
@@ -70,6 +70,8 @@ public class KS_Settings : MonoBehaviour {
 
     public void Save()
     {
-        settingsConfig.Save(configName);
+        Debug.Log(settingsConfig.Count());
+        settingsConfig.Save(gameConfig.SettingsConfigName);
+        Debug.Log(settingsConfig.Count());
     }
 }
