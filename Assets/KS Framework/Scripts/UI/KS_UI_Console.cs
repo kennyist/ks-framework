@@ -16,6 +16,11 @@ public class KS_UI_Console : MonoBehaviour {
         inputText.onEndEdit.AddListener(delegate { OnEnter(inputText.text); });
     }
 
+    private void OnDestroy()
+    {
+        KS_Console.Instance.OnLogUpdate -= OnLogUpdate;
+    }
+
     private void OnLogUpdate(string text)
     {
         logTextBox.text = KS_Console.Instance.GetLog;
@@ -33,11 +38,13 @@ public class KS_UI_Console : MonoBehaviour {
         {
             if (isEnabled)
             {
+                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Paused);
                 container.SetActive(false);
                 isEnabled = false;
             }
             else
             {
+                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
                 container.SetActive(true);
                 isEnabled = true;
                 inputText.Select();

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public delegate void GameStateHandler(KS_Manager.GameState state);
 public delegate void VoidHandler();
+public delegate void IntHandler(int index);
 
 public class KS_Manager : MonoBehaviour {
 
@@ -33,6 +34,8 @@ public class KS_Manager : MonoBehaviour {
     public static event GameStateHandler OnStateChange;
     public static event VoidHandler OnPause;
     public static event VoidHandler OnPlay;
+    public static event IntHandler OnLoadLevel;
+    public static event VoidHandler OnLevelLoaded;
 
     // ------
 
@@ -49,6 +52,7 @@ public class KS_Manager : MonoBehaviour {
 
     void Awake()
     {
+        instance = this;
         Debug.Log("Starting OWGF Manager");
 
         if (!gameConfig)
@@ -81,21 +85,57 @@ public class KS_Manager : MonoBehaviour {
 
     // Public Functions
 
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void LoadLevel(int index)
+    {
+        SetGameState(GameState.LoadScreen);
+
+        if(OnLoadLevel != null)
+        {
+            OnLoadLevel(index);
+        }
+    }
+
+    public void LevelLoaded()
+    {
+        SetGameState(GameState.Playing);
+
+        if (OnLevelLoaded != null)
+            OnLevelLoaded();
+    }
+
     public void SetGameState(GameState state)
     {
         currentState = state;
 
         Debug.Log("Game State: " + state.ToString());
 
+        switch (state)
+        {
+            case GameState.Paused:
+                SetPaused(true);
+                break;
+
+            case GameState.Playing:
+                SetPaused(false);
+                break;
+
+            default:
+                break;
+        }
+
         if (OnStateChange != null)
             OnStateChange(state);
     }
 
-    public void SetPaused(bool paused)
+    private void SetPaused(bool paused)
     {
         if (paused)
         {
-            SetGameState(GameState.Paused);
             Time.timeScale = 0f;
 
             if (OnPause != null)
@@ -103,7 +143,6 @@ public class KS_Manager : MonoBehaviour {
         }
         else
         {
-            SetGameState(GameState.Playing);
             Time.timeScale = 1f;
 
             if (OnPlay != null)

@@ -10,9 +10,25 @@ public class KS_LoadScreen : MonoBehaviour {
 
     private bool loaded = false;
     public Text clickToContinue;
-    
-	// Use this for initialization
-	void Start () {
+    public Text progress;
+
+    private void Awake()
+    {
+        KS_Manager.OnLoadLevel += OnLevelLoad;
+    }
+
+    private void OnDestroy()
+    {
+        KS_Manager.OnLoadLevel -= OnLevelLoad;
+    }
+
+    private void OnLevelLoad(int index)
+    {
+        StartCoroutine(LoadScene(index));
+    }
+
+    // Use this for initialization
+    void Start () {
         DontDestroyOnLoad(this.gameObject);
         LoadScreenContainer.gameObject.SetActive(false);
         clickToContinue.gameObject.SetActive(false);
@@ -20,10 +36,6 @@ public class KS_LoadScreen : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            StartCoroutine(LoadScene(1));
-        }
 
         if (loaded)
         {
@@ -32,13 +44,24 @@ public class KS_LoadScreen : MonoBehaviour {
                 clickToContinue.gameObject.SetActive(false);
                 LoadScreenContainer.SetActive(false);
                 loaded = false;
+
+                KS_Manager.Instance.LevelLoaded();
             }
         }
+
+        if (loading)
+        {
+            progress.text = loadProgress.ToString("00%");
+        }
 	}
+
+    private float loadProgress = 0f;
+    private bool loading = false;
 
     private IEnumerator LoadScene(int scene)
     {
         LoadScreenContainer.SetActive(true);
+        loading = true;
 
         yield return new WaitForSeconds(3f);
 
@@ -46,9 +69,11 @@ public class KS_LoadScreen : MonoBehaviour {
 
         while (async.isDone)
         {
+            loadProgress = async.progress;
             yield return null;
         }
 
+        loading = false;
         loaded = true;
         clickToContinue.gameObject.SetActive(true);
     }

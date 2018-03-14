@@ -53,7 +53,19 @@ public class settingsUItest : MonoBehaviour {
         PopulateSettings();
 
         saveSettignsBtn.onClick.AddListener(delegate { SaveSettings(); });
+
+        KS_Manager.OnLoadLevel += OnLevelLoad;
 	}
+
+    private void OnDestroy()
+    {
+        KS_Manager.OnLoadLevel -= OnLevelLoad;
+    }
+
+    private void OnLevelLoad(int i)
+    {
+        Destroy(gameObject);
+    }
 
     private void SaveSettings()
     {

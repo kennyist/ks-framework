@@ -25,6 +25,10 @@ public class KS_Editor_Manager : EditorWindow
     private static void CreateManager()
     {
         GameObject obj = new GameObject("KS: Open World Framework");
+        GameObject pooling = new GameObject("KS: Pool Container");
+        obj.transform.SetSiblingIndex(0);
+        pooling.transform.SetParent(obj.transform);
+        Selection.activeGameObject = obj;
 
         KS_Scriptable_GameConfig config = FindGameConfig();
 
@@ -38,6 +42,20 @@ public class KS_Editor_Manager : EditorWindow
 
         obj.AddComponent<KS_Settings>();
         obj.GetComponent<KS_Settings>().gameConfig = config;
+
+        GameObject obj2 = new GameObject("Load Screen Container");
+        obj2.transform.parent = obj.transform;
+
+        obj.AddComponent<KS_LoadScreen>();
+        obj.GetComponent<KS_LoadScreen>().LoadScreenContainer = obj2;
+
+        obj.AddComponent<KS_PoolManager>();
+        obj.GetComponent<KS_PoolManager>().gameConfig = config;
+        obj.GetComponent<KS_PoolManager>().pooledObjectsContainer = pooling;
+
+        GameObject obj3 = Instantiate(AssetDatabase.LoadAssetAtPath("Assets/KS Framework/Prefabs/UI/KS_prefab_console.prefab", typeof(GameObject))) as GameObject;
+        obj3.transform.parent = obj.transform;
+
 
         Init();
     }

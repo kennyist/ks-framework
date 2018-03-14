@@ -16,5 +16,9 @@ public class KS_Scriptable_GameConfig : ScriptableObject {
 
     public bool loc_returnNotFound = true;
     public string loc_NotFoundLine = "# Line not found #";
+
+    // pooling
+
+    public bool pool_ClearOnLoadLevel = true;
 }
  

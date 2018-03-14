@@ -26,7 +26,7 @@ public class KS_Editor_TranslationManager : EditorWindow
     private KeyValuePair<string, KS_Scriptable_Translations_Language.TranslationString>[] loadedLines = null;
     private string loadedString = null;
 
-    [MenuItem("KS: Framework/Translation Manager")]
+    [MenuItem("KS: OWGF/Translation Manager", false, 21)]
     static void Init()
     {
         KS_Editor_TranslationManager window = (KS_Editor_TranslationManager)EditorWindow.GetWindow(typeof(KS_Editor_TranslationManager));
@@ -150,8 +150,8 @@ public class KS_Editor_TranslationManager : EditorWindow
     {
         if (translations)
         {
-            //EditorUtility.SetDirty(translations);
-            //AssetDatabase.SaveAssets();
+            EditorUtility.SetDirty(translations);
+            AssetDatabase.SaveAssets();
         }
 
         keys = GetAllKeys();

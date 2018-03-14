@@ -6,6 +6,7 @@ using System;
 
 public class KS_PoolManager : MonoBehaviour {
 
+    public KS_Scriptable_GameConfig gameConfig;
     public GameObject pooledObjectsContainer;
 
     private static KS_PoolManager instance;
@@ -37,6 +38,21 @@ public class KS_PoolManager : MonoBehaviour {
 
         _inactive.transform.parent = pooledObjectsContainer.transform;
         _active.transform.parent = pooledObjectsContainer.transform;
+
+        KS_Manager.OnLoadLevel += LevelLoadStarted;
+    }
+
+    private void OnDestroy()
+    {
+        KS_Manager.OnLoadLevel -= LevelLoadStarted;
+    }
+
+    public void LevelLoadStarted(int i = 0)
+    {
+        if (gameConfig.pool_ClearOnLoadLevel)
+        {
+            Clear();
+        }
     }
 
     GameObject _inactive;
