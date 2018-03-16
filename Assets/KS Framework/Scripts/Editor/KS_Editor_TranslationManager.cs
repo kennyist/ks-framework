@@ -224,14 +224,14 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     void DrawKeyMenu()
     {
-        GUILayout.BeginVertical(GUILayout.Width(120));
+        GUILayout.BeginVertical(GUILayout.Width(200));
         GUILayout.Label("Languages");
 
         if(languages != null || languages.Length > 0)
         {
             for(int i = 0; i < languages.Length; i++)
             {
-                if(GUILayout.Button(languages[i]/*, keyLabel*/))
+                if(GUILayout.Button(languages[i], EditorStyles.miniButton))
                 {
 
                 }
@@ -242,13 +242,14 @@ public class KS_Editor_TranslationManager : EditorWindow
 
         GUILayout.Label("Keys");
 
-        GUILayout.BeginScrollView(scrollPos);
+        scrollPos = GUILayout.BeginScrollView(scrollPos);
 
 
         if(keys != null || keys.Length > 0)
         {
             for(int i = 0; i < keys.Length; i++)
             {
+                EditorStyles.miniButton.alignment = TextAnchor.MiddleLeft;
                 if (GUILayout.Button(keys[i], EditorStyles.miniButton))
                 {
                     loadedLines = null;
@@ -282,7 +283,7 @@ public class KS_Editor_TranslationManager : EditorWindow
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(loadedLines[i].Key, GUILayout.Width(100));
-                    loadedLines[i].Value.lineText = GUILayout.TextArea(loadedLines[i].Value.lineText, GUILayout.ExpandWidth(true));
+                    loadedLines[i].Value.lineText = EditorGUILayout.TextArea(loadedLines[i].Value.lineText, GUILayout.ExpandWidth(true));
                     GUILayout.EndHorizontal();
                 }
             }
@@ -378,6 +379,8 @@ public class KS_Editor_TranslationManager : EditorWindow
         {
             keys = keys.FindAll(s => s.Contains(searchString));
         }
+
+        keys.Sort();
 
         return keys.ToArray();
     }
@@ -497,6 +500,7 @@ public class KS_Editor_TranslationManager : EditorWindow
 
     void AddString(string ID)
     {
+        ID = ID.ToLower();
 
         if(translations.languages.Count > 0)
         {

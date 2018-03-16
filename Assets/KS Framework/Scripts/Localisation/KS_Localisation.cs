@@ -109,13 +109,10 @@ public class KS_Localisation : MonoBehaviour {
     {
         if (translationFile == null || translationFile.languages.Count <= 0) return "";
 
-        Debug.Log(translationFile.languages[selectedLanguage].strings.Count + " : " +lineID);
-
         if(translationFile.languages[selectedLanguage].strings.Count > 0)
         {
             foreach (KS_Scriptable_Translations_Language.TranslationString s in translationFile.languages[selectedLanguage].strings)
             {
-                Debug.Log(s.lineID + " : " + lineID);
                 if (s.lineID.ToLower() == lineID.ToLower()) return s.lineText;
             }
         }

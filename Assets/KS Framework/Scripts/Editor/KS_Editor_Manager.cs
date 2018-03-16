@@ -43,6 +43,9 @@ public class KS_Editor_Manager : EditorWindow
         obj.AddComponent<KS_Settings>();
         obj.GetComponent<KS_Settings>().gameConfig = config;
 
+        obj.AddComponent<KS_Input>();
+        obj.GetComponent<KS_Input>().gameConfig = config;
+
         GameObject obj2 = new GameObject("Load Screen Container");
         obj2.transform.parent = obj.transform;
 

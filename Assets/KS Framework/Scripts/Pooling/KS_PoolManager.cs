@@ -215,7 +215,7 @@ public abstract class KS_poolObject : MonoBehaviour, KS_IPoolObject
         return null;
     }
 
-    public virtual void AddToPoolAndDissable()
+    public virtual void AddToPool()
     {
         // Add to pool.
         KS_PoolManager.Instance.AddPoolObject(this);

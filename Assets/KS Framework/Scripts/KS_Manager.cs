@@ -36,6 +36,7 @@ public class KS_Manager : MonoBehaviour {
     public static event VoidHandler OnPlay;
     public static event IntHandler OnLoadLevel;
     public static event VoidHandler OnLevelLoaded;
+    public static event VoidHandler OnManagerStart;
 
     // ------
 
@@ -66,6 +67,14 @@ public class KS_Manager : MonoBehaviour {
         fileHelper = new KS_FileHelper(gameConfig);
         consoleHelper = new KS_Console();
         commands = new ConsoleCommands();
+    }
+
+    private void Start()
+    {
+        if(OnManagerStart != null)
+        {
+            OnManagerStart();
+        }
     }
 
     // Get

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KS_TimeManager : MonoBehaviour {
+public class KS_TimeManager : KS_Behaviour {
 
     private static KS_TimeManager instance;
     public static KS_TimeManager Instance
@@ -90,6 +90,16 @@ public class KS_TimeManager : MonoBehaviour {
         {
             SetTimeOverTime(12, 0, 8);
         }
+    }
+
+    public override void OnPause()
+    {
+        paused = true;
+    }
+
+    public override void OnPlay()
+    {
+        paused = false;
     }
 
     private void FixedUpdate()

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class KS_LoadScreen : MonoBehaviour {
+public class KS_LoadScreen : KS_Behaviour {
 
     public GameObject LoadScreenContainer;
 
@@ -12,18 +12,9 @@ public class KS_LoadScreen : MonoBehaviour {
     public Text clickToContinue;
     public Text progress;
 
-    private void Awake()
+    public override void OnLoadLevel(int index)
     {
-        KS_Manager.OnLoadLevel += OnLevelLoad;
-    }
-
-    private void OnDestroy()
-    {
-        KS_Manager.OnLoadLevel -= OnLevelLoad;
-    }
-
-    private void OnLevelLoad(int index)
-    {
+        Debug.Log("Loading level: " + index);
         StartCoroutine(LoadScene(index));
     }
 
