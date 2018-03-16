@@ -19,12 +19,22 @@ public class KS_Scriptable_Input_object
     public KeyCode curKey;
 
     public bool UseDS4 = false;
-    public DS4KeyCode DefaultDS4 = DS4KeyCode.X;
+    public DS4KeyCode DefaultDS4;
     public bool UseXbox = false;
+    public XboxKeyCode DefaultXbox;
 
     //Mouse
     public int MouseButton = 0;
     public int curMouseButton = 0;
+
+    // Axis
+    public KeyCode positive;
+    public KeyCode negitive;
+    public bool mouseX;
+    public bool mouseY;
+    public DS4Axis DS4Axis;
+    public XboxAxis XboxAxis;
+    public float deadZone = 0.10f;
 }
 
 [System.Serializable]

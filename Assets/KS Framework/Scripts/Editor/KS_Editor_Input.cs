@@ -196,7 +196,10 @@ public class KS_Editor_Input : EditorWindow {
 
         if (selected.UseXbox)
         {
-
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Xbox Button:", GUIStyleLabel());
+            selected.DefaultXbox = (XboxKeyCode) EditorGUILayout.EnumPopup(selected.DefaultXbox);
+            GUILayout.EndHorizontal();
         }
     }
 
@@ -210,6 +213,62 @@ public class KS_Editor_Input : EditorWindow {
 
     void GUIDrawAxisItem(KS_Scriptable_Input_object input)
     {
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Positive Key:", GUIStyleLabel());
+        selected.positive = (KeyCode) EditorGUILayout.EnumPopup(selected.positive);
+        GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Negative Key:", GUIStyleLabel());
+        selected.negitive = (KeyCode)EditorGUILayout.EnumPopup(selected.negitive);
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Mouse X:", GUIStyleLabel());
+        selected.mouseX = GUILayout.Toggle(selected.mouseX, " Read Mouse X axis");
+        GUILayout.EndHorizontal();
+
+        if (selected.mouseX) selected.mouseY = false;
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Mouse Y:", GUIStyleLabel());
+        selected.mouseY = GUILayout.Toggle(selected.mouseY, " Read Mouse Y axis");
+        GUILayout.EndHorizontal();
+
+        if (selected.mouseY) selected.mouseX = false;
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Use DS4:", GUIStyleLabel());
+        selected.UseDS4 = GUILayout.Toggle(selected.UseDS4, " Enable Dual Shock 4 support on this input");
+        GUILayout.EndHorizontal();
+
+        if (selected.UseDS4)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("DS4 Axis:", GUIStyleLabel());
+            selected.DS4Axis = (DS4Axis)EditorGUILayout.EnumPopup(selected.DS4Axis);
+            GUILayout.EndHorizontal();
+        }
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Use Xbox:", GUIStyleLabel());
+        selected.UseXbox = GUILayout.Toggle(selected.UseXbox, " Enable xbox controller support on this input");
+        GUILayout.EndHorizontal();
+
+        if (selected.UseXbox)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Xbox Axis:", GUIStyleLabel());
+            selected.XboxAxis = (XboxAxis)EditorGUILayout.EnumPopup(selected.XboxAxis);
+            GUILayout.EndHorizontal();
+        }
+
+        if (selected.UseDS4 || selected.UseXbox)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Controller Axis Deadzone:", GUIStyleLabel());
+            selected.deadZone = EditorGUILayout.FloatField(selected.deadZone);
+            GUILayout.EndHorizontal();
+        }
     }
 }

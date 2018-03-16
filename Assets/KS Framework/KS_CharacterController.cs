@@ -1,0 +1,138 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class KS_CharacterController : KS_Behaviour {
+
+    public enum PlayerState
+    {
+        idle,
+        walking,
+        running,
+        jumping,
+    }
+
+    public Transform camera;
+
+    public float cameraYSpeed = 2f;
+    public float cameraXSpeed = 4f;
+    public float smooth = 2f;
+    public float moveSpeed = 20f;
+    public float runSpeed = 3f;
+    public float jumpForce = 5f;
+    public float crouchHeight = 0.5f;
+    private float startHeight;
+
+    private float yaw = 0.0f;
+    private float pitch = 0.0f;
+
+    private Rigidbody rb;
+    private Collider collider;
+    private PlayerState state = PlayerState.idle;
+
+    private bool running = false;
+
+    // Use this for initialization
+    void Start () {
+        rb = GetComponent<Rigidbody>();
+        collider = GetComponent<Collider>();
+        startHeight = GetComponent<CapsuleCollider>().height;
+	}
+
+    private bool IsCrouching = false;
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Manager.State != KS_Manager.GameState.Playing) return;
+
+        MoveCamera(KS_Input.GetAxis("View Horizontal"), KS_Input.GetAxis("View Vertical"));
+        MovePlayer(KS_Input.GetAxis("Move Horizontal"), KS_Input.GetAxis("Move Vertical"));
+
+        if (KS_Input.GetInputDown("jump") && IsGrounded())
+        {
+            Jump();
+        }
+
+        if (KS_Input.GetInputDown("crouch"))
+        {
+            Crouch();
+        }
+
+        if (KS_Input.GetInputDown("run"))
+        {
+            print("Running");
+            running = true;
+        }
+
+        if (KS_Input.GetInputUp("run"))
+        {
+            print("walking");
+            running = false;
+        }
+    }
+
+    bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f);
+    }
+
+    void Crouch()
+    {
+        Debug.Log("Crouch");
+        if (IsCrouching)
+        {
+            IsCrouching = false;
+            GetComponent<CapsuleCollider>().height = crouchHeight;
+            //transform.position = transform.position + (Vector3.up * (startHeight / 2));
+            //transform.localScale = new Vector3(transform.localScale.x, startHeight, transform.localScale.z);
+        }
+        else
+        {
+            IsCrouching = true;
+            GetComponent<CapsuleCollider>().height = startHeight;
+            //transform.localScale = new Vector3(transform.localScale.x, crouchHeight, transform.localScale.z);
+            //transform.position = transform.position - (Vector3.up * (startHeight / 2));
+        }
+    }
+
+    void Jump()
+    {
+        Debug.Log("Jump");
+        state = PlayerState.jumping;
+
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+
+    void MoveCamera(float X, float Y)
+    {
+        if (X < -1f || X > 1f) yaw += X;
+        else yaw += X * cameraXSpeed;
+
+        if (Y < -1f || Y > 1f) pitch += Y;
+        else pitch += Y * cameraYSpeed;
+
+        if (pitch > 80f) pitch = 80f;
+        if (pitch < -80f) pitch = -80f;
+
+        transform.eulerAngles = new Vector3(0, yaw, 0);
+        camera.transform.localEulerAngles = new Vector3(pitch, 0, 0.0f);
+    }
+
+    void MovePlayer(float X, float Y)
+    {
+        Vector3 direction = new Vector3();
+
+        direction += Vector3.left * X;
+        direction += Vector3.forward * Y;
+
+        if (running)
+        {
+            rb.AddRelativeForce(direction * runSpeed);
+        }
+        else
+        {
+            rb.AddRelativeForce(direction * moveSpeed);
+        }
+    }
+}

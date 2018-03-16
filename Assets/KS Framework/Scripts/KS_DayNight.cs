@@ -65,6 +65,8 @@ public class KS_DayNight : MonoBehaviour {
 
     private void Awake()
     {
+        if (instance != null) Destroy(this);
+        instance = this;
         StarAwake();
     }
 
@@ -326,12 +328,6 @@ public class KS_DayNight : MonoBehaviour {
         var main = particals.main;
 
         main.maxParticles = maxParticals;
-        /*ParticleSystem.Burst burst = new ParticleSystem.Burst();
-        main.simulationSpace = ParticleSystemSimulationSpace.Local;
-        burst.minCount = (short) maxParticals;
-        burst.maxCount = (short) maxParticals;
-        burst.time = 0.0f;
-        particals.emission.SetBurst(1, burst);*/
 
         farClipPlane = Camera.main.farClipPlane;
     }
@@ -351,7 +347,33 @@ public class KS_DayNight : MonoBehaviour {
 
     void PopulateStartsFile()
     {
+        Debug.Log("star file");
 
+        ParticleSystem.Particle[] points = new ParticleSystem.Particle[maxParticals];
+        startCols = new Color[maxParticals];
+        particals.GetParticles(points);
+
+        string[] lines = starFile.text.Split(';');
+
+        for(int i = 0; i < lines.Length; i++)
+        {
+            string[] lineSplit = lines[i].Split(',');
+            Vector3 position = new Vector3();
+            position.x = float.Parse(lineSplit[0]);
+            position.y = float.Parse(lineSplit[1]);
+            position.z = float.Parse(lineSplit[2]);
+
+            float size = float.Parse(lineSplit[3]);
+            float brightness = float.Parse(lineSplit[4]);
+
+            points[i].position = position;
+            points[i].startSize = size;
+            startCols[i] = Color.white * brightness;
+            points[i].startColor = startCols[i];
+            points[i].axisOfRotation = starContainer.transform.position;
+            points[i].startLifetime = Mathf.Infinity;
+            points[i].remainingLifetime = Mathf.Infinity;
+        }
     }
 
     Color[] startCols;

@@ -182,8 +182,10 @@ public class KS_FullMap : MonoBehaviour {
         if (mapActive)
         {
 
+            targetPosition += Vector3.left * (KS_Input.GetAxis("mapMoveX") * cameraSpeed);
+            targetPosition += Vector3.forward * (KS_Input.GetAxis("mapMoveY") * cameraSpeed);
             // Camera Movement
-
+            /*
             if (Input.GetKey(KeyCode.W))
             {
                 targetPosition += Vector3.forward * cameraSpeed;
@@ -202,7 +204,7 @@ public class KS_FullMap : MonoBehaviour {
             if (Input.GetKey(KeyCode.D))
             {
                 targetPosition += Vector3.right * cameraSpeed;
-            }
+            }*/
         }
 
         targetPosition.y = camera.transform.position.y;
@@ -225,6 +227,22 @@ public class KS_FullMap : MonoBehaviour {
         // Camera Scale
         if (mapActive)
         {
+            float inaxis = KS_Input.GetAxis("mapMoveIn");
+            float outaxis = KS_Input.GetAxis("mapMoveOut");
+
+            Debug.Log(inaxis + ":" + outaxis);
+
+            if (inaxis > -1f)
+            {
+                targetScale += cameraZoomSpeed * ScalePercent;
+            }
+
+            if(outaxis > -1f)
+            {
+                targetScale -= cameraZoomSpeed * ScalePercent;
+            }
+
+            /*
             if (Input.GetKey(KeyCode.Minus))
             {
                 targetScale += cameraZoomSpeed * ScalePercent;
@@ -244,6 +262,7 @@ public class KS_FullMap : MonoBehaviour {
             {
                 targetScale -= cameraMouseWheelZoomeSpeed;
             }
+            */
         }
 
         if (targetScale < minCameraScale) targetScale = minCameraScale;

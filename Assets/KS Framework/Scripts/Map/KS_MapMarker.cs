@@ -147,7 +147,10 @@ public class KS_MapMarker : MonoBehaviour {
 
     private void OnDestroy()
     {
-        KS_FullMap.Instance.UnregisterMapObject(this);
+        if (KS_FullMap.Instance != null)
+        {
+            KS_FullMap.Instance.UnregisterMapObject(this);
+        }
         KS_FullMap.OnScale -= OnScale;
         KS_FullMap.OnMinimap -= OnMiniMap;
         KS_FullMap.OffMiniMap -= OffMiniMap;

@@ -113,9 +113,14 @@ public class KS_Editor_Manager : EditorWindow
         GUILayout.EndVertical();
     }
 
+    private Vector2 scrollPos = new Vector2();
+
     private void GUIDrawConfigEditor()
     {
         GUILayout.BeginVertical();
+        scrollPos = GUILayout.BeginScrollView(scrollPos);
+
+        GUIDrawHeader("General:");
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Game name:", GUILayout.Width(labelWidth));
@@ -131,6 +136,8 @@ public class KS_Editor_Manager : EditorWindow
         GUILayout.Label("Build Number:", GUILayout.Width(labelWidth));
         gameConfig.buildNumber = EditorGUILayout.IntField(gameConfig.buildNumber);
         GUILayout.EndHorizontal();
+
+        GUIDrawHeader("IO:");
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Windows Application data folder:",GUILayout.Width(labelWidth));
@@ -152,13 +159,46 @@ public class KS_Editor_Manager : EditorWindow
         gameConfig.ScreenShotSaveLocation = (KS_FileHelper.ScreenShotSaveLocation)EditorGUILayout.EnumPopup(gameConfig.ScreenShotSaveLocation);
         GUILayout.EndHorizontal();
 
+        GUIDrawHeader("Configs:");
 
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Settings Config Name", GUILayout.Width(labelWidth));
+        gameConfig.SettingsConfigName = EditorGUILayout.TextField(gameConfig.SettingsConfigName);
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Input Config Name", GUILayout.Width(labelWidth));
+        gameConfig.i_configName = EditorGUILayout.TextField(gameConfig.i_configName);
+        GUILayout.EndHorizontal();
+
+        GUIDrawHeader("Localisation:");
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Return Not found:", GUILayout.Width(labelWidth));
         gameConfig.loc_returnNotFound = EditorGUILayout.Toggle(gameConfig.loc_returnNotFound);
         GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Not found line:", GUILayout.Width(labelWidth));
+        gameConfig.loc_NotFoundLine = EditorGUILayout.TextField(gameConfig.loc_NotFoundLine);
+        GUILayout.EndHorizontal();
+
+        GUIDrawHeader("Pool Manager:");
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Clear pool on new level:", GUILayout.Width(labelWidth));
+        gameConfig.pool_ClearOnLoadLevel = EditorGUILayout.Toggle(gameConfig.pool_ClearOnLoadLevel);
+        GUILayout.EndHorizontal();
+
+        GUILayout.EndScrollView();
         GUILayout.EndVertical();
+    }
+
+    private void GUIDrawHeader(string name)
+    {
+        EditorStyles.label.fontStyle = FontStyle.Bold;
+        GUILayout.Space(10);
+        EditorGUILayout.LabelField(name);
+        GUILayout.Space(15);
+        EditorStyles.label.fontStyle = FontStyle.Normal;
     }
 }

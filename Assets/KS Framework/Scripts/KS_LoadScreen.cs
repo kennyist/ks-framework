@@ -36,6 +36,7 @@ public class KS_LoadScreen : KS_Behaviour {
                 LoadScreenContainer.SetActive(false);
                 loaded = false;
 
+                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
                 KS_Manager.Instance.LevelLoaded();
             }
         }

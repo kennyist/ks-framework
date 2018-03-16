@@ -5,7 +5,6 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class MapSwticher : MonoBehaviour {
 
-    public FirstPersonController player;
     public Camera playerCam;
     private KS_FullMap map;
     private bool mapActive = false;
@@ -18,12 +17,11 @@ public class MapSwticher : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) || KS_Input.GetInputDown("map"))
         {
             if (!mapActive)
             {
                 playerCam.enabled = false;
-                player.enabled = false;
                 map.ActivateMap();
                 mapActive = true;
             } 
@@ -31,7 +29,6 @@ public class MapSwticher : MonoBehaviour {
             {
                 mapActive = false;
                 map.DeactivateMap();
-                player.enabled = true;
                 playerCam.enabled = true;
             }
         }

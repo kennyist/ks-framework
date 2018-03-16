@@ -38,13 +38,13 @@ public class KS_UI_Console : MonoBehaviour {
         {
             if (isEnabled)
             {
-                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Paused);
+                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
                 container.SetActive(false);
                 isEnabled = false;
             }
             else
             {
-                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
+                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Paused);
                 container.SetActive(true);
                 isEnabled = true;
                 inputText.Select();

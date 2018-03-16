@@ -5,14 +5,15 @@ using UnityEngine;
 public class Camera_MatchPlayerRotation : MonoBehaviour
 {
 
-    Transform target;
+    public Transform target;
 
     private void Start()
     {
-        target = Camera.main.transform;
+        if(!target)
+            target = Camera.main.transform;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         if(target != null)
             transform.rotation = target.rotation;

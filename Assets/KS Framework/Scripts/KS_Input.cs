@@ -30,7 +30,44 @@ public enum DS4Axis
     L2,
     R2,
     DPadX,
-    DPadY
+    DPadY,
+    /*GyroX,
+    GyroY,
+    GyroRaw,
+    AccelerometerX,
+    AccelerometerY,
+    AccelerometerRaw*/
+}
+
+public enum XboxKeyCode
+{
+    A,
+    B,
+    X,
+    Y,
+    LB,
+    RB,
+    LeftStickCLick,
+    RightStickClick,
+    Back,
+    Start,
+    Home,
+    DpadUp,
+    DpadLeft,
+    DpadDown,
+    DpadRight
+}
+
+public enum XboxAxis
+{
+    LeftStickX,
+    LeftStickY,
+    RightStickX,
+    RightStickY,
+    DpadX,
+    DpadY,
+    LeftTrigger,
+    RightTrigger
 }
 
 public class KS_Input : MonoBehaviour {
@@ -72,17 +109,17 @@ public class KS_Input : MonoBehaviour {
         parser.Load(gameConfig.i_configName);
         CheckInputs();
         parser.Save(gameConfig.i_configName);
+
+        for(int i = 0; i < Input.GetJoystickNames().Length; i++)
+        {
+            Debug.Log("Joystick " + i + ": " + Input.GetJoystickNames()[i]);
+        }
 	}
 
     private void PopulateWithDefaults()
     {
         if(inputConfig.Inputs.Count > 0)
         {
-
-            parser.Set("General", "i_invertmouse", inputConfig.MouseInverted.ToString());
-            parser.Set("General", "i_invertLeftStick", inputConfig.ControllerLeftInvert.ToString());
-            parser.Set("General", "i_invertLeftStick", inputConfig.ControllerRightInvert.ToString());
-
             foreach (KS_Scriptable_Input_object input in inputConfig.Inputs)
             {
                 switch (input.type)
@@ -189,8 +226,6 @@ public class KS_Input : MonoBehaviour {
     {
         KS_Scriptable_Input_object key = findInput(ID);
 
-        Debug.Log(ID);
-
         if (key != null)
         {
             if (key.UseDS4)
@@ -212,6 +247,14 @@ public class KS_Input : MonoBehaviour {
 
         if (key != null)
         {
+            if (key.UseDS4)
+            {
+                if (Input.GetKeyUp(DS4ButtonToKey(key.DefaultDS4)))
+                {
+                    return true;
+                }
+            }
+
             return Input.GetKeyUp(key.curKey);
         }
 
@@ -221,6 +264,100 @@ public class KS_Input : MonoBehaviour {
     public static bool GetKey(KeyCode keyCode)
     {
         return Input.GetKey(keyCode);
+    }
+
+    public static float GetAxis(string ID)
+    {
+        KS_Scriptable_Input_object key = findInput(ID);
+
+        if(key != null)
+        {
+            float DS4 = 0, xbox = 0, mouse = 0, keyboard = 0;
+            float axisPos = 0, axisNeg = 0;
+
+            if (key.UseDS4)
+            {
+                DS4 = GetDS4Axis(key.DS4Axis);
+
+                if (DS4 > 0 && DS4 < key.deadZone) DS4 = 0;
+                if (DS4 < 0 && DS4 > -key.deadZone) DS4 = 0;
+
+                if(DS4 > 0)
+                {
+                    axisPos = DS4;
+                }
+                else
+                {
+                    axisNeg = DS4;
+                }
+            }
+
+            if (key.UseXbox)
+            {
+                xbox = 0f;
+
+                if (xbox > 0 && DS4 < key.deadZone) xbox = 0;
+                if (xbox < 0 && DS4 > -key.deadZone) xbox = 0;
+            }
+
+            if (key.mouseX)
+            {
+                mouse = Input.GetAxis("Mouse X");
+
+                if (mouse < axisNeg)
+                {
+                    axisNeg = mouse;
+                }
+                else if (mouse > axisPos)
+                {
+                    axisPos = mouse;
+                }
+            }
+
+            if (key.mouseY)
+            {
+                mouse = Input.GetAxis("Mouse Y");
+
+                if (mouse < axisNeg)
+                {
+                    axisNeg = mouse;
+                }
+                else if (mouse > axisPos)
+                {
+                    axisPos = mouse;
+                }
+            }
+
+            if(key.positive != KeyCode.None)
+            {
+                if (Input.GetKey(key.positive)) keyboard = 1f;
+                if (Input.GetKey(key.negitive))
+                {
+                    if (keyboard > 0) keyboard = 0f;
+                    else keyboard = -1f;
+                }
+
+                if(keyboard < axisNeg)
+                {
+                    axisNeg = keyboard;
+                }
+                else if(keyboard > axisPos)
+                {
+                    axisPos = keyboard;
+                }
+            }
+
+            if(axisNeg != 0)
+            {
+                return axisNeg += axisPos;
+            }
+            else
+            {
+                return axisPos;
+            }
+        }
+
+        return 0f;
     }
 
     public static KeyCode DS4ButtonToKey(DS4KeyCode key)
@@ -328,7 +465,55 @@ public class KS_Input : MonoBehaviour {
         }
 
         return 0f;
+
     }
 
+
+    public static KeyCode XboxButtonToKeyCode(XboxKeyCode key)
+    {
+        switch (key)
+        {
+            case XboxKeyCode.A:
+                return KeyCode.JoystickButton0;
+                break;
+
+            case XboxKeyCode.B:
+                return KeyCode.JoystickButton1;
+                break;
+
+            case XboxKeyCode.X:
+                return KeyCode.JoystickButton2;
+                break;
+
+            case XboxKeyCode.Y:
+                return KeyCode.JoystickButton3;
+                break;
+
+            case XboxKeyCode.LB:
+                return KeyCode.JoystickButton4;
+                break;
+
+            case XboxKeyCode.RB:
+                return KeyCode.JoystickButton5;
+                break;
+
+            case XboxKeyCode.Back:
+                return KeyCode.JoystickButton6;
+                break;
+
+            case XboxKeyCode.Start:
+                return KeyCode.JoystickButton7;
+                break;
+
+            case XboxKeyCode.LeftStickCLick:
+                return KeyCode.JoystickButton8;
+                break;
+
+            default:
+                return KeyCode.A;
+                break;
+                    
+        }
+    }
 
 }
