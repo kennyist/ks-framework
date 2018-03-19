@@ -24,5 +24,9 @@ public class KS_Scriptable_GameConfig : ScriptableObject {
     // pooling
 
     public bool pool_ClearOnLoadLevel = true;
+
+    // Saving loading
+
+    public string saveFileFormat = ".save";
 }
  
