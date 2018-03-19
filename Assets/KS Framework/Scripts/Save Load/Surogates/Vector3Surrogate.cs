@@ -53,4 +53,53 @@ namespace KS_SavingLoading.Surrogates
             return (obj = quaternion);
         }
     }
+
+    public class cameraSurrogate : ISerializationSurrogate
+    {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+            camera camera = (camera)obj;
+
+            info.AddValue("pos", camera.position);
+            info.AddValue("rot", camera.rotation);
+            info.AddValue("scale", camera.localScale);
+
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+            camera camera = (camera)obj;
+
+            /*camera.position = (Vector3) info.GetValue("pos", typeof(Vector3));
+            camera.rotation = (Quaternion)info.GetValue("rot", typeof(Quaternion));
+            camera.localScale = (Vector3)info.GetValue("scale", typeof(Vector3));*/
+
+            return (obj = camera);
+        }
+    }
+    public class CameraSurrogate : ISerializationSurrogate
+    {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+            Camera camera = (Camera)obj;
+
+            info.AddValue("depth", camera.depth);
+            info.AddValue("cullMask", camera.cullingMask);
+            info.AddValue("flags", camera.clearFlags);
+            info.AddValue("bgCol", camera.backgroundColor);
+
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+            camera camera = (camera)obj;
+
+            camera.position = (Vector3) info.GetValue("pos", typeof(Vector3));
+            camera.rotation = (Quaternion)info.GetValue("rot", typeof(Quaternion));
+            camera.localScale = (Vector3)info.GetValue("scale", typeof(Vector3));
+
+            return (obj = camera);
+        }
+    }
+
 }

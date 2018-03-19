@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_SavingLoading;
 
 public class KS_CharacterController : KS_Behaviour {
 
@@ -12,7 +13,7 @@ public class KS_CharacterController : KS_Behaviour {
         jumping,
     }
 
-    public Transform camera;
+    public camera camera;
 
     public float cameraYSpeed = 2f;
     public float cameraXSpeed = 4f;
@@ -37,7 +38,24 @@ public class KS_CharacterController : KS_Behaviour {
         rb = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
         startHeight = GetComponent<CapsuleCollider>().height;
+
+        KS_SaveLoad.OnSave += OnSave;
+        KS_SaveLoad.OnLoad += OnLoad;
 	}
+
+    void OnSave(ref Dictionary<string, object> saveGame)
+    {
+        saveGame.Add("KS_CC_CAM", camera.GetComponent<Camera>());
+    }
+
+    void OnLoad(KS_SaveGame save)
+    {
+        Debug.Log("Character load");
+        Camera cam = save.SaveData["KS_CC_CAM"] as Camera;
+
+        Camera oldCam = camera.gameObject.GetComponent<Camera>();
+        oldCam = cam;
+    }
 
     private bool IsCrouching = false;
 
@@ -74,7 +92,7 @@ public class KS_CharacterController : KS_Behaviour {
 
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f);
+        return Physics.Raycast(camera.position, -Vector3.up, collider.bounds.extents.y + 0.1f);
     }
 
     void Crouch()
@@ -111,8 +129,8 @@ public class KS_CharacterController : KS_Behaviour {
         if (pitch > 80f) pitch = 80f;
         if (pitch < -80f) pitch = -80f;
 
-        transform.eulerAngles = new Vector3(0, yaw, 0);
-        camera.transform.localEulerAngles = new Vector3(pitch, 0, 0.0f);
+        camera.eulerAngles = new Vector3(0, yaw, 0);
+        camera.camera.localEulerAngles = new Vector3(pitch, 0, 0.0f);
     }
 
     void MovePlayer(float X, float Y)
