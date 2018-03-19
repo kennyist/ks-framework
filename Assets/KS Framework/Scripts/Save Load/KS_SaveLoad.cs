@@ -26,7 +26,7 @@ namespace KS_SavingLoading
         public string name;
         public string prefabName;
         public string id;
-        public string idParent;
+        public string parentId;
 
         public bool active;
         public Vector3 position;
@@ -46,26 +46,19 @@ namespace KS_SavingLoading
     public static class KS_SaveLoad
     {
         public static KS_Scriptable_GameConfig gameConfig;
+        public static string fileFormat = ".save";
 
-        public static event VoidHandler OnSave;
-        public static event VoidHandler OnLoad;
+        public delegate void OnSaveHandler(ref Dictionary<string, object> SaveData);
+        public static event OnSaveHandler OnSave;
+        public delegate void OnLoadHandler(KS_SaveGame savegame);
+        public static event OnLoadHandler OnLoad;
 
-        private static SurrogateSelector surrogateSelector = new SurrogateSelector();
-        private static KS_SaveGame toSave = new KS_SaveGame();
+        private static List<KeyValuePair<ISerializationSurrogate, Type>> surrogateList = new List<KeyValuePair<ISerializationSurrogate, Type>>();
+        private static Dictionary<string, GameObject> prefabDictionary;
 
         private static List<string> componentTypesToAdd = new List<string>() {
             "UnityEngine.MonoBehaviour"
         };
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ID"></param>
-        /// <param name="obj"></param>
-        public static void AddObjectToSave(string ID, object obj)
-        {
-            toSave.SaveData.Add(ID, obj);
-        }
 
         /// <summary>
         /// Create save game file and save Savable Objects
@@ -73,32 +66,33 @@ namespace KS_SavingLoading
         /// <param name="saveName"></param>
         public static void Save(string saveName)
         {
-            toSave = new KS_SaveGame
+            KS_SaveGame save = new KS_SaveGame
             {
                 SceneIndex = SceneManager.GetActiveScene().buildIndex
             };
 
             // Call event to add data before serialization
             if (OnSave != null)
-                OnSave();
+                OnSave(ref save.SaveData);
 
             // Setup binary selector and surrogates
             BinaryFormatter bf = new BinaryFormatter();
-            AddSurrogates(ref surrogateSelector);
-            bf.SurrogateSelector = surrogateSelector;
+            SurrogateSelector ss = new SurrogateSelector();
+            AddSurrogates(ref ss);
+            bf.SurrogateSelector = ss;
 
             // Save all Savable objects to file
             foreach (GameObject obj in GetAllObjects())
             {
-                toSave.gameObjects.Add(StoreObject(obj));
+                save.gameObjects.Add(StoreObject(obj));
             }
 
             // Serialize save object
             MemoryStream stream = new MemoryStream();
-            bf.Serialize(stream, toSave);
+            bf.Serialize(stream, save);
 
             // Save save object to file
-            KS_FileHelper.Instance.SaveFile(KS_FileHelper.Folders.Saves, saveName + ".save", stream.GetBuffer());
+            KS_FileHelper.Instance.SaveFile(KS_FileHelper.Folders.Saves, saveName + GetFileFormat(), stream.GetBuffer());
         }
 
         /// <summary>
@@ -125,6 +119,32 @@ namespace KS_SavingLoading
         }
 
         /// <summary>
+        /// Load save game
+        /// </summary>
+        /// <param name="name">Name of the file (excluding file format)</param>
+        /// <returns></returns>
+        public static KS_SaveGame Load(string name)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            SurrogateSelector ss = new SurrogateSelector();
+            AddSurrogates(ref ss);
+            bf.SurrogateSelector = ss;
+
+            MemoryStream stream = new MemoryStream();
+            byte[] file = KS_FileHelper.Instance.LoadFile(KS_FileHelper.Folders.Saves, name + GetFileFormat());
+            Debug.Log("file: " + file.Length);
+            stream.Write(file, 0, file.Length);
+            stream.Position = 0;
+
+            KS_SaveGame save = (KS_SaveGame)bf.Deserialize(stream);
+
+            if (OnLoad != null)
+                OnLoad(save);
+
+            return save;
+        }
+
+        /// <summary>
         /// Convert Gameobject to saveobject
         /// </summary>
         /// <param name="obj">Gameobject to convert</param>
@@ -140,11 +160,11 @@ namespace KS_SavingLoading
 
             if (obj.transform.parent != null && obj.transform.parent.GetComponent<KS_SaveableObject>() == true)
             {
-                saveObject.idParent = obj.transform.parent.GetComponent<KS_SaveableObject>().ID;
+                saveObject.parentId = obj.transform.parent.GetComponent<KS_SaveableObject>().ID;
             }
             else
             {
-                saveObject.idParent = null;
+                saveObject.parentId = null;
             }
 
             List<object> components_filtered = new List<object>();
@@ -205,20 +225,13 @@ namespace KS_SavingLoading
 
                     if (IsFieldACollection(field.FieldType))    // Is field a collection type?
                     {
-                        /*Type element;
-                        
-                        Type elementType = TypeSystem.GetElementType(field.FieldType);
-                        //Debug.Log(field.Name + " -> " + elementType);
 
-                        if (elementType.IsSerializable == false)
+                        Type element = GetElementType(field.FieldType);
+
+                        if (element.IsSerializable == false)    // If isnt serializable skip
                         {
                             continue;
                         }
-
-                        if (element.IsSerializable == false)
-                        {
-                            continue;
-                        }*/
                     }
 
                     /*object[] attributes = field.GetCustomAttributes(typeof(DontSaveField), true);
@@ -250,8 +263,42 @@ namespace KS_SavingLoading
         /// <returns>GameObject from KS_saveObject</returns>
         public static GameObject RestoreGameObject(KS_SaveObject saveObject)
         {
+            if (prefabDictionary == null || prefabDictionary.Count <= 0)
+            {
+                GetAllPrefabs();
+            }
 
-            return new GameObject();
+            if (!prefabDictionary.ContainsKey(saveObject.prefabName))
+            {
+                Debug.LogWarning("Prefab \"" + saveObject.prefabName + "\" not found, Is it in resources folder?");
+                return null;
+            }
+
+            GameObject retObject = GameObject.Instantiate(prefabDictionary[saveObject.prefabName], saveObject.position, saveObject.rotation);
+
+            // Fill values
+            retObject.name = saveObject.name;
+            retObject.transform.localScale = saveObject.localScale;
+            retObject.SetActive(saveObject.active);
+
+            // Add savable object if not present
+            if (!retObject.GetComponent<KS_SaveableObject>())
+            {
+                retObject.AddComponent<KS_SaveableObject>();
+            }
+
+            // Set savable object fields
+            KS_SaveableObject saveable = retObject.GetComponent<KS_SaveableObject>();
+            saveable.ID = saveObject.id;
+            saveable.ParentID = saveObject.parentId;
+
+            // Restore componenets
+            foreach(KS_SaveObjectComponent oc in saveObject.objectComponents)
+            {
+                RestoreComponent(oc, ref retObject);
+            }
+
+            return retObject;
         }
 
         /// <summary>
@@ -259,10 +306,30 @@ namespace KS_SavingLoading
         /// </summary>
         /// <param name="saveComponent"></param>
         /// <returns></returns>
-        private static object RestoreComponent(KS_SaveObjectComponent saveComponent)
+        private static void RestoreComponent(KS_SaveObjectComponent saveComponent, ref GameObject go)
         {
+            // Does component exist
+            if (!go.GetComponent(saveComponent.componentName))
+            {
+                Type componentType = Type.GetType(saveComponent.componentName);
+                go.AddComponent(componentType);
+            }
 
-            return new object();
+            object component = go.GetComponent(saveComponent.componentName) as object;
+
+            Type type = component.GetType();
+
+            foreach(KeyValuePair<string, object> kvp in saveComponent.fields)
+            {
+                var field = type.GetField(kvp.Key,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetField);
+
+                if(field != null)
+                {
+                    object value = kvp.Value;
+                    field.SetValue(component, value);
+                }
+            }
         }
 
         /// <summary>
@@ -283,31 +350,33 @@ namespace KS_SavingLoading
 
         private static void AddSurrogates(ref SurrogateSelector ss)
         {
-            Vector3Surrogate Vector3_SS = new Vector3Surrogate();
+            Vector3Surrogate vector = new Vector3Surrogate();
             ss.AddSurrogate(typeof(Vector3),
                             new StreamingContext(StreamingContextStates.All),
-                            Vector3_SS);
-            /**Texture2DSurrogate Texture2D_SS = new Texture2DSurrogate();
-            ss.AddSurrogate(typeof(Texture2D),
-                            new StreamingContext(StreamingContextStates.All),
-                            Texture2D_SS);
-            ColorSurrogate Color_SS = new ColorSurrogate();
-            ss.AddSurrogate(typeof(Color),
-                            new StreamingContext(StreamingContextStates.All),
-                            Color_SS);
-            GameObjectSurrogate GameObject_SS = new GameObjectSurrogate();
-            ss.AddSurrogate(typeof(GameObject),
-                            new StreamingContext(StreamingContextStates.All),
-                            GameObject_SS);
-            TransformSurrogate Transform_SS = new TransformSurrogate();
-            ss.AddSurrogate(typeof(Transform),
-                            new StreamingContext(StreamingContextStates.All),
-                            Transform_SS);*/
-            QuaternionSurrogate Quaternion_SS = new QuaternionSurrogate();
+                            vector);
+            QuaternionSurrogate quaternion = new QuaternionSurrogate();
             ss.AddSurrogate(typeof(Quaternion),
                             new StreamingContext(StreamingContextStates.All),
-                            Quaternion_SS);
+                            quaternion);
+            TransformSurrogate transform = new TransformSurrogate();
+            ss.AddSurrogate(typeof(Transform),
+                            new StreamingContext(StreamingContextStates.All),
+                            transform);
+            ColourSurrogate colour = new ColourSurrogate();
+            ss.AddSurrogate(typeof(Color),
+                            new StreamingContext(StreamingContextStates.All),
+                            colour);
+            CameraSurrogate camera = new CameraSurrogate();
+            ss.AddSurrogate(typeof(Camera),
+                            new StreamingContext(StreamingContextStates.All),
+                            camera);
 
+            foreach(KeyValuePair<ISerializationSurrogate, Type> kv in surrogateList)
+            {
+                ss.AddSurrogate(kv.Value,
+                                new StreamingContext(StreamingContextStates.All),
+                                kv.Key);
+            }
 
         }
 
@@ -318,12 +387,83 @@ namespace KS_SavingLoading
         /// <param name="forType"></param>
         public static void AddSurrogate(ISerializationSurrogate surrogate, Type forType)
         {
-            surrogateSelector.AddSurrogate(forType,
-                                           new StreamingContext(StreamingContextStates.All),
-                                           surrogate);
+            surrogateList.Add(new KeyValuePair<ISerializationSurrogate, Type>(surrogate, forType));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="seqType"></param>
+        /// <returns></returns>
+        private static Type GetElementType(Type seqType)
+        {
+            Type ienum = FindIEnumerable(seqType);
+            if (ienum == null) return seqType;
+            return ienum.GetGenericArguments()[0];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="seqType"></param>
+        /// <returns></returns>
+        private static Type FindIEnumerable(Type seqType)
+        {
+            if (seqType == null || seqType == typeof(string))
+                return null;
+            if (seqType.IsArray)
+                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+            if (seqType.IsGenericType)
+            {
+                foreach (Type arg in seqType.GetGenericArguments())
+                {
+                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
+                    if (ienum.IsAssignableFrom(seqType))
+                    {
+                        return ienum;
+                    }
+                }
+            }
+            Type[] ifaces = seqType.GetInterfaces();
+            if (ifaces != null && ifaces.Length > 0)
+            {
+                foreach (Type iface in ifaces)
+                {
+                    Type ienum = FindIEnumerable(iface);
+                    if (ienum != null) return ienum;
+                }
+            }
+            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            {
+                return FindIEnumerable(seqType.BaseType);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get all prefabs in resources folder
+        /// </summary>
+        private static void GetAllPrefabs()
+        {
+            prefabDictionary = new Dictionary<string, GameObject>();
+
+            foreach(GameObject o in Resources.LoadAll<GameObject>(""))
+            {
+                if (o.GetComponent<KS_SaveableObject>())
+                {
+                    prefabDictionary.Add(o.name, o);
+                }
+            }
+        }
+
+        private static string GetFileFormat()
+        {
+            if (gameConfig)
+            {
+                return gameConfig.saveFileFormat;
+            }
+
+            return fileFormat;
         }
     }
-
-
-
 }

@@ -7,7 +7,8 @@ public class KS_SaveableObject : MonoBehaviour {
     public string prefab;
     private string id;
     private string parentID;
-    public string ID { get { return id; } }
+    public string ID { get { return id; } set { id = value; } }
+    public string ParentID { get { return parentID; } set { parentID = value; } }
 
 	// Use this for initialization
 	public void GetID () {

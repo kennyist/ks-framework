@@ -54,34 +54,62 @@ namespace KS_SavingLoading.Surrogates
         }
     }
 
-    public class cameraSurrogate : ISerializationSurrogate
+    public class TransformSurrogate : ISerializationSurrogate
     {
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
-            camera camera = (camera)obj;
+            Transform transform = (Transform)obj;
 
-            info.AddValue("pos", camera.position);
-            info.AddValue("rot", camera.rotation);
-            info.AddValue("scale", camera.localScale);
+            info.AddValue("pos", transform.position);
+            info.AddValue("rot", transform.rotation);
+            info.AddValue("scale", transform.localScale);
 
         }
 
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
-            camera camera = (camera)obj;
+            Transform transform = (Transform)obj;
 
             /*camera.position = (Vector3) info.GetValue("pos", typeof(Vector3));
             camera.rotation = (Quaternion)info.GetValue("rot", typeof(Quaternion));
             camera.localScale = (Vector3)info.GetValue("scale", typeof(Vector3));*/
 
-            return (obj = camera);
+            return (obj = transform);
         }
     }
+
+    public class ColourSurrogate : ISerializationSurrogate
+    {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+            Color colour = (Color)obj;
+
+            info.AddValue("r", colour.r);
+            info.AddValue("g", colour.g);
+            info.AddValue("b", colour.b);
+            info.AddValue("a", colour.a);
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+            Color col = (Color)obj;
+
+            col.r = (float)info.GetValue("r", typeof(float));
+            col.g = (float)info.GetValue("g", typeof(float));
+            col.b = (float)info.GetValue("b", typeof(float));
+            col.a = (float)info.GetValue("a", typeof(float));
+
+            return (obj = col);
+        }
+    }
+
     public class CameraSurrogate : ISerializationSurrogate
     {
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Camera camera = (Camera)obj;
+
+            Debug.Log("Cam dept serial: " + camera.depth);
 
             info.AddValue("depth", camera.depth);
             info.AddValue("cullMask", camera.cullingMask);
@@ -92,11 +120,15 @@ namespace KS_SavingLoading.Surrogates
 
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
-            camera camera = (camera)obj;
+            GameObject o = new GameObject();
+            o.AddComponent<Camera>();
+            Camera camera = o.GetComponent<Camera>();
+            Debug.Log("Cam Test:" + camera.name);
+            Debug.Log("Cam depth deserial: " + (int)info.GetValue("depth", typeof(int)));
 
-            camera.position = (Vector3) info.GetValue("pos", typeof(Vector3));
-            camera.rotation = (Quaternion)info.GetValue("rot", typeof(Quaternion));
-            camera.localScale = (Vector3)info.GetValue("scale", typeof(Vector3));
+            camera.depth = (int)info.GetValue("depth", typeof(int));
+            camera.cullingMask = (int)info.GetValue("cullMask", typeof(int));
+            camera.clearFlags = (CameraClearFlags)info.GetValue("flags", typeof(CameraClearFlags));
 
             return (obj = camera);
         }

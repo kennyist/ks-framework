@@ -36,7 +36,8 @@ public class TESTsave : MonoBehaviour {
         foreach(KS_SaveObject so in save.gameObjects)
         {
             GameObject go = KS_SaveLoad.RestoreGameObject(so);
-            go.SendMessage("OnLoad", save, SendMessageOptions.DontRequireReceiver);
+            if(go != null)
+                go.SendMessage("OnLoad", save, SendMessageOptions.DontRequireReceiver);
         }
     }
 	

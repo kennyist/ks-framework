@@ -13,7 +13,7 @@ public class KS_CharacterController : KS_Behaviour {
         jumping,
     }
 
-    public camera camera;
+    public Transform camera;
 
     public float cameraYSpeed = 2f;
     public float cameraXSpeed = 4f;
@@ -130,7 +130,7 @@ public class KS_CharacterController : KS_Behaviour {
         if (pitch < -80f) pitch = -80f;
 
         camera.eulerAngles = new Vector3(0, yaw, 0);
-        camera.camera.localEulerAngles = new Vector3(pitch, 0, 0.0f);
+        camera.GetComponent<Transform>().localEulerAngles = new Vector3(pitch, 0, 0.0f);
     }
 
     void MovePlayer(float X, float Y)
