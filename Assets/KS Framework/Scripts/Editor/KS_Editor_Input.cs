@@ -143,6 +143,14 @@ public class KS_Editor_Input : EditorWindow {
             selected.EditableInGame = GUILayout.Toggle(selected.EditableInGame, "Is editable in game and save to config (false = always use default)");
             GUILayout.EndHorizontal();
 
+            if (selected.EditableInGame)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Config Help Text:", GUIStyleLabel());
+                selected.ConfigHelpText = EditorGUILayout.TextArea(selected.ConfigHelpText);
+                GUILayout.EndHorizontal();
+            }
+
             switch (selected.type)
             {
                 case KS_Scriptable_input_type.Keyboard:

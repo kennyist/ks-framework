@@ -122,20 +122,42 @@ public class KS_Input : MonoBehaviour {
         {
             foreach (KS_Scriptable_Input_object input in inputConfig.Inputs)
             {
-                switch (input.type)
+                if (input.EditableInGame)
                 {
-                    case KS_Scriptable_input_type.Keyboard:
-                        parser.Set("Keyboard", input.ID, input.DefaultKey.ToString());
-                        
-                        break;
+                    switch (input.type)
+                    {
+                        case KS_Scriptable_input_type.Keyboard:
+                            parser.Set("Keyboard", input.ID, input.DefaultKey.ToString(), input.ConfigHelpText);
 
-                    case KS_Scriptable_input_type.Mouse:
-                        parser.Set("Mouse", input.ID, input.MouseButton.ToString());
-                        break;
+                            break;
 
-                    case KS_Scriptable_input_type.Axis:
-                        parser.Set("Axis", input.ID, input.DefaultKey.ToString());
-                        break;
+                        case KS_Scriptable_input_type.Mouse:
+                            parser.Set("Mouse", input.ID, input.MouseButton.ToString(), input.ConfigHelpText);
+                            break;
+
+                        case KS_Scriptable_input_type.Axis:
+                            parser.Set("Axis", input.ID + "_positive", input.positive.ToString(), input.ConfigHelpText);
+                            if (input.negitive != KeyCode.None)
+                            {
+                                parser.Set("Axis", input.ID + "_negative", input.negitive.ToString());
+                            }
+
+                            if (input.UseDS4)
+                            {
+                                parser.Set("Axis", input.ID + "_DS4", input.DS4Axis.ToString());
+                            }
+
+                            if (input.UseXbox)
+                            {
+                                parser.Set("Axis", input.ID + "_XBX", input.XboxAxis.ToString());
+                            }
+
+                            if (input.UseDS4 || input.UseDS4)
+                            {
+                                parser.Set("Axis", input.ID + "_deadzone", input.deadZone.ToString());
+                            }
+                            break;
+                    }
                 }
             }
         }

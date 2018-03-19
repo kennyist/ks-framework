@@ -84,15 +84,11 @@ public class KS_CharacterController : KS_Behaviour {
         {
             IsCrouching = false;
             GetComponent<CapsuleCollider>().height = crouchHeight;
-            //transform.position = transform.position + (Vector3.up * (startHeight / 2));
-            //transform.localScale = new Vector3(transform.localScale.x, startHeight, transform.localScale.z);
         }
         else
         {
             IsCrouching = true;
             GetComponent<CapsuleCollider>().height = startHeight;
-            //transform.localScale = new Vector3(transform.localScale.x, crouchHeight, transform.localScale.z);
-            //transform.position = transform.position - (Vector3.up * (startHeight / 2));
         }
     }
 

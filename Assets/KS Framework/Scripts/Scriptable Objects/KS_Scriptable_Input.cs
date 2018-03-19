@@ -13,6 +13,7 @@ public class KS_Scriptable_Input_object
     public string ID;
     public KS_Scriptable_input_type type;
     public bool EditableInGame = true;
+    public string ConfigHelpText = "";
 
     //Keyboard
     public KeyCode DefaultKey;
