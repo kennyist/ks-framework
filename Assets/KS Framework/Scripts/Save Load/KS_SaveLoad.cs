@@ -7,6 +7,7 @@ using System.Reflection;
 using System;
 using System.Runtime.Serialization;
 using UnityEngine.SceneManagement;
+using KS_SavingLoading.Surrogates;
 
 namespace KS_SavingLoading
 {
@@ -50,10 +51,21 @@ namespace KS_SavingLoading
         public static event VoidHandler OnLoad;
 
         private static SurrogateSelector surrogateSelector = new SurrogateSelector();
+        private static KS_SaveGame toSave = new KS_SaveGame();
 
         private static List<string> componentTypesToAdd = new List<string>() {
             "UnityEngine.MonoBehaviour"
         };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="obj"></param>
+        public static void AddObjectToSave(string ID, object obj)
+        {
+            toSave.SaveData.Add(ID, obj);
+        }
 
         /// <summary>
         /// Create save game file and save Savable Objects
@@ -61,33 +73,31 @@ namespace KS_SavingLoading
         /// <param name="saveName"></param>
         public static void Save(string saveName)
         {
-            if (OnSave != null)
-                OnSave();
-
-            KS_SaveGame save = new KS_SaveGame
+            toSave = new KS_SaveGame
             {
                 SceneIndex = SceneManager.GetActiveScene().buildIndex
             };
 
+            // Call event to add data before serialization
+            if (OnSave != null)
+                OnSave();
+
+            // Setup binary selector and surrogates
             BinaryFormatter bf = new BinaryFormatter();
+            AddSurrogates(ref surrogateSelector);
+            bf.SurrogateSelector = surrogateSelector;
 
-            // 1. Construct a SurrogateSelector object
-            SurrogateSelector ss = new SurrogateSelector();
-            // 2. Add the ISerializationSurrogates to our new SurrogateSelector
-            AddSurrogates(ref ss);
-            // 3. Have the formatter use our surrogate selector
-            bf.SurrogateSelector = ss;
-
-            Debug.Log(GetAllObjects().Count);
-
+            // Save all Savable objects to file
             foreach (GameObject obj in GetAllObjects())
             {
-                save.gameObjects.Add(StoreObject(obj));
+                toSave.gameObjects.Add(StoreObject(obj));
             }
 
+            // Serialize save object
             MemoryStream stream = new MemoryStream();
-            bf.Serialize(stream, save);
+            bf.Serialize(stream, toSave);
 
+            // Save save object to file
             KS_FileHelper.Instance.SaveFile(KS_FileHelper.Folders.Saves, saveName + ".save", stream.GetBuffer());
         }
 
@@ -161,6 +171,11 @@ namespace KS_SavingLoading
             return saveObject;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
         private static KS_SaveObjectComponent StoreComponent(object component)
         {
             // Setup saveable componenet
@@ -228,6 +243,33 @@ namespace KS_SavingLoading
             return newObjectComponent;
         }
 
+        /// <summary>
+        /// Restore object from a save files SaveObject
+        /// </summary>
+        /// <param name="saveObject">KS_SaveObject object</param>
+        /// <returns>GameObject from KS_saveObject</returns>
+        public static GameObject RestoreGameObject(KS_SaveObject saveObject)
+        {
+
+            return new GameObject();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="saveComponent"></param>
+        /// <returns></returns>
+        private static object RestoreComponent(KS_SaveObjectComponent saveComponent)
+        {
+
+            return new object();
+        }
+
+        /// <summary>
+        /// Checks if field has IEnumerable or ICollection interfaces 
+        /// </summary>
+        /// <param name="type">Field type</param>
+        /// <returns>True if either IEnumerable or ICollection exists</returns>
         private static bool IsFieldACollection(Type type)
         {
             // Has IEnumerable or ICollection interfaces?
@@ -238,17 +280,6 @@ namespace KS_SavingLoading
             return false;
         }
 
-        public static GameObject RestoreGameObject(KS_SaveObject saveObject)
-        {
-
-            return new GameObject();
-        }
-
-        private static object RestoreComponent(KS_SaveObjectComponent saveComponent)
-        {
-
-            return new object();
-        }
 
         private static void AddSurrogates(ref SurrogateSelector ss)
         {
@@ -256,7 +287,7 @@ namespace KS_SavingLoading
             ss.AddSurrogate(typeof(Vector3),
                             new StreamingContext(StreamingContextStates.All),
                             Vector3_SS);
-            Texture2DSurrogate Texture2D_SS = new Texture2DSurrogate();
+            /**Texture2DSurrogate Texture2D_SS = new Texture2DSurrogate();
             ss.AddSurrogate(typeof(Texture2D),
                             new StreamingContext(StreamingContextStates.All),
                             Texture2D_SS);
@@ -271,45 +302,25 @@ namespace KS_SavingLoading
             TransformSurrogate Transform_SS = new TransformSurrogate();
             ss.AddSurrogate(typeof(Transform),
                             new StreamingContext(StreamingContextStates.All),
-                            Transform_SS);
+                            Transform_SS);*/
             QuaternionSurrogate Quaternion_SS = new QuaternionSurrogate();
             ss.AddSurrogate(typeof(Quaternion),
                             new StreamingContext(StreamingContextStates.All),
                             Quaternion_SS);
+
 
         }
 
-        private static void AddSurrogate(Type surrogate)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="surrogate"></param>
+        /// <param name="forType"></param>
+        public static void AddSurrogate(ISerializationSurrogate surrogate, Type forType)
         {
-            object toAdd = Activator.CreateInstance(surrogate);
-
-            surrogateSelector.AddSurrogate(typeof()
-
-            Vector3Surrogate Vector3_SS = new Vector3Surrogate();
-            ss.AddSurrogate(typeof(Vector3),
-                            new StreamingContext(StreamingContextStates.All),
-                            Vector3_SS);
-            Texture2DSurrogate Texture2D_SS = new Texture2DSurrogate();
-            ss.AddSurrogate(typeof(Texture2D),
-                            new StreamingContext(StreamingContextStates.All),
-                            Texture2D_SS);
-            ColorSurrogate Color_SS = new ColorSurrogate();
-            ss.AddSurrogate(typeof(Color),
-                            new StreamingContext(StreamingContextStates.All),
-                            Color_SS);
-            GameObjectSurrogate GameObject_SS = new GameObjectSurrogate();
-            ss.AddSurrogate(typeof(GameObject),
-                            new StreamingContext(StreamingContextStates.All),
-                            GameObject_SS);
-            TransformSurrogate Transform_SS = new TransformSurrogate();
-            ss.AddSurrogate(typeof(Transform),
-                            new StreamingContext(StreamingContextStates.All),
-                            Transform_SS);
-            QuaternionSurrogate Quaternion_SS = new QuaternionSurrogate();
-            ss.AddSurrogate(typeof(Quaternion),
-                            new StreamingContext(StreamingContextStates.All),
-                            Quaternion_SS);
-
+            surrogateSelector.AddSurrogate(forType,
+                                           new StreamingContext(StreamingContextStates.All),
+                                           surrogate);
         }
     }
 

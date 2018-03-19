@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using KS_SavingLoading;
+
 public delegate void GameStateHandler(KS_Manager.GameState state);
 public delegate void VoidHandler();
 public delegate void IntHandler(int index);
@@ -67,6 +69,10 @@ public class KS_Manager : MonoBehaviour {
         fileHelper = new KS_FileHelper(gameConfig);
         consoleHelper = new KS_Console();
         commands = new ConsoleCommands();
+
+        // Saving and loading
+
+        KS_SaveLoad.gameConfig = gameConfig;
     }
 
     private void Start()
@@ -93,6 +99,11 @@ public class KS_Manager : MonoBehaviour {
     public GameState State { get { return currentState; } }
 
     // Public Functions
+
+    public void SaveGame(string name)
+    {
+        KS_SaveLoad.Save(name);
+    }
 
     public void QuitGame()
     {
