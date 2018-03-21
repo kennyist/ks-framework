@@ -23,15 +23,13 @@ public class TESTsave : MonoBehaviour {
 
     void OnSave(ref Dictionary<string, object> saveGame)
     {
-        string[] test = new string[] { "test string" };
-        saveGame.Add("Test", test);
+
     }
 
     void OnLoad(KS_SaveGame save)
     {
-        string[] test = (string[])save.SaveData["Test"];
 
-        Debug.Log("Scene: " + save.SceneIndex + " - test: " + test[0]);
+        Debug.Log("Scene: " + save.SceneIndex);
 
         foreach(KS_SaveObject so in save.gameObjects)
         {

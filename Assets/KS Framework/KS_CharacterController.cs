@@ -45,16 +45,10 @@ public class KS_CharacterController : KS_Behaviour {
 
     void OnSave(ref Dictionary<string, object> saveGame)
     {
-        saveGame.Add("KS_CC_CAM", camera.GetComponent<Camera>());
     }
 
     void OnLoad(KS_SaveGame save)
     {
-        Debug.Log("Character load");
-        Camera cam = save.SaveData["KS_CC_CAM"] as Camera;
-
-        Camera oldCam = camera.gameObject.GetComponent<Camera>();
-        oldCam = cam;
     }
 
     private bool IsCrouching = false;
