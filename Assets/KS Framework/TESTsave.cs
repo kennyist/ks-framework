@@ -30,12 +30,14 @@ public class TESTsave : MonoBehaviour {
     {
 
         Debug.Log("Scene: " + save.SceneIndex);
+        Debug.Log("Objects: " + save.gameObjects.Count);
 
-        foreach(KS_SaveObject so in save.gameObjects)
+        for(int i = 0; i < save.gameObjects.Count; i++)
         {
-            GameObject go = KS_SaveLoad.RestoreGameObject(so);
-            if(go != null)
-                go.SendMessage("OnLoad", save, SendMessageOptions.DontRequireReceiver);
+            GameObject obj = KS_SaveLoad.RestoreGameObject(save.gameObjects[i]);
+
+            if (obj)
+                obj.SendMessage("OnLoad", save, SendMessageOptions.DontRequireReceiver);
         }
     }
 	
@@ -44,12 +46,13 @@ public class TESTsave : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.H))
         {
             KS_SaveLoad.Save("test");
-            clearlevel();
         }
 
         if (Input.GetKeyDown(KeyCode.L))
         {
+            clearlevel();
             KS_SaveLoad.Load("test");
         }
+
 	}
 }

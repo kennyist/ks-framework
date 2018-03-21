@@ -13,10 +13,13 @@ public class Camera_MatchPlayerRotation : MonoBehaviour
             target = Camera.main.transform;
     }
 
+
     private void LateUpdate()
     {
         if(target != null)
             transform.rotation = target.rotation;
+        else
+            target = Camera.main.transform;
     }
 
 }

@@ -163,7 +163,7 @@ public class KS_FullMap : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if (useMinimap && !mapActive)
+        if (useMinimap && !mapActive && player)
         {
             targetPosition = player.transform.position;
             targetScale = miniMapScale;
@@ -181,30 +181,8 @@ public class KS_FullMap : MonoBehaviour {
 
         if (mapActive)
         {
-
             targetPosition += Vector3.left * (KS_Input.GetAxis("mapMoveX") * cameraSpeed);
             targetPosition += Vector3.forward * (KS_Input.GetAxis("mapMoveY") * cameraSpeed);
-            // Camera Movement
-            /*
-            if (Input.GetKey(KeyCode.W))
-            {
-                targetPosition += Vector3.forward * cameraSpeed;
-            }
-
-            if (Input.GetKey(KeyCode.S))
-            {
-                targetPosition += Vector3.back * cameraSpeed;
-            }
-
-            if (Input.GetKey(KeyCode.A))
-            {
-                targetPosition += Vector3.left * cameraSpeed;
-            }
-
-            if (Input.GetKey(KeyCode.D))
-            {
-                targetPosition += Vector3.right * cameraSpeed;
-            }*/
         }
 
         targetPosition.y = camera.transform.position.y;

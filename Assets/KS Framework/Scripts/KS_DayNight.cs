@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_SavingLoading;
 
 public class KS_DayNight : MonoBehaviour {
 
@@ -68,6 +69,15 @@ public class KS_DayNight : MonoBehaviour {
         if (instance != null) Destroy(this);
         instance = this;
         StarAwake();
+
+        KS_SaveLoad.OnSave += OnSave;
+        KS_SaveLoad.OnLoad += OnLoad;
+    }
+
+    private void OnDestroy()
+    {
+        KS_SaveLoad.OnSave -= OnSave;
+        KS_SaveLoad.OnLoad -= OnLoad;
     }
 
     // Use this for initialization
@@ -80,6 +90,15 @@ public class KS_DayNight : MonoBehaviour {
 
         mainLight = sun.GetComponent<Light>();
         skyMat = RenderSettings.skybox;
+    }
+
+    void OnSave(ref Dictionary<string, object> saveGame)
+    {
+    }
+
+    void OnLoad(KS_SaveGame saveGame)
+    {
+        
     }
 	
 	// Update is called once per frame

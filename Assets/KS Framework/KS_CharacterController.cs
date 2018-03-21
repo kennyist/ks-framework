@@ -11,6 +11,8 @@ public class KS_CharacterController : KS_Behaviour {
         walking,
         running,
         jumping,
+        swimming,
+        underwater,
     }
 
     public Transform camera;
@@ -31,6 +33,8 @@ public class KS_CharacterController : KS_Behaviour {
     private Collider collider;
     private PlayerState state = PlayerState.idle;
 
+    public bool test = false;
+
     private bool running = false;
 
     // Use this for initialization
@@ -43,12 +47,40 @@ public class KS_CharacterController : KS_Behaviour {
         KS_SaveLoad.OnLoad += OnLoad;
 	}
 
+    private void OnDestroy()
+    {
+        KS_SaveLoad.OnSave -= OnSave;
+        KS_SaveLoad.OnLoad -= OnLoad;
+    }
+
     void OnSave(ref Dictionary<string, object> saveGame)
     {
+        Debug.Log("ROTATION Save: " + transform.rotation);
+        saveGame.Add("KS_CC_CAM", camera.GetComponent<Camera>());
+        Dictionary<string, string> toSave = new Dictionary<string, string>();
+        toSave.Add("pitch", pitch.ToString());
+        toSave.Add("yaw", yaw.ToString());
+        saveGame.Add("KS_CC", toSave);
     }
 
     void OnLoad(KS_SaveGame save)
     {
+        Debug.Log("ROTATION load: " + transform.rotation);
+        Camera cam = camera.GetComponent<Camera>();
+        Camera oldcam = (Camera)save.SaveData["KS_CC_CAM"];
+
+        cam.depth = oldcam.depth;
+        cam.clearFlags = oldcam.clearFlags;
+        cam.backgroundColor = oldcam.backgroundColor;
+        cam.cullingMask = oldcam.cullingMask;
+        cam.transform.rotation = oldcam.transform.rotation;
+
+        Destroy(oldcam);
+
+        Dictionary<string, string> fromSave = (Dictionary<string, string>) save.SaveData["KS_CC"];
+
+        pitch = float.Parse(fromSave["pitch"]);
+        yaw = float.Parse(fromSave["yaw"]);
     }
 
     private bool IsCrouching = false;
@@ -61,9 +93,12 @@ public class KS_CharacterController : KS_Behaviour {
         MoveCamera(KS_Input.GetAxis("View Horizontal"), KS_Input.GetAxis("View Vertical"));
         MovePlayer(KS_Input.GetAxis("Move Horizontal"), KS_Input.GetAxis("Move Vertical"));
 
-        if (KS_Input.GetInputDown("jump") && IsGrounded())
+        if (KS_Input.GetInputDown("jump"))
         {
-            Jump();
+            if ((IsGrounded() || IsSwimming))
+            {
+                Jump();
+            }
         }
 
         if (KS_Input.GetInputDown("crouch"))
@@ -86,8 +121,10 @@ public class KS_CharacterController : KS_Behaviour {
 
     bool IsGrounded()
     {
-        return Physics.Raycast(camera.position, -Vector3.up, collider.bounds.extents.y + 0.1f);
+        return Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f);
     }
+
+    public bool IsSwimming = false;
 
     void Crouch()
     {
@@ -123,7 +160,7 @@ public class KS_CharacterController : KS_Behaviour {
         if (pitch > 80f) pitch = 80f;
         if (pitch < -80f) pitch = -80f;
 
-        camera.eulerAngles = new Vector3(0, yaw, 0);
+        transform.eulerAngles = new Vector3(0, yaw, 0);
         camera.GetComponent<Transform>().localEulerAngles = new Vector3(pitch, 0, 0.0f);
     }
 

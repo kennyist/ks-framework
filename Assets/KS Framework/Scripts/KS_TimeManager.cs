@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_SavingLoading;
+using System;
 
 public class KS_TimeManager : KS_Behaviour {
 
@@ -82,6 +84,38 @@ public class KS_TimeManager : KS_Behaviour {
 
         currentMinute = startTime;
         UpTime();
+
+        KS_SaveLoad.OnSave += OnSave;
+        KS_SaveLoad.OnLoad += OnLoad;
+    }
+
+    private void OnLoad(KS_SaveGame savegame)
+    {
+        Debug.Log("Time manager on load");
+        Dictionary<string, string> fromSave = (Dictionary<string, string>)savegame.SaveData["KS_TIME"];
+
+        currentMinute = int.Parse(fromSave["curMin"]);
+        currentSecond = int.Parse(fromSave["curSec"]);
+        currentZone = (DayTimeZone) Enum.Parse(typeof(DayTimeZone), fromSave["curZone"]);
+        realTime = bool.Parse(fromSave["realTime"]);
+        paused = bool.Parse(fromSave["paused"]);
+    }
+
+    private void OnSave(ref Dictionary<string, object> SaveData)
+    {
+        Dictionary<string, string> toSave = new Dictionary<string, string>();
+        toSave.Add("curMin", currentMinute.ToString());
+        toSave.Add("curSec", currentSecond.ToString());
+        toSave.Add("curZone", currentZone.ToString());
+        toSave.Add("realTime", realTime.ToString());
+        toSave.Add("paused", paused.ToString());
+
+        SaveData.Add("KS_TIME", toSave);
+    }
+
+    private void OnDestroy()
+    {
+        
     }
 
     private void Update()

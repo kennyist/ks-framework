@@ -115,6 +115,7 @@ namespace KS_SavingLoading.Surrogates
             info.AddValue("cullMask", camera.cullingMask);
             info.AddValue("flags", camera.clearFlags);
             info.AddValue("bgCol", camera.backgroundColor);
+            info.AddValue("rotation", camera.transform.rotation);
 
         }
 
@@ -129,6 +130,7 @@ namespace KS_SavingLoading.Surrogates
             camera.depth = (int)info.GetValue("depth", typeof(int));
             camera.cullingMask = (int)info.GetValue("cullMask", typeof(int));
             camera.clearFlags = (CameraClearFlags)info.GetValue("flags", typeof(CameraClearFlags));
+            camera.transform.rotation = (Quaternion)info.GetValue("rotation", typeof(Quaternion));
 
             return (obj = camera);
         }

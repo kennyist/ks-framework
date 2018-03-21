@@ -31,7 +31,7 @@ public enum DS4Axis
     R2,
     DPadX,
     DPadY,
-    /*GyroX,
+    /*GyroX, Planned Addition
     GyroY,
     GyroRaw,
     AccelerometerX,
