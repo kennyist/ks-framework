@@ -11,6 +11,7 @@ public class KS_CharacterController : KS_Behaviour {
         walking,
         running,
         jumping,
+        falling,
         swimming,
         underwater,
     }
@@ -20,7 +21,9 @@ public class KS_CharacterController : KS_Behaviour {
     public float cameraYSpeed = 2f;
     public float cameraXSpeed = 4f;
     public float smooth = 2f;
+    public float movementSmooth = 2f;
     public float moveSpeed = 20f;
+    public float swimSpeed = 20f;
     public float runSpeed = 3f;
     public float jumpForce = 5f;
     public float crouchHeight = 0.5f;
@@ -88,10 +91,18 @@ public class KS_CharacterController : KS_Behaviour {
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (Manager.State != KS_Manager.GameState.Playing) return;
+        //if (Manager.State != KS_Manager.GameState.Playing) return;
+
 
         MoveCamera(KS_Input.GetAxis("View Horizontal"), KS_Input.GetAxis("View Vertical"));
         MovePlayer(KS_Input.GetAxis("Move Horizontal"), KS_Input.GetAxis("Move Vertical"));
+
+        currentVelocity = Vector3.Slerp(currentVelocity, targetVelocity, Time.deltaTime * movementSmooth);
+
+        rb.AddRelativeForce(targetVelocity, ForceMode.Force);
+
+        if (IsGrounded() || IsSwimming) rb.drag = 2.5f;
+        else rb.drag = 1;
 
         if (KS_Input.GetInputDown("jump"))
         {
@@ -164,25 +175,27 @@ public class KS_CharacterController : KS_Behaviour {
         camera.GetComponent<Transform>().localEulerAngles = new Vector3(pitch, 0, 0.0f);
     }
 
+    Vector3 currentVelocity = new Vector3();
+    Vector3 targetVelocity = new Vector3();
+
     void MovePlayer(float X, float Y)
     {
         Vector3 direction = new Vector3();
 
-        direction -= transform.right * X;
-        direction += transform.forward * Y;
+        direction -= Vector3.right * X;
+        direction += Vector3.forward * Y;
 
-        direction *= moveSpeed;
-
-        if (running)
+        if(state == PlayerState.swimming || state == PlayerState.underwater)
         {
-            
-            rb.MovePosition(transform.position + direction * Time.deltaTime);
-            //rb.AddRelativeForce(direction * runSpeed);
+            targetVelocity = direction * swimSpeed;
         }
-        else
+        else if (state == PlayerState.jumping || state == PlayerState.running || state == PlayerState.idle || state == PlayerState.walking)
         {
-            rb.MovePosition(transform.position + direction * Time.deltaTime);
-            //rb.AddRelativeForce(direction * moveSpeed);
+            if (running) targetVelocity = direction * runSpeed;
+            else
+            {
+                targetVelocity = direction * moveSpeed;
+            }
         }
     }
 }

@@ -43,12 +43,12 @@ public class TESTsave : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.F5))
         {
             KS_SaveLoad.Save("test");
         }
 
-        if (Input.GetKeyDown(KeyCode.L))
+        if (Input.GetKeyDown(KeyCode.F9))
         {
             clearlevel();
             KS_SaveLoad.Load("test");

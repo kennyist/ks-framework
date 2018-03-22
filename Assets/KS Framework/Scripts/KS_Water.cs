@@ -23,6 +23,12 @@ public class KS_Water : MonoBehaviour {
             KS_CharacterController controller = other.GetComponent<KS_CharacterController>();
             controller.IsSwimming = true;
         }
+        else if (other.GetComponent<KS_Bouyancy>())
+        {
+            other.GetComponent<KS_Bouyancy>().EnterWater(collider.bounds.max.y);
+        }
+
+
     }
 
     private void OnTriggerStay(Collider other)
@@ -58,6 +64,10 @@ public class KS_Water : MonoBehaviour {
         {
             controller.IsSwimming = false;
             controller.state = KS_CharacterController.PlayerState.walking;
+        }
+        else if (other.GetComponent<KS_Bouyancy>())
+        {
+            other.GetComponent<KS_Bouyancy>().LeaveWater();
         }
     }
 }

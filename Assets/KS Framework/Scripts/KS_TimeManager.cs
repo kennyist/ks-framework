@@ -223,11 +223,11 @@ public class KS_TimeManager : KS_Behaviour {
         {
             float t = (secondTimer / secondsPerMinute) * 60;
 
-            if ((int)t % 2 == 0)
+            if ((int)t % 5 == 0)
             {
                 currentSecond = (int)t;
 
-                UpdateTime();
+                //UpdateTime();
             }
         }        
     }
