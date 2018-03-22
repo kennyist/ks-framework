@@ -32,14 +32,20 @@ public class KS_Water : MonoBehaviour {
         if(controller && controller.IsSwimming)
         {
             Transform position = other.transform;
+            Rigidbody rb = other.GetComponent<Rigidbody>();
 
             if (other.transform.position.y == (collider.bounds.max.y - 0.5f))
             {
-                other.GetComponent<Rigidbody>().AddForce(-Physics.gravity * 1.2f, ForceMode.Force);
+                other.GetComponent<Rigidbody>().AddForce(-Physics.gravity * rb.mass, ForceMode.Force);
             }
             else if (other.transform.position.y < (collider.bounds.max.y - 0.5f))
             {
-                other.GetComponent<Rigidbody>().AddForce(-Physics.gravity * 1.2f, ForceMode.Force);
+                other.GetComponent<Rigidbody>().AddForce(-Physics.gravity * 1.2f * rb.mass, ForceMode.Force);
+            }
+            else if(other.transform.position.y < collider.bounds.max.y - 2f)
+            {
+                other.GetComponent<Rigidbody>().AddForce(-Physics.gravity * 1.3f * rb.mass, ForceMode.Force);
+                controller.state = KS_CharacterController.PlayerState.underwater;
             }
         }
     }
@@ -51,6 +57,7 @@ public class KS_Water : MonoBehaviour {
         if (controller && controller.IsSwimming)
         {
             controller.IsSwimming = false;
+            controller.state = KS_CharacterController.PlayerState.walking;
         }
     }
 }

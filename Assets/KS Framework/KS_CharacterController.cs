@@ -31,7 +31,7 @@ public class KS_CharacterController : KS_Behaviour {
 
     private Rigidbody rb;
     private Collider collider;
-    private PlayerState state = PlayerState.idle;
+    public PlayerState state = PlayerState.idle;
 
     public bool test = false;
 
@@ -86,7 +86,7 @@ public class KS_CharacterController : KS_Behaviour {
     private bool IsCrouching = false;
 
     // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
         if (Manager.State != KS_Manager.GameState.Playing) return;
 
@@ -168,16 +168,21 @@ public class KS_CharacterController : KS_Behaviour {
     {
         Vector3 direction = new Vector3();
 
-        direction += Vector3.left * X;
-        direction += Vector3.forward * Y;
+        direction -= transform.right * X;
+        direction += transform.forward * Y;
+
+        direction *= moveSpeed;
 
         if (running)
         {
-            rb.AddRelativeForce(direction * runSpeed);
+            
+            rb.MovePosition(transform.position + direction * Time.deltaTime);
+            //rb.AddRelativeForce(direction * runSpeed);
         }
         else
         {
-            rb.AddRelativeForce(direction * moveSpeed);
+            rb.MovePosition(transform.position + direction * Time.deltaTime);
+            //rb.AddRelativeForce(direction * moveSpeed);
         }
     }
 }
