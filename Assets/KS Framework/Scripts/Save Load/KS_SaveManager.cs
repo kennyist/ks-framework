@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using KS_Core.IO;
 
 public class KS_SaveManager: MonoBehaviour {
 
@@ -46,7 +47,7 @@ public class KS_SaveManager: MonoBehaviour {
 
     void Setup()
     {
-        string[] saves = fileHelper.GetFolderContents(KS_FileHelper.Folders.Saves);
+        string[] saves = fileHelper.GetFolderContents(Folders.Saves);
 
         foreach(string s in saves)
         {
@@ -79,20 +80,20 @@ public class KS_SaveManager: MonoBehaviour {
     {
         if(currentAutoSaves >= maximumAutoSaves)
         {
-            fileHelper.DeleteFile(KS_FileHelper.Folders.Saves, "Autosave_02" + saveExtension);
-            fileHelper.RenameFile(KS_FileHelper.Folders.Saves, "Autosave_01" + saveExtension, "Autosave_02" + saveExtension);
+            fileHelper.DeleteFile(Folders.Saves, "Autosave_02" + saveExtension);
+            fileHelper.RenameFile(Folders.Saves, "Autosave_01" + saveExtension, "Autosave_02" + saveExtension);
 
-            return fileHelper.SaveFile(KS_FileHelper.Folders.Saves, "Autosave_01" + saveExtension, data);
+            return fileHelper.SaveFile(Folders.Saves, "Autosave_01" + saveExtension, data);
         }
         else
         {
             if (currentAutoSaves == 1)
             {
-                fileHelper.RenameFile(KS_FileHelper.Folders.Saves, "Autosave_01" + saveExtension, "Autosave_02" + saveExtension);
+                fileHelper.RenameFile(Folders.Saves, "Autosave_01" + saveExtension, "Autosave_02" + saveExtension);
             } 
 
 
-            if (fileHelper.SaveFile(KS_FileHelper.Folders.Saves, "Autosave_01" + saveExtension, data))
+            if (fileHelper.SaveFile(Folders.Saves, "Autosave_01" + saveExtension, data))
             {
                 currentAutoSaves++;
                 return true;
@@ -107,7 +108,7 @@ public class KS_SaveManager: MonoBehaviour {
 
     public bool SaveGame(string data)
     {
-        if(fileHelper.SaveFile(KS_FileHelper.Folders.Saves, defaultSaveName + (currentSaves + 1) + saveExtension, data)){
+        if(fileHelper.SaveFile(Folders.Saves, defaultSaveName + (currentSaves + 1) + saveExtension, data)){
             currentSaves++;
             return true;
         }
@@ -119,7 +120,7 @@ public class KS_SaveManager: MonoBehaviour {
 
     public bool SaveGame(string data, string name)
     {
-        if (fileHelper.SaveFile(KS_FileHelper.Folders.Saves, name + saveExtension, data))
+        if (fileHelper.SaveFile(Folders.Saves, name + saveExtension, data))
         {
             currentSaves++;
             return true;
@@ -132,7 +133,7 @@ public class KS_SaveManager: MonoBehaviour {
 
     public bool SaveToSlot(string data, int slot)
     {
-        if(fileHelper.SaveFile(KS_FileHelper.Folders.Saves, slotSaveName + slot, data)){
+        if(fileHelper.SaveFile(Folders.Saves, slotSaveName + slot, data)){
             return true;
         }
         else 

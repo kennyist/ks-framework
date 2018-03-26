@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace KS_Events
+namespace KS_Core.Events
 {
     public interface KS_Event
     {

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using KS_Core;
+using KS_Core.Settings;
+using KS_Core.Localisation;
 
 public class settingsUItest : MonoBehaviour {
 
@@ -172,9 +175,12 @@ public class settingsUItest : MonoBehaviour {
                                 string[] languages = KS_Localisation.Instance.GetLanguages();
                                 List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
 
-                                for(int i = 0; i < languages.Length; i++)
+                                if (languages != null && languages.Length > 0)
                                 {
-                                    options.Add(new Dropdown.OptionData(languages[i]));
+                                    for (int i = 0; i < languages.Length; i++)
+                                    {
+                                        options.Add(new Dropdown.OptionData(languages[i]));
+                                    }
                                 }
 
                                 obj4.GetComponentInChildren<Dropdown>().options = options;

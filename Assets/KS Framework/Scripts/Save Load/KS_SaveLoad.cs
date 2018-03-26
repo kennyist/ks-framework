@@ -7,42 +7,10 @@ using System.Reflection;
 using System;
 using System.Runtime.Serialization;
 using UnityEngine.SceneManagement;
-using KS_SavingLoading.Surrogates;
+using KS_Core.IO.Surrogates;
 
-namespace KS_SavingLoading
+namespace KS_Core.IO
 {
-
-    [System.Serializable]
-    public class KS_SaveGame
-    {
-        public int SceneIndex;
-        public List<KS_SaveObject> gameObjects = new List<KS_SaveObject>();
-        public Dictionary<string, object> SaveData = new Dictionary<string, object>();
-    }
-
-    [System.Serializable]
-    public class KS_SaveObject
-    {
-        public string name;
-        public string prefabName;
-        public string id;
-        public string parentId;
-
-        public bool active;
-        public Vector3 position;
-        public Vector3 localScale;
-        public Quaternion rotation;
-
-        public List<KS_SaveObjectComponent> objectComponents = new List<KS_SaveObjectComponent>();
-    }
-
-    [System.Serializable]
-    public class KS_SaveObjectComponent
-    {
-        public string componentName;
-        public Dictionary<string, object> fields;
-    }
-
     public static class KS_SaveLoad
     {
         public static KS_Scriptable_GameConfig gameConfig;
@@ -92,7 +60,7 @@ namespace KS_SavingLoading
             bf.Serialize(stream, save);
 
             // Save save object to file
-            KS_FileHelper.Instance.SaveFile(KS_FileHelper.Folders.Saves, saveName + GetFileFormat(), stream.GetBuffer());
+            KS_FileHelper.Instance.SaveFile(Folders.Saves, saveName + GetFileFormat(), stream.GetBuffer());
         }
 
         /// <summary>
@@ -131,7 +99,7 @@ namespace KS_SavingLoading
             bf.SurrogateSelector = ss;
 
             MemoryStream stream = new MemoryStream();
-            byte[] file = KS_FileHelper.Instance.LoadFile(KS_FileHelper.Folders.Saves, name + GetFileFormat());
+            byte[] file = KS_FileHelper.Instance.LoadFileToBytes(Folders.Saves, name + GetFileFormat());
             Debug.Log("file: " + file.Length);
             stream.Write(file, 0, file.Length);
             stream.Position = 0;
@@ -233,22 +201,6 @@ namespace KS_SavingLoading
                             continue;
                         }
                     }
-
-                    /*object[] attributes = field.GetCustomAttributes(typeof(DontSaveField), true);
-                    bool stop = false;
-                    foreach (Attribute attribute in attributes)
-                    {
-                        if (attribute.GetType() == typeof(DontSaveField))
-                        {
-                            //Debug.Log(attribute.GetType().Name.ToString());
-                            stop = true;
-                            break;
-                        }
-                    }
-                    if (stop == true)
-                    {
-                        continue;
-                    }*/
 
                     newObjectComponent.fields.Add(field.Name, field.GetValue(component));
                 }

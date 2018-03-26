@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using KS_Core.GameTime;
 
 public class KS_UI_Time : MonoBehaviour {
 

@@ -5,6 +5,8 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using System.Linq;
 
+using KS_Core.Input;
+
 public class KS_FullMap : MonoBehaviour {
 
     private List<KS_MapMarker> mapObject;

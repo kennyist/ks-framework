@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using KS_Core;
 
 public class KS_LoadScreen : KS_Behaviour {
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 
-namespace KS_Events{
+namespace KS_Core.Events{
 	public class KS_EventManager
 	{
 		

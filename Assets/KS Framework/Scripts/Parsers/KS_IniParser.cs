@@ -10,6 +10,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using KS_Core.IO;
 
 /// <summary>
 /// An .ini file parser that Creates and edits .ini files, With functions to fetch and delete values.
@@ -50,7 +51,7 @@ public class KS_IniParser
     public bool DoesExist(string file)
     {
         //return File.Exists(Application.dataPath + "/" + file + ".ini") ? true : false;
-        return IO.GetFile(KS_FileHelper.Folders.Configs, file + ".cfg");
+        return IO.GetFile(Folders.Configs, file + ".cfg");
     }
 
     /// <summary>
@@ -256,7 +257,7 @@ public class KS_IniParser
             }
         }
 
-        IO.SaveFile(KS_FileHelper.Folders.Configs, file + ".cfg", fileString);
+        IO.SaveFile(Folders.Configs, file + ".cfg", fileString);
         Debug.Log(file + ".ini Saved");
     }
 
@@ -271,7 +272,7 @@ public class KS_IniParser
         string line = "", catagory = "";
         int offset = 0, comment = 0, subcat = 0;
 
-        byte[] fileString = IO.LoadFile(KS_FileHelper.Folders.Configs, file + ".cfg");
+        byte[] fileString = IO.LoadFileToBytes(Folders.Configs, file + ".cfg");
 
         try
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_Core.IO;
 
 public class KS_Screenshot : MonoBehaviour {
 
@@ -54,6 +55,6 @@ public class KS_Screenshot : MonoBehaviour {
                         + time.Month.ToString() + "" 
                         + time.Year.ToString();
 
-        IO.SaveFile(KS_FileHelper.Folders.Screenshots, screenshotNamePrefix + fileTime + ".png", fileContents);
+        IO.SaveFile(Folders.Screenshots, screenshotNamePrefix + fileTime + ".png", fileContents);
     }
 }

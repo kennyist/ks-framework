@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using KS_SavingLoading;
+using KS_Core.IO;
+using KS_Core.GameTime;
 
 public class KS_DayNight : MonoBehaviour {
 

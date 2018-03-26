@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine.UI;
+using KS_Core.Localisation;
 
 [AddComponentMenu("UI/Text Translate")]
 public class KS_TextTranslate : Text
@@ -96,7 +95,9 @@ public class TextTranslateEditor : Editor
 {
     public override void OnInspectorGUI()
     {
+        
         KS_TextTranslate t = (KS_TextTranslate)target;
+        t.lineId = EditorGUILayout.TextField("Localisation Line ID:",t.lineId);
         base.OnInspectorGUI();
     }
 }

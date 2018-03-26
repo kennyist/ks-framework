@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using KS_SavingLoading;
+using KS_Core;
+using KS_Core.IO;
+using KS_Core.Input;
 
 public class KS_CharacterController : KS_Behaviour {
 

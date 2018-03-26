@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
 
-namespace KS_SavingLoading.Surrogates
+namespace KS_Core.IO.Surrogates
 {
 
     public class Vector3Surrogate : ISerializationSurrogate
@@ -69,10 +69,6 @@ namespace KS_SavingLoading.Surrogates
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             Transform transform = (Transform)obj;
-
-            /*camera.position = (Vector3) info.GetValue("pos", typeof(Vector3));
-            camera.rotation = (Quaternion)info.GetValue("rot", typeof(Quaternion));
-            camera.localScale = (Vector3)info.GetValue("scale", typeof(Vector3));*/
 
             return (obj = transform);
         }

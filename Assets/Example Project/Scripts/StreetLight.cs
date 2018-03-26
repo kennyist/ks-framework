@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_Core.GameTime;
 
 public class StreetLight : MonoBehaviour {
 

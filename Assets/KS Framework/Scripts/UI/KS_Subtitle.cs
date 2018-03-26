@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using KS_Core.Localisation;
 
 public class KS_Subtitle : MonoBehaviour {
 

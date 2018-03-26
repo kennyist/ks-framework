@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using KS_Core;
+using KS_Core.Console;
 
 public class KS_UI_Console : MonoBehaviour {
 

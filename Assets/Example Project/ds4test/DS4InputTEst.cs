@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KS_Core.Input;
 
 public class DS4InputTEst : MonoBehaviour {
 
