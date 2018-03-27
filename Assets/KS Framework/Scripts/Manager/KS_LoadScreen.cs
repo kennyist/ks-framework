@@ -23,7 +23,7 @@ public class KS_LoadScreen : KS_Behaviour {
     void Start () {
         DontDestroyOnLoad(this.gameObject);
         LoadScreenContainer.gameObject.SetActive(false);
-        clickToContinue.gameObject.SetActive(false);
+        //clickToContinue.gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame

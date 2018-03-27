@@ -6,12 +6,12 @@ using KS_Core.Input;
 public class MapSwticher : MonoBehaviour {
 
     public Camera playerCam;
-    private KS_FullMap map;
+    private KS_Mapping map;
     private bool mapActive = false;
 
 	// Use this for initialization
 	void Start () {
-        map = KS_FullMap.Instance;
+        map = KS_Mapping.Instance;
 	}
 	
 	// Update is called once per frame
@@ -21,14 +21,16 @@ public class MapSwticher : MonoBehaviour {
         {
             if (!mapActive)
             {
+                map.DissableMinimap();
                 playerCam.enabled = false;
-                map.ActivateMap();
+                map.ShowMap();
                 mapActive = true;
             } 
             else
             {
                 mapActive = false;
-                map.DeactivateMap();
+                map.HideMap();
+                map.EnableMinimap();
                 playerCam.enabled = true;
             }
         }

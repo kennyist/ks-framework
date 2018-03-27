@@ -94,6 +94,8 @@ public class KS_FullMap : MonoBehaviour {
         mapObject = new List<KS_MapMarker>();
     }
 
+    private float cameraCeiling = 0f;
+
     private void Start()
     {
         if(mapArea)
@@ -161,6 +163,12 @@ public class KS_FullMap : MonoBehaviour {
         Debug.Log("bottom L: " + bottomLeft);
     }
 
+    private float GetFrustrumWidth()
+    {
+        var frustumHeight = 2.0f * camera.transform.position.y * Mathf.Tan(camera.GetComponent<Camera>().fieldOfView * 0.5f * Mathf.Deg2Rad);
+        return frustumHeight * camera.GetComponent<Camera>().aspect;
+    }
+
     Vector3 targetPosition = new Vector3();
 
     private void FixedUpdate()
@@ -221,28 +229,6 @@ public class KS_FullMap : MonoBehaviour {
             {
                 targetScale -= cameraZoomSpeed * ScalePercent;
             }
-
-            /*
-            if (Input.GetKey(KeyCode.Minus))
-            {
-                targetScale += cameraZoomSpeed * ScalePercent;
-            }
-
-            if (Input.GetAxis("Mouse ScrollWheel") < 0)
-            {
-                targetScale += cameraMouseWheelZoomeSpeed;
-            }
-
-            if (Input.GetKey(KeyCode.Equals))
-            {
-                targetScale -= cameraZoomSpeed * ScalePercent;
-            }
-
-            if (Input.GetAxis("Mouse ScrollWheel") > 0)
-            {
-                targetScale -= cameraMouseWheelZoomeSpeed;
-            }
-            */
         }
 
         if (targetScale < minCameraScale) targetScale = minCameraScale;

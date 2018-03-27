@@ -134,7 +134,7 @@ public class KS_MapMarker : MonoBehaviour {
     {
         startScale = transform.localScale;
 
-        KS_FullMap.OnScale += OnScale;
+        KS_Mapping.OnScale += OnScale;
         KS_FullMap.OnMinimap += OnMiniMap;
         KS_FullMap.OffMiniMap += OffMiniMap;
         KS_FullMap.OnFilter += OnFilter;
@@ -151,7 +151,7 @@ public class KS_MapMarker : MonoBehaviour {
         {
             KS_FullMap.Instance.UnregisterMapObject(this);
         }
-        KS_FullMap.OnScale -= OnScale;
+        KS_Mapping.OnScale -= OnScale;
         KS_FullMap.OnMinimap -= OnMiniMap;
         KS_FullMap.OffMiniMap -= OffMiniMap;
         KS_FullMap.OnFilter -= OnFilter;
