@@ -3,17 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KS_Core.Handlers;
+using KS_Core.Parsers;
 
 namespace KS_Core.Input
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class KS_Input : MonoBehaviour
     {
 
-        public static event VoidHandler OnSwapController;
-        public static event VoidHandler OnSwapKeyboardMouse;
-
         private static KS_Input instance;
+        /// <summary>
+        /// Current active instance of KS_Input
+        /// </summary>
         public static KS_Input Instance
         {
             get
@@ -22,7 +25,13 @@ namespace KS_Core.Input
             }
         }
 
+        /// <summary>
+        /// Game config <see cref="KS_Scriptable_GameConfig"/>
+        /// </summary>
         public KS_Scriptable_GameConfig gameConfig;
+        /// <summary>
+        /// Game Input config <see cref="KS_Scriptable_Input"/>
+        /// </summary>
         public KS_Scriptable_Input inputFile;
         public bool _temp_UseDS4 = true;
 
@@ -150,7 +159,7 @@ namespace KS_Core.Input
             }
         }
 
-        private static KS_Scriptable_Input_object findInput(string ID)
+        private static KS_Scriptable_Input_object FindInput(string ID)
         {
             if (inputConfig == null || inputConfig.Inputs == null) return null;
 
@@ -168,9 +177,14 @@ namespace KS_Core.Input
             return null;
         }
 
+        /// <summary>
+        /// Is input currently being pressed
+        /// </summary>
+        /// <param name="ID">Input ID as set in Input Manager editor window</param>
+        /// <returns></returns>
         public static bool GetInput(string ID)
         {
-            KS_Scriptable_Input_object key = findInput(ID);
+            KS_Scriptable_Input_object key = FindInput(ID);
 
             Debug.Log(ID);
 
@@ -183,9 +197,14 @@ namespace KS_Core.Input
             return false;
         }
 
+        /// <summary>
+        /// Is input currently being pressed down
+        /// </summary>
+        /// <param name="ID">Input ID as set in Input Manager editor window</param>
+        /// <returns>True the moment the input is pressed down else False</returns>
         public static bool GetInputDown(string ID)
         {
-            KS_Scriptable_Input_object key = findInput(ID);
+            KS_Scriptable_Input_object key = FindInput(ID);
 
             if (key != null)
             {
@@ -203,9 +222,14 @@ namespace KS_Core.Input
             return false;
         }
 
+        /// <summary>
+        /// Is input currently being pressed up
+        /// </summary>
+        /// <param name="ID">Input ID as set in Input Manager editor window</param>
+        /// <returns>True the moment the input is released else False</returns>
         public static bool GetInputUp(string ID)
         {
-            KS_Scriptable_Input_object key = findInput(ID);
+            KS_Scriptable_Input_object key = FindInput(ID);
 
             if (key != null)
             {
@@ -223,24 +247,44 @@ namespace KS_Core.Input
             return false;
         }
 
+        /// <summary>
+        /// Is key currently being pressed
+        /// </summary>
+        /// <param name="keyCode">Unity keycode</param>
+        /// <returns>True while the key is pressed down else False</returns>
         public static bool GetKey(KeyCode keyCode)
         {
             return UnityEngine.Input.GetKey(keyCode);
         }
 
+        /// <summary>
+        /// Is key currently being pressed up
+        /// </summary>
+        /// <param name="keyCode">Unity keycode</param>
+        /// <returns>True the moment the key is released else False</returns>
         public static bool GetKeyUp(KeyCode keyCode)
         {
             return UnityEngine.Input.GetKeyUp(keyCode);
         }
 
+        /// <summary>
+        /// Is input currently being pressed down
+        /// </summary>
+        /// <param name="keyCode">Unity keycode</param>
+        /// <returns>True the moment the key is pressed else False</returns>
         public static bool GetKeyDown(KeyCode keyCode)
         {
             return UnityEngine.Input.GetKeyDown(keyCode);
         }
 
+        /// <summary>
+        /// Get the current readings for an Axis
+        /// </summary>
+        /// <param name="ID">Axis ID as set in Input Manager editor window</param>
+        /// <returns>Float axis reading from -1 to 1, if above 1 its mouse reading</returns>
         public static float GetAxis(string ID)
         {
-            KS_Scriptable_Input_object key = findInput(ID);
+            KS_Scriptable_Input_object key = FindInput(ID);
 
             if (key != null)
             {
@@ -332,158 +376,140 @@ namespace KS_Core.Input
             return 0f;
         }
 
+        /// <summary>
+        /// Convert DS4keyCode to Unity key code 
+        /// </summary>
+        /// <param name="key">DS4 Key Code <see cref="DS4KeyCode"/></param>
+        /// <returns>returns joystick keycode</returns>
         public static KeyCode DS4ButtonToKey(DS4KeyCode key)
         {
             switch (key)
             {
                 case DS4KeyCode.Square:
                     return KeyCode.JoystickButton0;
-                    break;
 
                 case DS4KeyCode.X:
                     return KeyCode.JoystickButton1;
-                    break;
 
                 case DS4KeyCode.Circle:
                     return KeyCode.JoystickButton2;
-                    break;
 
                 case DS4KeyCode.Triangle:
                     return KeyCode.JoystickButton3;
-                    break;
 
                 case DS4KeyCode.L1:
                     return KeyCode.JoystickButton4;
-                    break;
 
                 case DS4KeyCode.R1:
                     return KeyCode.JoystickButton5;
-                    break;
 
                 case DS4KeyCode.L2:
                     return KeyCode.JoystickButton6;
-                    break;
 
                 case DS4KeyCode.R2:
                     return KeyCode.JoystickButton7;
-                    break;
 
                 case DS4KeyCode.Share:
                     return KeyCode.JoystickButton8;
-                    break;
 
                 case DS4KeyCode.Options:
                     return KeyCode.JoystickButton9;
-                    break;
 
                 case DS4KeyCode.L3:
                     return KeyCode.JoystickButton10;
-                    break;
 
                 case DS4KeyCode.R3:
                     return KeyCode.JoystickButton11;
-                    break;
 
                 case DS4KeyCode.Home:
                     return KeyCode.JoystickButton12;
-                    break;
 
                 case DS4KeyCode.TouchPad:
                     return KeyCode.JoystickButton13;
-                    break;
             }
 
             return KeyCode.Joystick1Button0;
         }
 
+        /// <summary>
+        /// Get Ds4 axis readings 
+        /// </summary>
+        /// <param name="axis">DS4 axis <see cref="DS4Axis"/></param>
+        /// <returns>Axis reading from -1f to 1f</returns>
         public static float GetDS4Axis(DS4Axis axis)
         {
             switch (axis)
             {
                 case DS4Axis.LeftStickX:
                     return UnityEngine.Input.GetAxis("DS4 X-Axis");
-                    break;
 
                 case DS4Axis.LeftStickY:
                     return UnityEngine.Input.GetAxis("DS4 Y-Axis");
-                    break;
 
                 case DS4Axis.RightStickX:
                     return UnityEngine.Input.GetAxis("DS4 3rd Axis");
-                    break;
 
                 case DS4Axis.RightStickY:
                     //return Input.GetAxis("DS4 4th Axis");
                     return UnityEngine.Input.GetAxis("DS4 6th Axis");
-                    break;
 
                 case DS4Axis.L2:
                     return UnityEngine.Input.GetAxis("DS4 4th Axis");
                     //return Input.GetAxis("DS4 5th Axis");
-                    break;
 
                 case DS4Axis.R2:
                     return UnityEngine.Input.GetAxis("DS4 5th Axis");
                     //return Input.GetAxis("DS4 6th Axis");
-                    break;
 
                 case DS4Axis.DPadX:
                     return UnityEngine.Input.GetAxis("DS4 7th Axis");
-                    break;
 
                 case DS4Axis.DPadY:
                     return UnityEngine.Input.GetAxis("DS4 8th Axis");
-                    break;
             }
 
             return 0f;
 
         }
 
-
+        /// <summary>
+        /// Convert Xbox key code to Unity Keycode
+        /// </summary>
+        /// <param name="key">Xbox key code <see cref="XboxKeyCode"/></param>
+        /// <returns>Unity joystick keycode</returns>
         public static KeyCode XboxButtonToKeyCode(XboxKeyCode key)
         {
             switch (key)
             {
                 case XboxKeyCode.A:
                     return KeyCode.JoystickButton0;
-                    break;
 
                 case XboxKeyCode.B:
                     return KeyCode.JoystickButton1;
-                    break;
 
                 case XboxKeyCode.X:
                     return KeyCode.JoystickButton2;
-                    break;
 
                 case XboxKeyCode.Y:
                     return KeyCode.JoystickButton3;
-                    break;
 
                 case XboxKeyCode.LB:
                     return KeyCode.JoystickButton4;
-                    break;
 
                 case XboxKeyCode.RB:
                     return KeyCode.JoystickButton5;
-                    break;
 
                 case XboxKeyCode.Back:
                     return KeyCode.JoystickButton6;
-                    break;
 
                 case XboxKeyCode.Start:
                     return KeyCode.JoystickButton7;
-                    break;
 
                 case XboxKeyCode.LeftStickCLick:
                     return KeyCode.JoystickButton8;
-                    break;
 
                 default:
                     return KeyCode.A;
-                    break;
 
             }
         }

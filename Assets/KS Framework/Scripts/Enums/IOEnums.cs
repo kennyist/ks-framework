@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace KS_Core.IO
 {
+    /// <summary>
+    /// Locations to save game data too in windows
+    /// </summary>
     public enum WindowsDataLocation
     {
         /// <summary>
@@ -24,18 +27,45 @@ namespace KS_Core.IO
         GameFolder
     }
 
+    /// <summary>
+    /// Locations to save game data to in Linux
+    /// </summary>
     public enum LinuxDataLocation
     {
+        /// <summary>
+        /// Save in peronal folder
+        /// </summary>
         Personal,
+        /// <summary>
+        /// Save in Local Application Data folder
+        /// </summary>
         LocalApplicationData,
+        /// <summary>
+        /// Save in the Games instilation folder
+        /// </summary>
         GameFolder
     }
 
+    /// <summary>
+    /// Locations to save game data to OSX
+    /// </summary>
     public enum OSXDataLocation
     {
+        /// <summary>
+        /// Save to my documents
+        /// </summary>
         MyDocuments,
+        /// <summary>
+        /// Save to my Games folder in my documents
+        /// </summary>
         MyGames,
+        /// <summary>
+        /// Save to local application data folder
+        /// </summary>
         LocalApplicationData,
+        /// <summary>
+        /// Save in the games instilation folder
+        /// </summary>
         GameFolder
     }
 

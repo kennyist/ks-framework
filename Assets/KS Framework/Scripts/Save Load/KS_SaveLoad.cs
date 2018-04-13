@@ -11,14 +11,36 @@ using KS_Core.IO.Surrogates;
 
 namespace KS_Core.IO
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class KS_SaveLoad
     {
+        /// <summary>
+        /// Game config <see cref="KS_Scriptable_GameConfig"/>
+        /// </summary>
         public static KS_Scriptable_GameConfig gameConfig;
+        /// <summary>
+        /// Format to save games in
+        /// </summary>
         public static string fileFormat = ".save";
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SaveData"></param>
         public delegate void OnSaveHandler(ref Dictionary<string, object> SaveData);
+        /// <summary>
+        /// On Game save
+        /// </summary>
         public static event OnSaveHandler OnSave;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="savegame"></param>
         public delegate void OnLoadHandler(KS_SaveGame savegame);
+        /// <summary>
+        /// On Game Load
+        /// </summary>
         public static event OnLoadHandler OnLoad;
 
         private static List<KeyValuePair<ISerializationSurrogate, Type>> surrogateList = new List<KeyValuePair<ISerializationSurrogate, Type>>();
@@ -254,10 +276,10 @@ namespace KS_Core.IO
         }
 
         /// <summary>
-        /// 
+        /// Unpack saved objects componenet
         /// </summary>
         /// <param name="saveComponent"></param>
-        /// <returns></returns>
+        /// <param name="go"></param>
         private static void RestoreComponent(KS_SaveObjectComponent saveComponent, ref GameObject go)
         {
             // Does component exist

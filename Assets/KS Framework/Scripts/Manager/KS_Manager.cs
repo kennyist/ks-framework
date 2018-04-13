@@ -7,12 +7,17 @@ using KS_Core.Console;
 
 namespace KS_Core
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class KS_Manager : MonoBehaviour
     {
 
         // Instance
         private static KS_Manager instance;
+        /// <summary>
+        /// Current Active instance of KS_Manager
+        /// </summary>
         public static KS_Manager Instance
         {
             get
@@ -22,29 +27,75 @@ namespace KS_Core
         }
 
         // Enums
+        /// <summary>
+        /// Current Game State
+        /// </summary>
         public enum GameState
         {
+            /// <summary>
+            /// Game is in startup intro stage
+            /// </summary>
             Intro,
+            /// <summary>
+            /// Game is currently in main menus
+            /// </summary>
             MainMenu,
+            /// <summary>
+            /// Game is currently in the pause menu
+            /// </summary>
             GameMenu,
+            /// <summary>
+            /// Game is currently in load screen stage
+            /// </summary>
             LoadScreen,
+            /// <summary>
+            /// Game is currently paused
+            /// </summary>
             Paused,
+            /// <summary>
+            /// Game is currently playing
+            /// </summary>
             Playing
         }
 
         // Events
 
+        /// <summary>
+        /// On game state change 
+        /// </summary>
         public static event GameStateHandler OnStateChange;
+        /// <summary>
+        /// On Game Paused
+        /// </summary>
         public static event VoidHandler OnPause;
+        /// <summary>
+        /// On Game Unpaused
+        /// </summary>
         public static event VoidHandler OnPlay;
+        /// <summary>
+        /// On load level called
+        /// </summary>
         public static event IntHandler OnLoadLevel;
+        /// <summary>
+        /// On level fully loaded
+        /// </summary>
         public static event VoidHandler OnLevelLoaded;
+        /// <summary>
+        /// On Manager finish setup
+        /// </summary>
         public static event VoidHandler OnManagerStart;
+        /// <summary>
+        /// On game quit
+        /// </summary>
+        public static event VoidHandler OnGameQuit;
 
         // ------
 
         private string DefaultConfigPath = "Assets/KS_Data/GameConfig.asset";
 
+        /// <summary>
+        /// KS framework Game config <see cref="KS_Scriptable_GameConfig"/>
+        /// </summary>
         public KS_Scriptable_GameConfig gameConfig;
 
         // - Private Vars
@@ -87,30 +138,65 @@ namespace KS_Core
         // Get
 
         // Game config
+        /// <summary>
+        /// Get the current game config
+        /// </summary>
         public KS_Scriptable_GameConfig GameConfig { get { return gameConfig; } }
+        /// <summary>
+        /// Get the games name
+        /// </summary>
         public string GameName { get { return gameConfig.gameName; } }
+        /// <summary>
+        /// Get the current game version
+        /// </summary>
         public string Version { get { return gameConfig.version; } }
+        /// <summary>
+        /// Get the current game build
+        /// </summary>
         public int Build { get { return gameConfig.buildNumber; } }
 
         // Helpers
+        /// <summary>
+        /// Current active console
+        /// </summary>
         public KS_Console Console { get { return consoleHelper; } }
+        /// <summary>
+        /// Current active File Helper
+        /// </summary>
         public KS_FileHelper IO { get { return fileHelper; } }
 
         // Game Info
+        /// <summary>
+        /// Get the current game state
+        /// </summary>
         public GameState State { get { return currentState; } }
 
         // Public Functions
 
+        /// <summary>
+        /// Save the game
+        /// </summary>
+        /// <param name="name">Save file name</param>
         public void SaveGame(string name)
         {
             KS_SaveLoad.Save(name);
         }
 
+        /// <summary>
+        /// Quit the game
+        /// </summary>
         public void QuitGame()
         {
+            if (OnGameQuit != null)
+                OnGameQuit();
+
             Application.Quit();
         }
 
+        /// <summary>
+        /// Load a new level
+        /// </summary>
+        /// <param name="index">Level index</param>
         public void LoadLevel(int index)
         {
             SetGameState(GameState.LoadScreen);
@@ -121,6 +207,9 @@ namespace KS_Core
             }
         }
 
+        /// <summary>
+        /// Set level has been loaded
+        /// </summary>
         public void LevelLoaded()
         {
             SetGameState(GameState.Playing);
@@ -129,6 +218,10 @@ namespace KS_Core
                 OnLevelLoaded();
         }
 
+        /// <summary>
+        /// Set the game state
+        /// </summary>
+        /// <param name="state">Game state <see cref="GameState"/></param>
         public void SetGameState(GameState state)
         {
             currentState = state;

@@ -2,15 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using KS_Core.Handlers;
 
 namespace KS_Core.Localisation
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ExecuteInEditMode]
     public class KS_Localisation : MonoBehaviour
     {
 
         private static KS_Localisation instance;
-
+        /// <summary>
+        /// Current active instance of KS_Localisation
+        /// </summary>
         public static KS_Localisation Instance
         {
             get
@@ -27,13 +33,23 @@ namespace KS_Core.Localisation
             }
         }
 
-        public delegate void VoidDelegate();
-        public static event VoidDelegate LanguageChanged;
+        /// <summary>
+        /// On Language changed
+        /// </summary>
+        public static event VoidHandler LanguageChanged;
+        /// <summary>
+        /// <see cref="KS_Scriptable_Translations">Translation file</see>
+        /// </summary>
         public KS_Scriptable_Translations translationFile;
-
+        /// <summary>
+        /// <see cref="KS_Scriptable_GameConfig">Game Config file </see>
+        /// </summary>
         public KS_Scriptable_GameConfig gameConfig;
         private int selectedLanguage = 0;
 
+        /// <summary>
+        /// Initialize new KS_Localistaion object
+        /// </summary>
         public KS_Localisation()
         {
             instance = this;
@@ -47,6 +63,11 @@ namespace KS_Core.Localisation
                 LanguageChanged();
         }
 
+        /// <summary>
+        /// Change the current selected language
+        /// </summary>
+        /// <param name="index">Langauge index</param>
+        /// <returns>True if changed, False if language not found</returns>
         public bool ChangeLanguage(int index)
         {
             if (translationFile == null || translationFile.languages.Count <= 0 || index < 0 || index > translationFile.languages.Count)
@@ -61,6 +82,11 @@ namespace KS_Core.Localisation
             return true;
         }
 
+        /// <summary>
+        /// Change the current selected language
+        /// </summary>
+        /// <param name="language">language name</param>
+        /// <returns>True if language changed, false if language not found</returns>
         public bool ChangeLanguage(string language)
         {
             if (FindLanguage(language))
@@ -95,6 +121,10 @@ namespace KS_Core.Localisation
             return false;
         }
 
+        /// <summary>
+        /// Get all languages
+        /// </summary>
+        /// <returns>Names of all langauges in string array</returns>
         public string[] GetLanguages()
         {
             if (translationFile == null || translationFile.languages.Count <= 0) return null;
@@ -109,6 +139,11 @@ namespace KS_Core.Localisation
             return (string[])languages.ToArray();
         }
 
+        /// <summary>
+        /// Get localisation line for selected langauge 
+        /// </summary>
+        /// <param name="lineID">Line ID set in Translation Manager editor window</param>
+        /// <returns>Translation line, not found line if lineID not found (Changeable in game config)</returns>
         public string GetLine(string lineID)
         {
             if (translationFile == null || translationFile.languages.Count <= 0) return "";

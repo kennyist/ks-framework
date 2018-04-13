@@ -45,3 +45,16 @@ public class ConsoleCommands : KS_ConsoleCommands
 
     }
 }
+
+public class ExampleCommands : KS_ConsoleCommands
+{
+    public ExampleCommands() : base()
+    {
+        KS_Console.Instance.RegisterCommand("print", ExCmd, "print text to the console E.G print \"hello world\"", "$S", true);
+    }
+
+    void ExCmd(string[] args)
+    {
+        KS_Console.Instance.WriteToConsole(args[0], Color.white);
+    }
+}

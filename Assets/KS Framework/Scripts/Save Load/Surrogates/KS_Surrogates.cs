@@ -5,9 +5,17 @@ using UnityEngine;
 
 namespace KS_Core.IO.Surrogates
 {
-
+    /// <summary>
+    /// Serialize and deserialize Vector3 objects
+    /// </summary>
     public class Vector3Surrogate : ISerializationSurrogate
     {
+        /// <summary>
+        /// Serialize vector3
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Vector3 vector = (Vector3)obj;
@@ -17,6 +25,14 @@ namespace KS_Core.IO.Surrogates
             info.AddValue("z", vector.z);
         }
 
+        /// <summary>
+        /// Deserialize vector3
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             Vector3 vector = (Vector3)obj;
@@ -29,8 +45,17 @@ namespace KS_Core.IO.Surrogates
         }
     }
 
+    /// <summary>
+    /// Serialize and deserialize Quaternion objects
+    /// </summary>
     public class QuaternionSurrogate : ISerializationSurrogate
     {
+        /// <summary>
+        /// Serialize Quaternion object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Quaternion quaternion = (Quaternion)obj;
@@ -41,6 +66,14 @@ namespace KS_Core.IO.Surrogates
             info.AddValue("w", quaternion.w);
         }
 
+        /// <summary>
+        /// Deserialize Quaternion object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             Quaternion quaternion = (Quaternion)obj;
@@ -54,8 +87,17 @@ namespace KS_Core.IO.Surrogates
         }
     }
 
+    /// <summary>
+    /// Serialize and deserialize Transform objects
+    /// </summary>
     public class TransformSurrogate : ISerializationSurrogate
     {
+        /// <summary>
+        /// Serialize transform object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Transform transform = (Transform)obj;
@@ -66,6 +108,14 @@ namespace KS_Core.IO.Surrogates
 
         }
 
+        /// <summary>
+        /// Deserialize transform object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             Transform transform = (Transform)obj;
@@ -74,8 +124,17 @@ namespace KS_Core.IO.Surrogates
         }
     }
 
+    /// <summary>
+    /// Serialize and deserialize Colour objects
+    /// </summary>
     public class ColourSurrogate : ISerializationSurrogate
     {
+        /// <summary>
+        /// Serialize Colour object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Color colour = (Color)obj;
@@ -86,6 +145,9 @@ namespace KS_Core.IO.Surrogates
             info.AddValue("a", colour.a);
         }
 
+        /// <summary>
+        /// deserialize Colour object
+        /// </summary>
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             Color col = (Color)obj;
@@ -99,8 +161,17 @@ namespace KS_Core.IO.Surrogates
         }
     }
 
+    /// <summary>
+    /// Serialize and deserialize Camera objects
+    /// </summary>
     public class CameraSurrogate : ISerializationSurrogate
     {
+        /// <summary>
+        /// Serialize Camera object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
             Camera camera = (Camera)obj;
@@ -115,6 +186,14 @@ namespace KS_Core.IO.Surrogates
 
         }
 
+        /// <summary>
+        /// Deserialize Camera Object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
         {
             GameObject o = new GameObject();

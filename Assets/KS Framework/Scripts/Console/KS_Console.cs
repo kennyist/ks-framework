@@ -6,158 +6,23 @@ using System.Text.RegularExpressions;
 
 namespace KS_Core.Console
 {
-
+    /// <summary>
+    /// A commands handler for returned method and arguments
+    /// </summary>
+    /// <param name="parameters">Returned arguements from the console</param>
     public delegate void CommandHandeler(string[] parameters);
 
-    public class KS_ConsoleCommands
-    {
-        public KS_ConsoleCommands()
-        {
-            KS_Console.Instance.OnCommand += OnCommand;
-
-            KS_Console.Instance.RegisterCommand("qqq", exitgame, "Quick close the game", "", false);
-            KS_Console.Instance.RegisterCommand("debug.log", debuglog, "Toggle unity debug out to console", "", false);
-            KS_Console.Instance.RegisterCommand("help", help, "Show all commands, add page number after to change page", "$i", false);
-            KS_Console.Instance.RegisterCommand("findcmd", findCmd, "Search commands by string", "$s $i", false);
-        }
-
-        private void OnCommand(CommandHandeler handler, string[] args)
-        {
-            handler(args);
-        }
-
-        public void Destroy()
-        {
-            KS_Console.Instance.OnCommand -= OnCommand;
-        }
-
-        // Built In Commands
-
-        void exitgame(string[] args)
-        {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
-        }
-
-        void help(string[] args)
-        {
-            int pageLength = 5;
-            Debug.Log("COMMAND HELP RECEIVED");
-
-            int totalPages = Mathf.CeilToInt(
-                                    (float)KS_Console.Instance.TotalCommands /
-                                    (float)pageLength
-                                    );
-            int page = 1;
-            int start = 0;
-
-            if (args != null)
-            {
-                page = int.Parse(args[0]);
-            }
-
-            if (page > totalPages) page = totalPages;
-
-            start = pageLength * (page - 1);
-
-            int i = 0;
-
-            foreach (KeyValuePair<string, string> sl in KS_Console.Instance.GetAllCommandsAndHelp)
-            {
-                if (i < start || i >= start + pageLength) { }
-                else
-                {
-                    KS_Console.Instance.WriteToConsole(
-                                        sl.Key +
-                                        ": " +
-                                        sl.Value,
-                                        Color.green);
-                }
-
-                i++;
-            }
-
-            KS_Console.Instance.WriteToConsole(
-                                    "page " +
-                                    page +
-                                    " of " +
-                                    totalPages,
-                                    Color.cyan);
-
-        }
-
-        void findCmd(string[] args)
-        {
-            int pageLength = 5;
-            SortedList<string, string> filtered = new SortedList<string, string>();
-
-            foreach (KeyValuePair<string, string> sl in KS_Console.Instance.GetAllCommandsAndHelp)
-            {
-                if (sl.Key.Contains(args[0]))
-                {
-                    filtered.Add(sl.Key, sl.Value);
-                }
-            }
-
-            int totalPages = Mathf.CeilToInt((float)filtered.Count / (float)pageLength);
-            int page = 1;
-            int start = 0;
-
-            Debug.Log(args.Length);
-
-            if (args.Length > 1 && !string.IsNullOrEmpty(args[1]))
-            {
-                page = int.Parse(args[1]);
-            }
-
-            if (page > totalPages) page = totalPages;
-            if (page < 1) page = 1;
-
-            start = pageLength * (page - 1);
-            int end = ((start + pageLength) > filtered.Count) ? filtered.Count : start + pageLength;
-
-            for (int i = start; i < end; i++)
-            {
-                KS_Console.Instance.WriteToConsole(
-                                    filtered.Keys[i] +
-                                    ": " +
-                                    filtered.Values[i],
-                                    Color.green);
-            }
-
-            KS_Console.Instance.WriteToConsole(
-                                "Page " +
-                                page +
-                                " of " +
-                                totalPages,
-                                Color.cyan);
-        }
-
-        void debuglog(string[] Args)
-        {
-            KS_Console.Instance.OutputUnityDebug = !KS_Console.Instance.OutputUnityDebug;
-
-            if (KS_Console.Instance.OutputUnityDebug)
-            {
-                KS_Console.Instance.WriteToConsole("Log toggled On", Color.green);
-            }
-            else
-            {
-                KS_Console.Instance.WriteToConsole("Log toggled Off", Color.green);
-            }
-        }
-
-    }
-
-
+    /// <summary>
+    /// KS console, this class is responsible for all the internal aspects of the console such as command handeling, Log handling and converting an command input.
+    /// </summary>
     public class KS_Console
     {
 
         private static KS_Console instance;
-
+        /// <summary>
+        /// Current active instance of KS_Console
+        /// </summary>
+        /// <returns>Active KS_console instance, new instance if no active instance exists.</returns>
         public static KS_Console Instance
         {
             get
@@ -173,21 +38,72 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// On commad called delegate
+        /// </summary>
+        /// <param name="handler">Commands method hanlder</param>
+        /// <param name="args">Commands arguments</param>
         public delegate void OnCommandDelegate(CommandHandeler handler, string[] args);
+        /// <summary>
+        /// On command called
+        /// </summary>
         public event OnCommandDelegate OnCommand;
+        /// <summary>
+        /// On text added to the consoles log delegate
+        /// </summary>
+        /// <param name="text">Text added to the log</param>
         public delegate void OnLogUpdateDelegate(string text);
+        /// <summary>
+        /// On new text added to the consoles log
+        /// </summary>
         public event OnLogUpdateDelegate OnLogUpdate;
 
+        /// <summary>
+        /// Container for all information for a command, such as command name, method to call and parameter setup.
+        /// </summary>
         public class ConsoleCommand
         {
+            /// <summary>
+            /// The string to enter into the console
+            /// </summary>
             public string command { get; private set; }
+            /// <summary>
+            /// The commands handler to call when activated
+            /// </summary>
             public CommandHandeler handler { get; private set; }
+            /// <summary>
+            /// The Commands help text, Displayed in the console
+            /// </summary>
             public string help { get; private set; }
+            /// <summary>
+            /// The commands Argument format 
+            /// </summary>
             public string[] format { get; private set; }
+            /// <summary>
+            /// Does the command require all arguments to be filled?
+            /// </summary>
             public bool requiresAllParams { get; private set; }
 
+            /// <summary>
+            /// Number of arguments for the command
+            /// </summary>
             public int numParams { get; private set; }
 
+            /// <summary>
+            /// Initialise new console command, <see cref="KS_Console.RegisterCommand(ConsoleCommand)"> Used only with KS_Console </see>.
+            /// </summary>
+            /// <param name="command">The command activate name for users</param>
+            /// <param name="handler">The callback method when activated. <see cref="KS_ConsoleCommands">See KS_ConsoleCommands for use</see></param>
+            /// <param name="help">The Commands help text, Displayed in console</param>
+            /// <param name="paramFormat">Commands Paramaters format, Supported formats: $I = int, $S = string, $F = float, $B = bool</param>
+            /// <param name="requiresAllParams">All parameters need to be filled?</param>
+            /// <example>
+            /// The following example is the findcmd command, that uses a string parameter for searching and int parameter for page.
+            /// 
+            /// <code language="c#">
+            /// ConsoleCommand example = new ConsoleCommand("findcmd", findCmd, "Search commands by string, page number can be used after search string", "$s $i", false)
+            /// </code>
+            /// </example>
             public ConsoleCommand(string command, CommandHandeler handler, string help, string paramFormat, bool requiresAllParams = true)
             {
                 this.command = command;
@@ -249,6 +165,9 @@ namespace KS_Core.Console
         private Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>();
 
         private bool outputUnityDebug = false;
+        /// <summary>
+        /// Output unity debug log to the console?
+        /// </summary>
         public bool OutputUnityDebug
         {
             get
@@ -262,8 +181,9 @@ namespace KS_Core.Console
             }
         }
 
-        // -
-
+        /// <summary>
+        /// Create new instance of KS_Console
+        /// </summary>
         public KS_Console()
         {
             instance = this;
@@ -294,16 +214,46 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// Register a new command to the console.
+        /// </summary>
+        /// <param name="command">The command activate name for users</param>
+        /// <param name="handler">The callback method when activated. <see cref="KS_ConsoleCommands">See KS_ConsoleCommands for use</see></param>
+        /// <param name="help">The Commands help text, Displayed in console</param>
+        /// <param name="format">Commands Paramaters format, Supported formats: $I = int, $S = string, $F = float, $B = bool</param>
+        /// <param name="requiresAllParams">All parameters need to be filled?</param>
+        /// <example>
+        /// Example of the findcmd command being registered.
+        /// 
+        /// <code language="c#">
+        /// KS_Console.Instance.RegisterCommand("findcmd", findCmd, "Search commands by string, page number can be used after search string", "$s $i", false);
+        /// </code>
+        /// </example>
         public void RegisterCommand(string command, CommandHandeler handler, string help, string format, bool requiresAllParams = true)
         {
             commands.Add(command, new ConsoleCommand(command, handler, help, format, requiresAllParams));
         }
 
+        /// <summary>
+        /// Register new command to the console
+        /// </summary>
+        /// <param name="command"><see cref="KS_Console.ConsoleCommand.ConsoleCommand(string, CommandHandeler, string, string, bool)"/></param>
         public void RegisterCommand(ConsoleCommand command)
         {
             commands.Add(command.command, command);
         }
 
+        /// <summary>
+        /// Run console command string
+        /// </summary>
+        /// <param name="command">Input string enetered into console</param>
+        /// <example>
+        /// Basic input string for the help command with page number:
+        /// <code language="c#">
+        /// RunCommandString("help 4");
+        /// </code>
+        /// This convert and run the help command parsing 4 in as method arguments
+        /// </example>
         public void RunCommandString(string command)
         {
             Debug.Log("Command: " + command);
@@ -484,11 +434,19 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// Write text to the console log
+        /// </summary>
+        /// <param name="text">Text to show</param>
+        /// <param name="colour">Colour of the text</param>
         public void WriteToConsole(string text, Color colour)
         {
             AppendLog(text, colour);
         }
 
+        /// <summary>
+        /// Total commands regstered
+        /// </summary>
         public int TotalCommands
         {
             get
@@ -497,6 +455,9 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// Get all commands with help text sorted alphabeticaly by comamnd name.
+        /// </summary>
         public SortedList<string, string> GetAllCommandsAndHelp
         {
             get
@@ -524,6 +485,9 @@ namespace KS_Core.Console
             return logText;
         }
 
+        /// <summary>
+        /// Get console log to string
+        /// </summary>
         public string GetLog
         {
             get
@@ -532,6 +496,9 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// Get a previosuly used command from previous command list.
+        /// </summary>
         public string PreviousCommand
         {
             get
@@ -545,6 +512,9 @@ namespace KS_Core.Console
             }
         }
 
+        /// <summary>
+        /// Get a next used command from prvious command list.
+        /// </summary>
         public string NextUsedCommand
         {
             get

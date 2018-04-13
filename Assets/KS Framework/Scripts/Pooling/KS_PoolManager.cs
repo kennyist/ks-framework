@@ -7,13 +7,24 @@ using KS_Core;
 
 namespace KS_Core.Pooling
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class KS_PoolManager : MonoBehaviour
     {
-
+        /// <summary>
+        /// Game config <see cref="KS_Scriptable_GameConfig"/>
+        /// </summary>
         public KS_Scriptable_GameConfig gameConfig;
+        /// <summary>
+        /// Object to use as parent to pool objects while dissabled
+        /// </summary>
         public GameObject pooledObjectsContainer;
 
         private static KS_PoolManager instance;
+        /// <summary>
+        /// Current active instance of KS_PoolManager
+        /// </summary>
         public static KS_PoolManager Instance
         {
             get
