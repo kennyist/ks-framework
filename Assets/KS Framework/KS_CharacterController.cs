@@ -93,7 +93,7 @@ public class KS_CharacterController : KS_Behaviour {
     // Update is called once per frame
     private void FixedUpdate()
     {
-        //if (Manager.State != KS_Manager.GameState.Playing) return;
+        if (Manager.State != KS_Manager.GameState.Playing) return;
 
 
         MoveCamera(KS_Input.GetAxis("View Horizontal"), KS_Input.GetAxis("View Vertical"));

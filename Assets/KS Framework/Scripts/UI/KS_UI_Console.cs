@@ -43,6 +43,8 @@ public class KS_UI_Console : MonoBehaviour {
                 KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
                 container.SetActive(false);
                 isEnabled = false;
+                Cursor.visible = false;
+                inputText.text = "";
             }
             else
             {
@@ -51,6 +53,7 @@ public class KS_UI_Console : MonoBehaviour {
                 isEnabled = true;
                 inputText.Select();
                 inputText.ActivateInputField();
+                Cursor.visible = true;
             }
         }
 

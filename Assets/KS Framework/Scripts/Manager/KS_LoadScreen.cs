@@ -10,11 +10,11 @@ public class KS_LoadScreen : KS_Behaviour {
     public GameObject LoadScreenContainer;
 
     private bool loaded = false;
-    public Text clickToContinue;
     public Text progress;
 
-    public override void OnLoadLevel(int index)
+    protected override void OnLoadLevel(int index)
     {
+        base.OnLoadLevel(index);
         Debug.Log("Loading level: " + index);
         StartCoroutine(LoadScene(index));
     }
@@ -23,7 +23,6 @@ public class KS_LoadScreen : KS_Behaviour {
     void Start () {
         DontDestroyOnLoad(this.gameObject);
         LoadScreenContainer.gameObject.SetActive(false);
-        //clickToContinue.gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -33,11 +32,9 @@ public class KS_LoadScreen : KS_Behaviour {
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                clickToContinue.gameObject.SetActive(false);
                 LoadScreenContainer.SetActive(false);
                 loaded = false;
 
-                KS_Manager.Instance.SetGameState(KS_Manager.GameState.Playing);
                 KS_Manager.Instance.LevelLoaded();
             }
         }
@@ -68,6 +65,5 @@ public class KS_LoadScreen : KS_Behaviour {
 
         loading = false;
         loaded = true;
-        clickToContinue.gameObject.SetActive(true);
     }
 }

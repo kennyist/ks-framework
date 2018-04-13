@@ -66,7 +66,7 @@ public class KS_Mapping : KS_Behaviour {
 
     public Transform mapCenterTarget;
 
-    private void Awake()
+    protected override void Awake()
     {
         instance = this;
 
@@ -84,6 +84,9 @@ public class KS_Mapping : KS_Behaviour {
         mapTargetHeight = defaultCameraHeight;
         GetMapSize();
         CenterTarget = mapCenterTarget;
+
+        HideMap();
+        if (useMiniMap) EnableMinimap();
 	}
 
     public float ZoomSpeed
@@ -261,8 +264,15 @@ public class KS_Mapping : KS_Behaviour {
 
     public void ShowMap()
     {
-        if(useMiniMap && miniMapActive)
+        if (useMiniMap && miniMapActive)
+        {
             DissableMinimap(false);
+        }
+        else
+        {
+            UIOverlayCamera.SetActive(true);
+            mapCamera.SetActive(true);
+        }
 
         UIOverlayCamera.SetActive(true);
         mapCamera.SetActive(true);
@@ -295,6 +305,12 @@ public class KS_Mapping : KS_Behaviour {
         Cursor.visible = false;
         UIOverlayCamera.SetActive(false);
         mapCamera.SetActive(false);
+
+        if (!useMiniMap)
+        {
+            UIOverlayCamera.SetActive(false);
+            mapCamera.SetActive(false);
+        }
     }
 
     public void DissableMinimap(bool dissableCameras = true)

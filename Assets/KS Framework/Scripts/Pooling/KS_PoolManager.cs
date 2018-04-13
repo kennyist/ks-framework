@@ -151,27 +151,6 @@ namespace KS_Core.Pooling
         }
     }
 
-    public class PoolObjectSettings
-    {
-        public string tag;
-        public int poolLimit;
-
-        public PoolObjectSettings(string tag, int maxPooledOfType)
-        {
-            this.tag = tag;
-            this.poolLimit = maxPooledOfType;
-        }
-    }
-
-    public interface KS_IPoolObject
-    {
-        int _Id { get; }
-        GameObject GameObject { get; }
-        PoolObjectSettings PoolSettings();
-        bool HasId { get; }
-        T GetConcreteType<T>();
-    }
-
     public abstract class KS_poolObject : MonoBehaviour, KS_IPoolObject
     {
         private int? _id;

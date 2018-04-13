@@ -4,6 +4,7 @@ using UnityEngine;
 using KS_Core.IO;
 using KS_Core.Handlers;
 using KS_Core.Console;
+using KS_Core.Splash;
 
 namespace KS_Core
 {
@@ -97,6 +98,11 @@ namespace KS_Core
         /// KS framework Game config <see cref="KS_Scriptable_GameConfig"/>
         /// </summary>
         public KS_Scriptable_GameConfig gameConfig;
+
+        /// <summary>
+        /// Set the state of the game on launch <see cref="GameState"/>
+        /// </summary>
+        public GameState startState = GameState.Intro;
 
         // - Private Vars
         private KS_FileHelper fileHelper;

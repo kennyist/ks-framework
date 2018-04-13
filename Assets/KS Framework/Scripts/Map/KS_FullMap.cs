@@ -101,6 +101,7 @@ public class KS_FullMap : MonoBehaviour {
         if(mapArea)
             GetMapSize();
 
+        Debug.Log("deactiveate map");
         DeactivateMap();
     }
 
@@ -121,6 +122,9 @@ public class KS_FullMap : MonoBehaviour {
             if (OffMiniMap != null)
                 OffMiniMap();
         }
+
+        uiObjectsCamera.SetActive(true);
+        camera.SetActive(true);
 
         targetPosition = player.transform.position;
         targetScale = defultCameraScale;
@@ -148,6 +152,12 @@ public class KS_FullMap : MonoBehaviour {
 
             if (OnMinimap != null)
                 OnMinimap();
+        }
+        else
+        {
+            Debug.Log("hide cameras");
+            uiObjectsCamera.SetActive(false);
+            camera.SetActive(false);
         }
     }
 

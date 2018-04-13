@@ -69,5 +69,7 @@ namespace KS_Core
         /// Save/Load: Save format
         /// </summary>
         public string saveFileFormat = ".save";
+
+        
     }
 }

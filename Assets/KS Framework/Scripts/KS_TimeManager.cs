@@ -82,15 +82,24 @@ namespace KS_Core.GameTime
 
         // ---
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             instance = this;
 
             currentMinute = startTime;
-            UpTime();
+            UpdateTime();
+            
 
             KS_SaveLoad.OnSave += OnSave;
             KS_SaveLoad.OnLoad += OnLoad;
+        }
+
+        protected override void OnLevelLoaded()
+        {
+            base.OnLevelLoaded();
+            UpdateTime();
         }
 
         private void OnLoad(KS_SaveGame savegame)
@@ -117,19 +126,16 @@ namespace KS_Core.GameTime
             SaveData.Add("KS_TIME", toSave);
         }
 
-        private void OnDestroy()
+        protected override void OnGameStateChange(KS_Manager.GameState state)
         {
-
-        }
-
-        public override void OnPause()
-        {
-            paused = true;
-        }
-
-        public override void OnPlay()
-        {
-            paused = false;
+            if(state == KS_Manager.GameState.Playing)
+            {
+                paused = false;
+            }
+            else
+            {
+                paused = true;
+            }
         }
 
         private void FixedUpdate()

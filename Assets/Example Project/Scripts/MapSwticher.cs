@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using KS_Core.Input;
+using KS_Core;
 
-public class MapSwticher : MonoBehaviour {
+public class MapSwticher : KS_Behaviour {
 
     public Camera playerCam;
     private KS_Mapping map;
@@ -17,7 +18,7 @@ public class MapSwticher : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        if (Input.GetKeyDown(KeyCode.M) || KS_Input.GetInputDown("map"))
+        if ((Input.GetKeyDown(KeyCode.M) || KS_Input.GetInputDown("map")) && Manager.State == KS_Manager.GameState.Playing)
         {
             if (!mapActive)
             {
