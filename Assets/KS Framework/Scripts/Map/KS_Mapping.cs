@@ -119,8 +119,8 @@ public class KS_Mapping : KS_Behaviour {
                 mapTargetPosition.y = miniMapCameraHeight;
             }
             else
-            { 
-                mapTargetPosition.y = MapZoom(mapTargetHeight);
+            {
+                mapTargetPosition.y = MapZoom(mapTargetPosition.y);
             }
 
             // Check camera is within map area
@@ -167,8 +167,8 @@ public class KS_Mapping : KS_Behaviour {
         }
 
 
-        if (target < minCameraHeight) mapTargetHeight = minCameraHeight;
-        if (target > maxCameraHeight) mapTargetHeight = maxCameraHeight;
+        if (target < minCameraHeight) target = minCameraHeight;
+        if (target > maxCameraHeight) target = maxCameraHeight;
 
         return target;
     }
@@ -276,7 +276,7 @@ public class KS_Mapping : KS_Behaviour {
 
         UIOverlayCamera.SetActive(true);
         mapCamera.SetActive(true);
-        mapTargetHeight = defaultCameraHeight;
+        mapTargetPosition.y = defaultCameraHeight;
         mapActive = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

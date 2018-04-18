@@ -96,6 +96,15 @@ namespace KS_Core.GameTime
             KS_SaveLoad.OnLoad += OnLoad;
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            KS_SaveLoad.OnSave += OnSave;
+            KS_SaveLoad.OnLoad += OnLoad;
+            instance = null;
+        }
+
         protected override void OnLevelLoaded()
         {
             base.OnLevelLoaded();
@@ -111,7 +120,7 @@ namespace KS_Core.GameTime
             currentSecond = int.Parse(fromSave["curSec"]);
             currentZone = (DayTimeZone)Enum.Parse(typeof(DayTimeZone), fromSave["curZone"]);
             realTime = bool.Parse(fromSave["realTime"]);
-            paused = bool.Parse(fromSave["paused"]);
+            //paused = bool.Parse(fromSave["paused"]);
         }
 
         private void OnSave(ref Dictionary<string, object> SaveData)
@@ -140,7 +149,9 @@ namespace KS_Core.GameTime
 
         private void FixedUpdate()
         {
-            if (!paused)
+            if (paused) return;
+
+            if (!setTimeOverTime)
             {
                 if (!realTime)
                 {
@@ -153,32 +164,27 @@ namespace KS_Core.GameTime
             }
             else
             {
-                if (setTimeOverTime)
+                if (setTimeOverTime_counter < 1.0f)
                 {
-
-                    if (setTimeOverTime_counter < 1.0f)
-                    {
-                        setTimeOverTime_value = Mathf.Lerp(0, setTimeOverTime_maxValue, setTimeOverTime_counter);
-                        //Debug.Log("Val: " + setTimeOverTime_value + " Last Removed value: " + setTimeOverTime_lastRemovedValue);
+                    setTimeOverTime_value = Mathf.Lerp(0, setTimeOverTime_maxValue, setTimeOverTime_counter);
+                    //Debug.Log("Val: " + setTimeOverTime_value + " Last Removed value: " + setTimeOverTime_lastRemovedValue);
 
 
-                        int total = (int)setTimeOverTime_value - setTimeOverTime_lastRemovedValue;
-                        setTimeOverTime_lastRemovedValue = (int)setTimeOverTime_value;
+                    int total = (int)setTimeOverTime_value - setTimeOverTime_lastRemovedValue;
+                    setTimeOverTime_lastRemovedValue = (int)setTimeOverTime_value;
 
-                        AddMinutes(total);
+                    AddMinutes(total);
 
-                        setTimeOverTime_counter += Time.fixedDeltaTime / setTimeOverTime_time;
+                    setTimeOverTime_counter += Time.fixedDeltaTime / setTimeOverTime_time;
 
-                    }
-                    else
-                    {
-                        int total = (int)setTimeOverTime_maxValue - setTimeOverTime_lastRemovedValue;
+                }
+                else
+                {
+                    int total = (int)setTimeOverTime_maxValue - setTimeOverTime_lastRemovedValue;
 
-                        AddMinutes(total);
+                    AddMinutes(total);
 
-                        setTimeOverTime = false;
-                        paused = false;
-                    }
+                    setTimeOverTime = false;
                 }
             }
         }
@@ -225,11 +231,11 @@ namespace KS_Core.GameTime
             {
                 float t = (secondTimer / secondsPerMinute) * 60;
 
-                if ((int)t % 5 == 0)
+                if ((int)t % 5 == 0 && (int)t != currentSecond && (int) t < 59)
                 {
                     currentSecond = (int)t;
 
-                    //UpdateTime();
+                    UpdateTime();
                 }
             }
         }
@@ -359,7 +365,6 @@ namespace KS_Core.GameTime
             setTimeOverTime_lastRemovedValue = 0;
             setTimeOverTime_counter = 0;
 
-            paused = true;
             setTimeOverTime = true;
         }
 
