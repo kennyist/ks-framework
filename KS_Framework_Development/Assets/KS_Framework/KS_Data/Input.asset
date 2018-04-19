@@ -1,0 +1,318 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ca81ff66994d6045ade32b16fa825a5, type: 3}
+  m_Name: Input
+  m_EditorClassIdentifier: 
+  Inputs:
+  - ID: fire
+    type: 0
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 32
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 0
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: click
+    type: 1
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 102
+    UseDS4: 0
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 0
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: View Vertical
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 102
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 0
+    negitive: 0
+    mouseX: 0
+    mouseY: 1
+    DS4Axis: 3
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: View Horizontal
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 102
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 0
+    negitive: 0
+    mouseX: 1
+    mouseY: 0
+    DS4Axis: 2
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: Move Vertical
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 102
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 119
+    negitive: 115
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 1
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: Move Horizontal
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 102
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: jump
+    type: 0
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 32
+    UseDS4: 1
+    DefaultDS4: 3
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: crouch
+    type: 0
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 306
+    curKey: 306
+    UseDS4: 1
+    DefaultDS4: 1
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: run
+    type: 0
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 304
+    curKey: 304
+    UseDS4: 1
+    DefaultDS4: 6
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: map
+    type: 0
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 109
+    curKey: 109
+    UseDS4: 1
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: mapMoveX
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 97
+    curKey: 109
+    UseDS4: 1
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 97
+    negitive: 100
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 0
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: mapMoveY
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 109
+    curKey: 109
+    UseDS4: 1
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 119
+    negitive: 115
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 1
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: mapMoveIn
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 109
+    curKey: 109
+    UseDS4: 1
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 43
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 4
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: mapMoveOut
+    type: 2
+    EditableInGame: 1
+    ConfigHelpText: 
+    DefaultKey: 109
+    curKey: 109
+    UseDS4: 1
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 45
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 5
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: intro_skip
+    type: 0
+    EditableInGame: 0
+    ConfigHelpText: 
+    DefaultKey: 27
+    curKey: 27
+    UseDS4: 0
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 45
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 5
+    XboxAxis: 0
+    deadZone: 0.1
+  - ID: intro_continue
+    type: 0
+    EditableInGame: 0
+    ConfigHelpText: 
+    DefaultKey: 32
+    curKey: 32
+    UseDS4: 0
+    DefaultDS4: 13
+    UseXbox: 0
+    DefaultXbox: 0
+    MouseButton: 0
+    curMouseButton: 0
+    positive: 45
+    negitive: 0
+    mouseX: 0
+    mouseY: 0
+    DS4Axis: 5
+    XboxAxis: 0
+    deadZone: 0.1
