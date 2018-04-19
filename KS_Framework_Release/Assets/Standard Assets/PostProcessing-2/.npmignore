@@ -1,0 +1,10 @@
+artifacts/**
+build/**
+Documentation/ApiDocs/**
+.DS_Store
+.npmrc
+.npmignore
+.gitignore
+issue_template.md
+QAReport.md
+QAReport.md.meta

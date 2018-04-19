@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/Example Project/ds4test/DS4Test.unity
+  isLoaded: 1
+  isActive: 1
