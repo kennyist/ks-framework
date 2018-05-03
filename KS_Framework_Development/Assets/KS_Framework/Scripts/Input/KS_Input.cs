@@ -8,7 +8,7 @@ using KS_Core.Parsers;
 namespace KS_Core.Input
 {
     /// <summary>
-    /// 
+    /// Wrapper class over Unitys input class. This allows the editing of inputs during run time and saving any edits to config file.
     /// </summary>
     public class KS_Input : MonoBehaviour
     {

@@ -23,7 +23,7 @@ public class MapSwticher : KS_Behaviour {
         {
             if (!mapActive)
             {
-                map.DissableMinimap();
+                map.DisableMinimap();
                 playerCam.enabled = false;
                 map.ShowMap();
                 mapActive = true;

@@ -37,6 +37,7 @@ namespace KS_Core.Console
             KS_Console.Instance.RegisterCommand("debug.log", debuglog, "Toggle unity debug out to console", "", false);
             KS_Console.Instance.RegisterCommand("help", help, "Show all commands, add page number after to change page", "$i", false);
             KS_Console.Instance.RegisterCommand("findcmd", findCmd, "Search commands by string, page number can be used after search string", "$s $i", false);
+            KS_Console.Instance.RegisterCommand("print", Print, "print text to the console E.G print \"hello world\"", "$S", true);
         }
 
         private void OnCommand(CommandHandeler handler, string[] args)
@@ -53,6 +54,11 @@ namespace KS_Core.Console
         }
 
         // Built In Commands
+
+        void Print(string[] args)
+        {
+            KS_Console.Instance.WriteToConsole(args[0], Color.white);
+        }
 
         void exitgame(string[] args)
         {
@@ -172,4 +178,27 @@ namespace KS_Core.Console
         }
 
     }
+
+    /// <summary>
+    /// Example class of creating a new command. 
+    /// This class registers a "print" command, anything written after print in the console will be printed to the console log.
+    /// The first parameter of RegisterCommand is the name that is inputed into the console to run the command.
+    /// the second parameter is the method handler, this is the method called within this class when the command is called.
+    /// The third parameter is the help text to help a user understand the command (Found with the help command).
+    /// The fourth is the arguement format. as this command allows any input, string ($S) was selected.
+    /// The final is wether the command requires all arugments to be filled.
+    /// </summary>
+    /*
+    public class ExampleCommands : KS_ConsoleCommands
+    {
+        public ExampleCommands() : base()
+        {
+            KS_Console.Instance.RegisterCommand("print", ExCmd, "print text to the console E.G print \"hello world\"", "$S", true);
+        }
+
+        void ExCmd(string[] args)
+        {
+            KS_Console.Instance.WriteToConsole(args[0], Color.white);
+        }
+    }*/
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
     settings:
     - configID: l_subtitles
       configHelp: Enable subtitles
-      displayText: ui_settings_option_subtitle
+      displayText: ui_settings_subtitle
       type: 2
       defult: true
       minValue: 0
@@ -24,17 +24,17 @@ MonoBehaviour:
       dropdownOptions: []
     - configID: l_language
       configHelp: language
-      displayText: ui_setting_option_language
+      displayText: ui_settings_language
       type: 5
       defult: 0
       minValue: 0
       Maxvalue: 0
       dropdownOptions: []
-  - menuTitle: ui_setting_audio
+  - menuTitle: ui_settings_audio
     settings:
     - configID: a_mastervolume
       configHelp: Master Volume
-      displayText: ui_setting_option_mastervol
+      displayText: ui_settings_mastervol
       type: 0
       defult: 100
       minValue: 0

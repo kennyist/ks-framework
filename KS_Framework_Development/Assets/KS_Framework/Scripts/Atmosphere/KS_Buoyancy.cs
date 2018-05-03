@@ -92,7 +92,6 @@ namespace KS_Core.Atmosphere
 
                         Vector3 point = transform.InverseTransformPoint(new Vector3(x, y, z));
                         points.Add(point);
-
                         Debug.Log("addded");
                     }
                 }
@@ -152,21 +151,6 @@ namespace KS_Core.Atmosphere
                     }
                 }
             }
-        }
-
-        private void OnDrawGizmos()
-        {
-            /*float size = 0.1f;
-            Gizmos.color = Color.cyan;
-
-            if (voxelPoints != null || voxelPoints.Count > 0)
-            {
-
-                foreach (Vector3 point in voxelPoints)
-                {
-                    Gizmos.DrawCube(transform.TransformPoint(point), new Vector3(size, size, size));
-                }
-            }*/
         }
     }
 }

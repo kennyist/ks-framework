@@ -207,7 +207,7 @@ namespace KS_Character
                     {
                         if (hoverObject != null)
                         {
-                            hoverObject.OnLeaveHover();
+                            hoverObject.OnHoverLeave();
                             hoverObject = null;
                         }
 
@@ -221,7 +221,7 @@ namespace KS_Character
             {
                 if (hoverObject != null)
                 {
-                    hoverObject.OnLeaveHover();
+                    hoverObject.OnHoverLeave();
                     hoverObject = null;
                 }
             }

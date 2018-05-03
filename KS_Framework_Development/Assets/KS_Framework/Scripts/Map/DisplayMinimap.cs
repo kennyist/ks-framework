@@ -5,12 +5,21 @@ using UnityEngine.UI;
 
 namespace KS_Mapping
 {
+    /// <summary>
+    /// Display Minimap on screen, disabling and enabling on fullmap state <see cref="KS_Map"/>
+    /// </summary>
     public class DisplayMinimap : MonoBehaviour
     {
 
         KS_Map map;
 
+        /// <summary>
+        /// Container of all minimap objects
+        /// </summary>
         public GameObject minimapContainer;
+        /// <summary>
+        /// Raw image to display the render texture from the fullmap
+        /// </summary>
         public RawImage minimapRender;
 
         // Use this for initialization

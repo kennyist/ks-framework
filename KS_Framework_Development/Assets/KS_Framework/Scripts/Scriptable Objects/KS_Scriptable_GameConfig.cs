@@ -8,6 +8,7 @@ namespace KS_Core
     /// <summary>
     /// Storage of game settings and KS framework settings
     /// </summary>
+    [CreateAssetMenu(fileName = "GameConfig", menuName = "KS: Framework/Databases/Game Config", order = 1)]
     public class KS_Scriptable_GameConfig : ScriptableObject
     {
         /// <summary>
@@ -22,6 +23,10 @@ namespace KS_Core
         /// Current build number
         /// </summary>
         public int buildNumber = 0;
+        /// <summary>
+        /// Name of the folder to store saves and configs in (OS folder naming rules apply)
+        /// </summary>
+        public string gameFolderName = "GameName";
         /// <summary>
         /// Where to store game files on windows systems
         /// </summary>

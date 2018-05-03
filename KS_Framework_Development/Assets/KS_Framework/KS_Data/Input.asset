@@ -252,7 +252,7 @@ MonoBehaviour:
     DefaultXbox: 0
     MouseButton: 0
     curMouseButton: 0
-    positive: 43
+    positive: 113
     negitive: 0
     mouseX: 0
     mouseY: 0
@@ -271,7 +271,7 @@ MonoBehaviour:
     DefaultXbox: 0
     MouseButton: 0
     curMouseButton: 0
-    positive: 45
+    positive: 101
     negitive: 0
     mouseX: 0
     mouseY: 0

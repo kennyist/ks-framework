@@ -9,7 +9,8 @@ using KS_Core.Splash;
 namespace KS_Core
 {
     /// <summary>
-    /// 
+    /// KS game manager. This manages the current state of the game, other global scripts, provides easy methods for game functions and events.
+    /// Everything in the gameobject with this script will not be destroyed on loading a level.
     /// </summary>
     public class KS_Manager : MonoBehaviour
     {
@@ -113,6 +114,7 @@ namespace KS_Core
 
         void Awake()
         {
+            DontDestroyOnLoad(this);
             instance = this;
             Debug.Log("Starting OWGF Manager");
 

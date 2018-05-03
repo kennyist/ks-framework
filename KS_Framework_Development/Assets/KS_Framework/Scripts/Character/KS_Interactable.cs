@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using KS_Core;
+using KS_Core.Localisation;
 
 namespace KS_Utility
 {
@@ -10,34 +11,32 @@ namespace KS_Utility
     /// </summary>
     public class KS_Interactable : KS_Behaviour, KS_Iinteractable
     {
-        public string hoverText = "Some text to show";
-
-        public string HoverText
-        {
-            get
-            {
-                return hoverText;
-            }
-
-            set
-            {
-                hoverText = value;
-            }
-        }
+        public string hoverText = "";
 
         public void OnHover()
         {
-
+            Debug.Log("Hover");
+            KS_Subtitle.Instance.PermShowText(hoverText);
         }
 
-        public void OnLeaveHover()
+        public void OnHoverLeave()
         {
-
+            KS_Subtitle.Instance.Clear();
         }
 
         public void OnPress()
         {
             Debug.Log("pressed");
+        }
+
+        public void OnPressHold()
+        {
+            
+        }
+
+        public void OnPressHoldLeave()
+        {
+            
         }
     }
 }

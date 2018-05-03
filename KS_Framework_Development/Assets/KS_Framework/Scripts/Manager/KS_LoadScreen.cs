@@ -4,66 +4,96 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using KS_Core;
+using KS_Core.Input;
 
-public class KS_LoadScreen : KS_Behaviour {
-
-    public GameObject LoadScreenContainer;
-
-    private bool loaded = false;
-    public Text progress;
-
-    protected override void OnLoadLevel(int index)
+namespace KS_Utility
+{
+    /// <summary>
+    /// Simple load screen display when loading a new level
+    /// </summary>
+    public class KS_LoadScreen : KS_Behaviour
     {
-        base.OnLoadLevel(index);
-        Debug.Log("Loading level: " + index);
-        StartCoroutine(LoadScene(index));
-    }
+        /// <summary>
+        /// Container of the load screen objects
+        /// </summary>
+        public GameObject LoadScreenContainer;
+        /// <summary>
+        /// Wait for input before closing the screen once level is loaded
+        /// </summary>
+        public bool waitForInput = false;
+        /// <summary>
+        /// Input ID for closing the screen <see cref="KS_Scriptable_Input"/>
+        /// </summary>
+        public string waitInputID = "intro_continue";
 
-    // Use this for initialization
-    void Start () {
-        DontDestroyOnLoad(this.gameObject);
-        LoadScreenContainer.gameObject.SetActive(false);
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        private bool loaded = false;
 
-        if (loaded)
+        /// <summary>
+        /// Is the level currently loading
+        /// </summary>
+        public bool Loading
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                LoadScreenContainer.SetActive(false);
-                loaded = false;
+            get { return loading; }
+        }
 
-                KS_Manager.Instance.LevelLoaded();
+        protected override void OnLoadLevel(int index)
+        {
+            base.OnLoadLevel(index);
+            Debug.Log("Loading level: " + index);
+            StartCoroutine(LoadScene(index));
+        }
+
+        // Use this for initialization
+        void Start()
+        {
+            DontDestroyOnLoad(this.gameObject);
+            LoadScreenContainer.gameObject.SetActive(false);
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+            if (loaded)
+            {
+                if (waitForInput)
+                {
+                    if (KS_Input.GetInputDown(waitInputID)) 
+                    {
+                        LoadScreenContainer.SetActive(false);
+                        loaded = false;
+
+                        KS_Manager.Instance.LevelLoaded();
+                    }
+                }
+                else
+                {
+                    LoadScreenContainer.SetActive(false);
+                    loaded = false;
+
+                    KS_Manager.Instance.LevelLoaded();
+                }
             }
         }
 
-        if (loading)
+        private float loadProgress = 0f;
+        private bool loading = false;
+
+        private IEnumerator LoadScene(int scene)
         {
-            progress.text = loadProgress.ToString("00%");
+            LoadScreenContainer.SetActive(true);
+            loading = true;
+
+            AsyncOperation async = SceneManager.LoadSceneAsync(scene);
+
+            while (async.isDone)
+            {
+                loadProgress = async.progress;
+                yield return null;
+            }
+
+            loading = false;
+            loaded = true;
         }
-	}
-
-    private float loadProgress = 0f;
-    private bool loading = false;
-
-    private IEnumerator LoadScene(int scene)
-    {
-        LoadScreenContainer.SetActive(true);
-        loading = true;
-
-        yield return new WaitForSeconds(3f);
-
-        AsyncOperation async = SceneManager.LoadSceneAsync(scene);
-
-        while (async.isDone)
-        {
-            loadProgress = async.progress;
-            yield return null;
-        }
-
-        loading = false;
-        loaded = true;
     }
 }

@@ -11,6 +11,9 @@ using KS_Core.Localisation;
 namespace KS_Core.Editor
 {
 
+    /// <summary>
+    /// KS translation database editor window: Edit, create or delete languages and translations strings
+    /// </summary>
     public class KS_Editor_TranslationManager : EditorWindow
     {
 
@@ -64,8 +67,6 @@ namespace KS_Core.Editor
                 {
                     IsSearching = true;
                 }
-
-                Debug.Log("Search string: " + searchString);
 
                 UpdateDisplayData();
             }
@@ -253,6 +254,8 @@ namespace KS_Core.Editor
                     if (GUILayout.Button(keys[i], EditorStyles.miniButton))
                     {
                         loadedLines = null;
+                        loadedString = null;
+                        GUI.FocusControl(null);
                         loadedLines = GetKeyData(i);
                         loadedString = GetKeyData(i)[0].Value.lineID;
                     }
@@ -404,7 +407,6 @@ namespace KS_Core.Editor
 
         KeyValuePair<string, TranslationString>[] GetKeyData(int index)
         {
-            Debug.Log(index);
 
             List<KeyValuePair<string, TranslationString>> lines = new List<KeyValuePair<string, TranslationString>>();
 

@@ -498,7 +498,7 @@ MonoBehaviour:
     m_RotationOrder: 0
   minCameraHeight: 300
   defaultCameraHeight: 500
-  maxCameraHeight: 1200
+  maxCameraHeight: 1000
   useMiniMap: 1
   miniMapCameraHeight: 100
   renderFormat: 22

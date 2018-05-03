@@ -11,9 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8799e4c765022684aa859f2df8384baa, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  gameName: KS_OWGF
+  gameName: KS_FW
   version: 0.01
   buildNumber: 0
+  gameFolderName: KS Framework
   windowsDataLocation: 0
   macDataLocation: 0
   linuxDataLocation: 0

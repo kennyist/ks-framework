@@ -8,7 +8,8 @@ using System.Linq;
 namespace KS_Core.IO
 {
     /// <summary>
-    /// 
+    /// File path helper. Store or load files from specific places on a users system.
+    /// <see cref="KS_Scriptable_GameConfig"/>
     /// </summary>
     public class KS_FileHelper
     {
@@ -192,7 +193,7 @@ namespace KS_Core.IO
         /// <returns>String path to choosen folder</returns>
         public string GetFolderPath(WindowsDataLocation location, Folders folder)
         {
-            return BaseDirectoryPath(location) + gameConfig.gameName + "/" + folder.ToString() + "/";
+            return BaseDirectoryPath(location) + gameConfig.gameFolderName + "/" + folder.ToString() + "/";
         }
 
         /// <summary>
@@ -203,7 +204,7 @@ namespace KS_Core.IO
         /// <returns>String path to choosen folder</returns>
         public string GetFolderPath(LinuxDataLocation location, Folders folder)
         {
-            return BaseDirectoryPath(location) + gameConfig.gameName + "/" + folder.ToString() + "/";
+            return BaseDirectoryPath(location) + gameConfig.gameFolderName + "/" + folder.ToString() + "/";
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace KS_Core.IO
         /// <returns>String path to choosen folder</returns>
         public string GetFolderPath(OSXDataLocation location, Folders folder)
         {
-            return BaseDirectoryPath(location) + gameConfig.gameName + "/" + folder.ToString() + "/";
+            return BaseDirectoryPath(location) + gameConfig.gameFolderName + "/" + folder.ToString() + "/";
         }
 
         /// <summary>

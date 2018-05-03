@@ -14,14 +14,74 @@ MonoBehaviour:
   languages:
   - language: English
     strings:
+    - lineID: ui_continue
+      lineText: Continue
+    - lineID: ui_settings
+      lineText: Settings
+    - lineID: ui_quit
+      lineText: Quit
     - lineID: ui_apply
       lineText: Apply
+    - lineID: ui_close
+      lineText: Close
+    - lineID: ui_settings_game
+      lineText: Game
+    - lineID: ui_settings_subtitle
+      lineText: 'Subtitles:'
+    - lineID: ui_settings_language
+      lineText: 'Language:'
+    - lineID: ui_settings_audio
+      lineText: Audio
+    - lineID: ui_settings_mastervol
+      lineText: 'Master Volume:'
+    - lineID: ui_loadinglevel
+      lineText: Loading, Please wait...
   - language: German
     strings:
+    - lineID: ui_continue
+      lineText: Fortsetzen
+    - lineID: ui_settings
+      lineText: Optionen
+    - lineID: ui_quit
+      lineText: Ausfahrt
     - lineID: ui_apply
-      lineText: '# Not Set #'
+      lineText: Sich bewerben
+    - lineID: ui_close
+      lineText: "Schlie\xDFen"
+    - lineID: ui_settings_game
+      lineText: Spiel
+    - lineID: ui_settings_subtitle
+      lineText: 'Untertitel:'
+    - lineID: ui_settings_language
+      lineText: 'Sprache:'
+    - lineID: ui_settings_audio
+      lineText: Audio
+    - lineID: ui_settings_mastervol
+      lineText: 'Hauptvolumen:'
+    - lineID: ui_loadinglevel
+      lineText: Laden, bitte warten...
   - language: French
     strings:
+    - lineID: ui_continue
+      lineText: Continuer
+    - lineID: ui_settings
+      lineText: Options
+    - lineID: ui_quit
+      lineText: Sortie
     - lineID: ui_apply
-      lineText: '# Not Set #'
+      lineText: Appliquer
+    - lineID: ui_close
+      lineText: Fermer
+    - lineID: ui_settings_game
+      lineText: Jeu
+    - lineID: ui_settings_subtitle
+      lineText: 'Les sous-titres:'
+    - lineID: ui_settings_language
+      lineText: 'La langue:'
+    - lineID: ui_settings_audio
+      lineText: l'audio
+    - lineID: ui_settings_mastervol
+      lineText: 'Volume principal:'
+    - lineID: ui_loadinglevel
+      lineText: Chargement, veuillez patienter...
   DefaultLanguage: English

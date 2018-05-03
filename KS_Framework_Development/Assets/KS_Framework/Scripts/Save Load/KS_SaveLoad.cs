@@ -122,7 +122,6 @@ namespace KS_Core.IO
 
             MemoryStream stream = new MemoryStream();
             byte[] file = KS_FileHelper.Instance.LoadFileToBytes(Folders.Saves, name + GetFileFormat());
-            Debug.Log("file: " + file.Length);
             stream.Write(file, 0, file.Length);
             stream.Position = 0;
 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace KS_Core.Pooling
 {
     /// <summary>
-    /// 
+    /// Allow object to be pooled <see cref="KS_poolObject"/>
     /// </summary>
     public interface KS_IPoolObject
     {

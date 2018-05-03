@@ -8,7 +8,7 @@ using KS_Core;
 namespace KS_Core.Pooling
 {
     /// <summary>
-    /// 
+    /// KS pool manager, this script handles the pooling, fetching and storage of game objects.
     /// </summary>
     public class KS_PoolManager : MonoBehaviour
     {
@@ -73,17 +73,30 @@ namespace KS_Core.Pooling
         GameObject _inactive;
         GameObject _active;
 
+        /// <summary>
+        /// Get new unique id for pool object
+        /// </summary>
+        /// <returns></returns>
         public int GetUniqueId()
         {
             currentId++;
             return currentId;
         }
 
-        public int GetAmmountOfType(string tag)
+        /// <summary>
+        /// How many objects of type are stored
+        /// </summary>
+        /// <param name="tag">object tag</param>
+        /// <returns>Int count of objects</returns>
+        public int GetAmountOfType(string tag)
         {
             return pool.Count(f => f.Value.PoolSettings().tag == tag);
         }
 
+        /// <summary>
+        /// Add new object to pool
+        /// </summary>
+        /// <param name="poolObject">Pool objects interface</param>
         public void AddPoolObject(KS_IPoolObject poolObject)
         {
             KS_IPoolObject data;
@@ -93,9 +106,9 @@ namespace KS_Core.Pooling
 
                 // check pooling limits for 
 
-                Debug.Log("A: " + GetAmmountOfType(poolObject.PoolSettings().tag) + " T: " + poolObject.PoolSettings().poolLimit);
+                Debug.Log("A: " + GetAmountOfType(poolObject.PoolSettings().tag) + " T: " + poolObject.PoolSettings().poolLimit);
 
-                if (GetAmmountOfType(poolObject.PoolSettings().tag) > (poolObject.PoolSettings().poolLimit - 1))
+                if (GetAmountOfType(poolObject.PoolSettings().tag) > (poolObject.PoolSettings().poolLimit - 1))
                 {
                     RemovePoolItem(poolObject.GameObject);
                     return;
@@ -115,6 +128,11 @@ namespace KS_Core.Pooling
             }
         }
 
+        /// <summary>
+        /// Get pool object by tag
+        /// </summary>
+        /// <param name="tag">Game objects pool tag</param>
+        /// <returns>Pool object interface</returns>
         public KS_IPoolObject Get(string tag)
         {
             var poolableObj = pool.Values.FirstOrDefault(f => f.PoolSettings().tag == tag);
@@ -128,6 +146,10 @@ namespace KS_Core.Pooling
             return null;
         }
 
+        /// <summary>
+        /// Remove object from pool
+        /// </summary>
+        /// <param name="poolObject">Game object to reomve (Must use KS_IPoolObject interface) <see cref="KS_IPoolObject"/></param>
         public void RemovePoolItem(GameObject poolObject)
         {
             KS_IPoolObject i = poolObject.GetComponent<KS_IPoolObject>();
@@ -143,7 +165,7 @@ namespace KS_Core.Pooling
         //
 
         /// <summary>
-        /// 
+        /// Clear al objects in the pool
         /// </summary>
         public void Clear()
         {
@@ -151,10 +173,16 @@ namespace KS_Core.Pooling
         }
     }
 
+    /// <summary>
+    /// Filled pool object interface for inheriting (MonoBehaviour)
+    /// </summary>
     public abstract class KS_poolObject : MonoBehaviour, KS_IPoolObject
     {
         private int? _id;
 
+        /// <summary>
+        /// Pool object ID 
+        /// </summary>
         public int _Id
         {
             get
@@ -171,6 +199,9 @@ namespace KS_Core.Pooling
             }
         }
 
+        /// <summary>
+        /// Does object have ID
+        /// </summary>
         public bool HasId
         {
             get
@@ -184,14 +215,16 @@ namespace KS_Core.Pooling
             }
         }
 
+        /// <summary>
+        /// Pool object GameObject
+        /// </summary>
         public GameObject GameObject { get { return gameObject; } }
 
         /// <summary>
-        /// Returns the concrete type of this PoolableType.
+        /// Returns the concrete type of this Poolable Type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="enemy"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Poolable Type</typeparam>
+        /// <returns>concrete type of this Poolable Type</returns>
         public T GetConcreteType<T>()
         {
             try
@@ -204,11 +237,18 @@ namespace KS_Core.Pooling
             }
         }
 
+        /// <summary>
+        /// Get Pool object settings (Must be filled on pool object) <see cref="PoolObjectSettings"/>
+        /// </summary>
+        /// <returns>Filled poolObjectSettings</returns>
         public virtual PoolObjectSettings PoolSettings()
         {
             return null;
         }
 
+        /// <summary>
+        /// Add game object to pool
+        /// </summary>
         public virtual void AddToPool()
         {
             // Add to pool.

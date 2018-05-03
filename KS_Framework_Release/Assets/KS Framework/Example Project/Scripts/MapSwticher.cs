@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using KS_Core.Input;
 using KS_Core;
+using KS_Mapping;
 
 public class MapSwticher : KS_Behaviour {
 
     public Camera playerCam;
-    private KS_Mapping map;
+    private KS_Map map;
     private bool mapActive = false;
 
 	// Use this for initialization
 	void Start () {
-        map = KS_Mapping.Instance;
+        map = KS_Map.Instance;
 	}
 	
 	// Update is called once per frame
@@ -22,7 +23,7 @@ public class MapSwticher : KS_Behaviour {
         {
             if (!mapActive)
             {
-                map.DissableMinimap();
+                map.DisableMinimap();
                 playerCam.enabled = false;
                 map.ShowMap();
                 mapActive = true;

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Example Project/ds4test/DS4Test.unity
+- path: Assets/KS Framework/Example Project/Scenes/SplashMenu.unity
   isLoaded: 1
   isActive: 1

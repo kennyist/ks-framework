@@ -7,7 +7,7 @@ namespace KS_Core.Localisation
     /// <summary>
     /// Translation Storeage
     /// </summary>
-    [CreateAssetMenu(fileName = "Translations", menuName = "KS_Framework/Translation/Database", order = 1)]
+    [CreateAssetMenu(fileName = "Translations", menuName = "KS: Framework/Databases/Translations", order = 2)]
     [System.Serializable]
     public class KS_Scriptable_Translations : ScriptableObject
     {

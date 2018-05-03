@@ -462,10 +462,28 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   fogDensity:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 2
+      time: -0.0010952902
+      value: 0.0042283293
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+    - serializedVersion: 2
+      time: 0.5005528
+      value: 0.010560043
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+    - serializedVersion: 2
+      time: 1.0010953
+      value: 0.006342494
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
     m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_PostInfinity: 1
+    m_RotationOrder: 0
   fogScale:
     serializedVersion: 2
     m_Curve: []
@@ -647,12 +665,7 @@ MonoBehaviour:
   afternoonStartTime: 780
   duskStartTime: 1080
   midnightStartTime: 1380
-  startTime: 1332
-  Day: 9
-  Month: 1
-  Year: 2018
-  realTime: 0
-  paused: 0
+  startTime: 645
   secondsPerMinute: 2
 --- !u!114 &114907129968065776
 MonoBehaviour:

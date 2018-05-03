@@ -8,7 +8,7 @@ namespace KS_Core.Input
     /// <summary>
     /// Input database
     /// </summary>
-    [CreateAssetMenu(fileName = "Input", menuName = "KS_Framework/Input/Database", order = 1)]
+    [CreateAssetMenu(fileName = "Input", menuName = "KS: Framework/Databases/Input", order = 3)]
     public class KS_Scriptable_Input : ScriptableObject
     {
         /// <summary>

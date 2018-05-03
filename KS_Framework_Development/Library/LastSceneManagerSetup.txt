@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/KS_Framework/Example Project/Scenes/Level.unity
+- path: Assets/KS_Framework/Example Project/Scenes/SplashMenu.unity
   isLoaded: 1
   isActive: 1

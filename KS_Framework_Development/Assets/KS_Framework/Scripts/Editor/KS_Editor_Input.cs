@@ -7,7 +7,10 @@ using KS_Core.Input;
 
 namespace KS_Core.Editor
 {
-
+    /// <summary>
+    /// KS input manager editor window: Create, edit or delete inputs.
+    /// <see cref="KS_Scriptable_Input"/>
+    /// </summary>
     public class KS_Editor_Input : EditorWindow
     {
 
@@ -15,6 +18,14 @@ namespace KS_Core.Editor
         private bool configFound = false;
 
         private KS_Scriptable_Input inputConfig;
+        private bool addInput = false;
+
+        string searchString = "";
+        string lastSearchString = "";
+        bool isSearching = false;
+        string addbox_string = "";
+        bool addbox = false;
+        bool addbox_error = false;
 
         [MenuItem("KS: Framework/Input Manager", false, 23)]
         static void Init()
@@ -39,24 +50,76 @@ namespace KS_Core.Editor
             return null;
         }
 
-        private static KS_Scriptable_Input CreateConfig()
+        void OpenDatabase()
         {
-            KS_Scriptable_Input gameConfig = ScriptableObject.CreateInstance<KS_Scriptable_Input>();
+            string absPath = EditorUtility.OpenFilePanel("Select Input Database", "", "");
+            if (absPath.StartsWith(Application.dataPath))
+            {
+                string relPath = absPath.Substring(Application.dataPath.Length - "Assets".Length);
+                inputConfig = AssetDatabase.LoadAssetAtPath(relPath, typeof(KS_Scriptable_Input)) as KS_Scriptable_Input;
 
-            AssetDatabase.CreateAsset(gameConfig, ConfigSaveFile);
-            AssetDatabase.SaveAssets();
-            gameConfig = AssetDatabase.LoadAssetAtPath(ConfigSaveFile, typeof(KS_Scriptable_Input)) as KS_Scriptable_Input;
+                if (inputConfig)
+                {
+                    EditorPrefs.SetString("ObjectPath", relPath);
+                }
+            }
 
-            return gameConfig;
+            selected = null;
+        }
+
+        private void CreateDatabase()
+        {
+            string absPath = EditorUtility.SaveFilePanel("Create Translation Database", "", "Input", "asset");
+            KS_Scriptable_Input gameConfig;
+            if (absPath.StartsWith(Application.dataPath))
+            {
+                gameConfig = ScriptableObject.CreateInstance<KS_Scriptable_Input>();
+
+                absPath = absPath.Replace(Application.dataPath, "");
+                absPath = "Assets" + absPath;
+
+                AssetDatabase.CreateAsset(gameConfig, absPath);
+                AssetDatabase.SaveAssets();
+                gameConfig = AssetDatabase.LoadAssetAtPath(absPath, typeof(KS_Scriptable_Input)) as KS_Scriptable_Input;
+            }
+
+            selected = null;
+        }
+
+        private void SaveDatabase()
+        {
+            if (inputConfig)
+            {
+                EditorUtility.SetDirty(inputConfig);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         // GUI
 
         private void OnGUI()
         {
+            if(searchString != lastSearchString)
+            {
+                lastSearchString = searchString;
+
+                if (string.IsNullOrEmpty(searchString))
+                {
+                    isSearching = false;
+                } 
+                else if (!isSearching)
+                {
+                    isSearching = true;
+                }
+            }
+
+
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            DrawToolBar();
+            GUILayout.EndHorizontal();
+
             if (!configFound)
             {
-                GUIDrawCreateConfig();
                 return;
             }
 
@@ -64,20 +127,73 @@ namespace KS_Core.Editor
 
             GUILayout.BeginHorizontal();
             GUIDrawInputMenu();
-            GUIDrawConfigEditor();
+
+            if (addbox)
+            {
+                GUIDrawAddBox();
+            }
+            else
+            {
+                GUIDrawConfigEditor();
+            }
             GUILayout.EndHorizontal();
         }
 
-        private void GUIDrawCreateConfig()
+        void DrawToolBar()
         {
-            GUILayout.BeginVertical();
-            GUILayout.Label("Game config not found");
-            if (GUILayout.Button("Create Config"))
+            if (!inputConfig)
             {
-                CreateConfig();
+                if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
+                {
+                    OpenDatabase();
+                }
+
+                if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
+                {
+                    CreateDatabase();
+                }
             }
-            GUILayout.EndVertical();
+            else
+            {
+                if (GUILayout.Button("Open Database", EditorStyles.toolbarButton))
+                {
+                    OpenDatabase();
+                }
+
+                if (inputConfig)
+                {
+                    if (GUILayout.Button("Save Database", EditorStyles.toolbarButton))
+                    {
+                        SaveDatabase();
+                    }
+                }
+
+                if (GUILayout.Button("Create Database", EditorStyles.toolbarButton))
+                {
+                    CreateDatabase();
+                }
+
+
+                if (GUILayout.Button("Add input", EditorStyles.toolbarButton))
+                {
+                    addbox = true;
+                }
+
+                GUILayout.Space(5);
+
+                searchString = GUILayout.TextField(searchString, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(100));
+                if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+                {
+                    // Remove focus if cleared
+                    searchString = "";
+                    GUI.FocusControl(null);
+                }
+
+                GUILayout.Space(5);
+            }
+            GUILayout.FlexibleSpace();
         }
+
 
         private Vector2 keyScroll = new Vector2();
 
@@ -89,27 +205,52 @@ namespace KS_Core.Editor
 
             keyScroll = GUILayout.BeginScrollView(keyScroll);
 
-            for (int i = 0; i < inputConfig.Inputs.Count; i++)
+            string[] keys = GetAllKeys();
+
+            for (int i = 0; i < keys.Length; i++)
             {
-                if (GUILayout.Button(inputConfig.Inputs[i].ID, EditorStyles.miniButtonLeft))
+                if (GUILayout.Button(keys[i], EditorStyles.miniButtonLeft))
                 {
-                    ChangeSelectedInput(inputConfig.Inputs[i].ID);
+                    ChangeSelectedInput(keys[i]);
                 }
             }
 
             GUILayout.EndScrollView();
 
-            if (GUILayout.Button("Add"))
-            {
+            GUILayout.EndVertical();
+        }
 
+        private string[] GetAllKeys()
+        {
+            List<string> keys = new List<string>();
+
+            if(inputConfig.Inputs.Count <= 0)
+            {
+                return keys.ToArray();
             }
 
-            GUILayout.EndVertical();
+            for(int i = 0; i < inputConfig.Inputs.Count; i++)
+            {
+                keys.Add(inputConfig.Inputs[i].ID);
+            }
+
+            if (isSearching)
+            {
+                keys = keys.FindAll(s => s.Contains(searchString));
+            }
+
+            keys.Sort();
+
+            return keys.ToArray();
         }
 
         private void ChangeSelectedInput(string ID)
         {
-            if (inputConfig.Inputs.Count <= 0) return;
+            if (inputConfig.Inputs.Count <= 0 || ID == null)
+            {
+                selected = null;
+                return;
+            }
 
             foreach (KS_Scriptable_Input_object input in inputConfig.Inputs)
             {
@@ -136,7 +277,14 @@ namespace KS_Core.Editor
             }
             else
             {
+                GUILayout.BeginHorizontal();
                 GUILayout.Label("Current Input: " + selected.ID);
+                EditorGUILayout.Separator();
+                if (GUILayout.Button("Delete Input", EditorStyles.miniButton))
+                {
+                    Delete(selected.ID);
+                }
+                GUILayout.EndHorizontal();
                 GUILayout.Space(20);
 
                 GUILayout.BeginHorizontal();
@@ -283,6 +431,82 @@ namespace KS_Core.Editor
                 GUILayout.Label("Controller Axis Deadzone:", GUIStyleLabel());
                 selected.deadZone = EditorGUILayout.FloatField(selected.deadZone);
                 GUILayout.EndHorizontal();
+            }
+        }
+
+        bool DoesKeyExist(string key)
+        {
+            string[] keys = GetAllKeys();
+
+            for(int i = 0; i < keys.Length; i++)
+            {
+                if (keys[i].Equals(key))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void GUIDrawAddBox()
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Label("Add new input:");
+            addbox_string = GUILayout.TextField(addbox_string);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add"))
+            {
+                if (DoesKeyExist(addbox_string))
+                {
+                    addbox_error = true;
+                }
+                else
+                {
+                    AddInput(addbox_string);
+                    addbox_error = false;
+                    addbox_string = "";
+                    addbox = false;
+                }
+            }
+            if (GUILayout.Button("Cancle"))
+            {
+                addbox_error = false;
+                addbox_string = "";
+                addbox = false;
+            }
+            GUILayout.EndHorizontal();
+
+            if (addbox_error)
+            {
+                GUILayout.Label("Input ID already exists in the database.");
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        void AddInput(string ID)
+        {
+            if (DoesKeyExist(ID)) { ChangeSelectedInput(ID); return; }
+
+            KS_Scriptable_Input_object input = new KS_Scriptable_Input_object();
+            input.ID = ID.ToLower();
+
+            inputConfig.Inputs.Add(input);
+
+            ChangeSelectedInput(ID);
+        }
+
+        void Delete(string ID)
+        {
+            for(int i = 0; i < inputConfig.Inputs.Count; i++)
+            {
+                if(inputConfig.Inputs[i].ID == ID)
+                {
+                    inputConfig.Inputs.RemoveAt(i);
+                    selected = null;
+                    return;
+                }
             }
         }
     }

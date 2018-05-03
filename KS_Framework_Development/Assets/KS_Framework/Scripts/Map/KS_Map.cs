@@ -8,13 +8,18 @@ using UnityEngine.UI;
 
 namespace KS_Mapping
 {
-
+    /// <summary>
+    /// Full screen map and Minimap functionality 
+    /// </summary>
     public class KS_Map : KS_Behaviour
     {
 
         // Instancing
 
         private static KS_Map instance;
+        /// <summary>
+        /// Current active isntance of KS_Map
+        /// </summary>
         public static KS_Map Instance
         {
             get
@@ -25,16 +30,30 @@ namespace KS_Mapping
         }
 
         // Events 
-
+        /// <summary>
+        /// On map zoomed in or out
+        /// </summary>
         public static event FloatHandler OnScale;
+        /// <summary>
+        /// On minimap enable or dissable
+        /// </summary>
         public static event BoolHandler MiniMapStateChange;
 
         //
 
+        /// <summary>
+        /// Depth camera that will display the UI elements
+        /// </summary>
         public GameObject UIOverlayCamera;
         private Camera UICam;
+        /// <summary>
+        /// Depth camera that will display the map content
+        /// </summary>
         public GameObject mapCamera;
 
+        /// <summary>
+        /// Area of the world to show, recomended Box object with no collider or renderer
+        /// </summary>
         public GameObject mapArea;
         private Vector3 mapTopRight;
         private Vector3 mapBottomLeft;
@@ -47,28 +66,64 @@ namespace KS_Mapping
 
         //
 
+        /// <summary>
+        /// Map movement speed in world units 
+        /// </summary>
         [Header("Map Movement")]
         public float mapMoveSpeed = 30f;
+        /// <summary>
+        /// Map movement smooth ammount
+        /// </summary>
         public float mapMoveSmoothing = 5.0f;
+        /// <summary>
+        /// Map move speed based on the map zoom percent (1 = mapMoveSpeed)
+        /// </summary>
         public AnimationCurve mapMoveSpeedCurve = new AnimationCurve(new Keyframe(0, 0.3f), new Keyframe(1, 1));
+        /// <summary>
+        /// Map zoom speed
+        /// </summary>
         public float MaxZoomSpeed = 5f;
+        /// <summary>
+        /// Map zoom speed based on the map zoom percent (1 = MaxZoomSpeed)
+        /// </summary>
         public AnimationCurve ZoomSpeedCurve = new AnimationCurve(new Keyframe(0, 0.3f), new Keyframe(1, 1));
 
         private float mapTargetHeight;
         private Vector3 mapTargetPosition;
 
-        [Header("Contraints")]
+        /// <summary>
+        /// Minimum height of the camera (For zoom)
+        /// </summary>
+        [Header("Constraints")]
         public float minCameraHeight = 150f;
+        /// <summary>
+        /// Default camera height (For zoom), Defaults to this height on full screen map opening
+        /// </summary>
         public float defaultCameraHeight = 250f;
+        /// <summary>
+        /// Maximum camera height (For zoom)
+        /// </summary>
         public float maxCameraHeight = 600f;
 
+        /// <summary>
+        /// Enable minimap functionality 
+        /// </summary>
         [Header("MiniMap")]
         public bool useMiniMap = true;
         private bool miniMapActive = false;
+        /// <summary>
+        /// Minimap camera height
+        /// </summary>
         public float miniMapCameraHeight = 250f;
+        /// <summary>
+        /// Render texture format <see cref="RenderTextureFormat"/>
+        /// </summary>
         public RenderTextureFormat renderFormat;
         private RenderTexture miniMapTexture;
 
+        /// <summary>
+        /// Center target of the map, centers here on full screen map opening
+        /// </summary>
         public Transform mapCenterTarget;
 
         protected override void Awake()
@@ -95,6 +150,9 @@ namespace KS_Mapping
             if (useMiniMap) EnableMinimap();
         }
 
+        /// <summary>
+        /// Current zoom speed based on current zoom level
+        /// </summary>
         public float ZoomSpeed
         {
             get
@@ -103,6 +161,9 @@ namespace KS_Mapping
             }
         }
 
+        /// <summary>
+        /// Current move speed based on current zoom level
+        /// </summary>
         public float MoveSpeed
         {
             get
@@ -146,7 +207,7 @@ namespace KS_Mapping
                 UIOverlayCamera.transform.position = Vector3.Lerp(UIOverlayCamera.transform.position, mapTargetPosition, Time.deltaTime * mapMoveSmoothing);
 
                 if (OnScale != null)
-                    OnScale(ScalePercentNoContraint);
+                    OnScale(ScalePercent);
 
                 if (!miniMapActive)
                 {
@@ -240,8 +301,8 @@ namespace KS_Mapping
 
         private Vector3 CheckCameraBounds(Vector3 target)
         {
-            float Width = FrustrumWidth / 2;
-            float height = FrustrumHeight / 2;
+            float Width = FrustumWidth / 2;
+            float height = FrustumHeight / 2;
 
 
             if (target.x > mapTopRight.x - Width)
@@ -276,11 +337,14 @@ namespace KS_Mapping
             mapBottomLeft = new Vector2(bounds.min.x, bounds.min.z);
         }
 
+        /// <summary>
+        /// Enable full map display. Will enable map cameras and dissable minimap view
+        /// </summary>
         public void ShowMap()
         {
             if (useMiniMap && miniMapActive)
             {
-                DissableMinimap(false);
+                DisableMinimap(false);
             }
             else
             {
@@ -299,6 +363,9 @@ namespace KS_Mapping
                 mapTargetPosition = new Vector3(mapCenterTarget.position.x, mapTargetHeight, mapCenterTarget.position.z);
         }
 
+        /// <summary>
+        /// Enable minimap display 
+        /// </summary>
         public void EnableMinimap()
         {
             if (mapActive && !useMiniMap) return;
@@ -313,6 +380,9 @@ namespace KS_Mapping
 
         }
 
+        /// <summary>
+        /// Disable fullmap display
+        /// </summary>
         public void HideMap()
         {
             mapActive = false;
@@ -327,31 +397,39 @@ namespace KS_Mapping
             }
         }
 
-        public void DissableMinimap(bool dissableCameras = true)
+        /// <summary>
+        /// Disalbe minimap display
+        /// </summary>
+        /// <param name="dissableCameras"></param>
+        public void DisableMinimap(bool disableCameras = true)
         {
             miniMapActive = false;
 
             UICam.targetTexture = null;
             mapCamera.GetComponent<Camera>().targetTexture = null;
 
-            if (dissableCameras)
+            if (disableCameras)
             {
                 UIOverlayCamera.SetActive(false);
                 mapCamera.SetActive(false);
             }
         }
 
-        //
-
-        private float FrustrumWidth
+        /// <summary>
+        /// Calculate the current FustumHeight of the camera
+        /// </summary>
+        private float FrustumWidth
         {
             get
             {
-                return FrustrumHeight * UICam.GetComponent<Camera>().aspect;
+                return FrustumHeight * UICam.GetComponent<Camera>().aspect;
             }
         }
 
-        private float FrustrumHeight
+        /// <summary>
+        /// Calculate the current frustum width of the camera
+        /// </summary>
+        private float FrustumHeight
         {
             get
             {
@@ -359,24 +437,30 @@ namespace KS_Mapping
             }
         }
 
+        /// <summary>
+        /// Current map zoom level based on min and max camera heights
+        /// </summary>
         public float ScalePercent
         {
             get { return (UICam.transform.position.y - minCameraHeight) / (maxCameraHeight - minCameraHeight); }
         }
 
-        public float ScalePercentNoContraint
+        public float MarkerScalePercent
         {
-            get
-            {
-                return UICam.transform.position.y / maxCameraHeight;
-            }
+            get { return UICam.transform.position.y / maxCameraHeight; }
         }
 
+        /// <summary>
+        /// Get or set the current maps center target
+        /// </summary>
         public Transform CenterTarget
         {
             get; set;
         }
 
+        /// <summary>
+        /// Is the minimap active
+        /// </summary>
         public bool MiniMapActive
         {
             get
@@ -385,6 +469,9 @@ namespace KS_Mapping
             }
         }
 
+        /// <summary>
+        /// Minimap render texture
+        /// </summary>
         public RenderTexture MiniMapTexture
         {
             get

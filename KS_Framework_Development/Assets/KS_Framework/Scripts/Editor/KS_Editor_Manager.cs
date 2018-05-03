@@ -7,10 +7,14 @@ using KS_Core.Input;
 using KS_Core.Localisation;
 using KS_Core.Pooling;
 using KS_Core.IO;
+using KS_Utility;
 
 namespace KS_Core.Editor
 {
-
+    /// <summary>
+    /// KS framework mconfig editor window
+    /// <see cref="KS_Scriptable_GameConfig"/>
+    /// </summary>
     public class KS_Editor_Manager : EditorWindow
     {
         private static string ConfigSaveFile = "Assets/KS_Framework/KS_Data/GameConfig.asset";
@@ -25,22 +29,32 @@ namespace KS_Core.Editor
         static void Init()
         {
             KS_Editor_Manager window = (KS_Editor_Manager)EditorWindow.GetWindow(typeof(KS_Editor_Manager));
-            window.titleContent.text = "KS_OWGF Manager";
+            window.titleContent.text = "KS: Framework Manager";
             window.Show();
         }
 
         [MenuItem("KS: Framework/Setup", false, 1)]
         private static void CreateManager()
         {
-            GameObject obj = new GameObject("KS: Open World Framework");
+            GameObject obj = new GameObject("KS: Framework");
             GameObject pooling = new GameObject("KS: Pool Container");
             obj.transform.SetSiblingIndex(0);
             pooling.transform.SetParent(obj.transform);
             Selection.activeGameObject = obj;
 
-            KS_Scriptable_GameConfig config = FindGameConfig();
+            KS_Scriptable_GameConfig config = null;
 
-            if (config == null) config = CreateConfig();
+            string absPath = EditorUtility.SaveFilePanel("Create Game Config", "", "GameConfig", "asset");
+            if (absPath.StartsWith(Application.dataPath))
+            {
+                config = ScriptableObject.CreateInstance<KS_Scriptable_GameConfig>();
+
+                absPath = absPath.Replace(Application.dataPath, "");
+                absPath = "Assets" + absPath;
+
+                AssetDatabase.CreateAsset(config, absPath);
+                AssetDatabase.SaveAssets();
+            }
 
             obj.AddComponent<KS_Manager>();
             obj.GetComponent<KS_Manager>().gameConfig = config;
@@ -64,8 +78,10 @@ namespace KS_Core.Editor
             obj.GetComponent<KS_PoolManager>().gameConfig = config;
             obj.GetComponent<KS_PoolManager>().pooledObjectsContainer = pooling;
 
-            GameObject obj3 = Instantiate(AssetDatabase.LoadAssetAtPath("Assets/KS Framework/Prefabs/UI/KS_prefab_console.prefab", typeof(GameObject))) as GameObject;
-            obj3.transform.parent = obj.transform;
+            obj.AddComponent<KS_Subtitle>();
+
+            //GameObject obj3 = Instantiate(AssetDatabase.LoadAssetAtPath("Assets/KS Framework/Prefabs/UI/KS_prefab_console.prefab", typeof(GameObject))) as GameObject;
+            //obj3.transform.parent = obj.transform;
 
 
             Init();
@@ -73,52 +89,100 @@ namespace KS_Core.Editor
 
         private void OnEnable()
         {
-            gameConfig = FindGameConfig();
-            if (gameConfig == null) configFound = false;
-            else configFound = true;
+            configFound = false;
         }
 
-        private static KS_Scriptable_GameConfig FindGameConfig()
+        void OpenDatabase()
         {
-            KS_Scriptable_GameConfig gameConfig = AssetDatabase.LoadAssetAtPath(ConfigSaveFile, typeof(KS_Scriptable_GameConfig)) as KS_Scriptable_GameConfig;
+            string absPath = EditorUtility.OpenFilePanel("Select Game Config", "", "");
+            if (absPath.StartsWith(Application.dataPath))
+            {
+                string relPath = absPath.Substring(Application.dataPath.Length - "Assets".Length);
+                gameConfig = AssetDatabase.LoadAssetAtPath(relPath, typeof(KS_Scriptable_GameConfig)) as KS_Scriptable_GameConfig;
 
-            if (gameConfig) return gameConfig;
-            return null;
+                if (gameConfig)
+                {
+                    EditorPrefs.SetString("ObjectPath", relPath);
+                    configFound = true;
+                }
+            }
         }
 
-        private static KS_Scriptable_GameConfig CreateConfig()
+        private void CreateDatabase()
         {
-            KS_Scriptable_GameConfig gameConfig = ScriptableObject.CreateInstance<KS_Scriptable_GameConfig>();
+            string absPath = EditorUtility.SaveFilePanel("Create Game Config", "", "GameConfig", "asset");
+            KS_Scriptable_GameConfig config;
+            if (absPath.StartsWith(Application.dataPath))
+            {
+                config = ScriptableObject.CreateInstance<KS_Scriptable_GameConfig>();
 
-            AssetDatabase.CreateAsset(gameConfig, ConfigSaveFile);
-            AssetDatabase.SaveAssets();
-            gameConfig = AssetDatabase.LoadAssetAtPath(ConfigSaveFile, typeof(KS_Scriptable_GameConfig)) as KS_Scriptable_GameConfig;
+                absPath = absPath.Replace(Application.dataPath, "");
+                absPath = "Assets" + absPath;
 
-            return gameConfig;
+                AssetDatabase.CreateAsset(config, absPath);
+                AssetDatabase.SaveAssets();
+                gameConfig = AssetDatabase.LoadAssetAtPath(absPath, typeof(KS_Scriptable_GameConfig)) as KS_Scriptable_GameConfig;
+                configFound = true;
+            }
+        }
+
+        private void SaveDatabase()
+        {
+            if (gameConfig)
+            {
+                EditorUtility.SetDirty(gameConfig);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         // GUI
 
         private void OnGUI()
         {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            DrawToolBar();
+            GUILayout.EndHorizontal();
+
             if (!configFound)
             {
-                GUIDrawCreateConfig();
                 return;
             }
 
             GUIDrawConfigEditor();
         }
 
-        private void GUIDrawCreateConfig()
+        void DrawToolBar()
         {
-            GUILayout.BeginVertical();
-            GUILayout.Label("Game config not found");
-            if (GUILayout.Button("Create Config"))
+            if (!gameConfig)
             {
-                CreateConfig();
+                if (GUILayout.Button("Open config", EditorStyles.toolbarButton))
+                {
+                    OpenDatabase();
+                }
+
+                if (GUILayout.Button("Create config", EditorStyles.toolbarButton))
+                {
+                    CreateDatabase();
+                }
             }
-            GUILayout.EndVertical();
+            else
+            {
+                if (GUILayout.Button("Open config", EditorStyles.toolbarButton))
+                {
+                    OpenDatabase();
+                }
+
+                if (gameConfig)
+                {
+                    if (GUILayout.Button("Save config", EditorStyles.toolbarButton))
+                    {
+                        SaveDatabase();
+                    }
+                }
+
+                GUILayout.Space(5);
+            }
+            GUILayout.FlexibleSpace();
         }
 
         private Vector2 scrollPos = new Vector2();
@@ -146,6 +210,11 @@ namespace KS_Core.Editor
             GUILayout.EndHorizontal();
 
             GUIDrawHeader("IO:");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Game Folder Name:", GUILayout.Width(labelWidth));
+            gameConfig.gameFolderName = EditorGUILayout.TextField(gameConfig.gameFolderName);
+            GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Windows Application data folder:", GUILayout.Width(labelWidth));

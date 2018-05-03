@@ -21,8 +21,8 @@ namespace KS_Core.Pooling
         /// <summary>
         /// Initialize new 
         /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="maxPooledOfType"></param>
+        /// <param name="tag">Pool tag for gameobject type</param>
+        /// <param name="maxPooledOfType">Maximum objects of type that can be stored</param>
         public PoolObjectSettings(string tag, int maxPooledOfType)
         {
             this.tag = tag;
