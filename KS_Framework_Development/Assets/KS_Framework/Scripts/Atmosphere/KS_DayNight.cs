@@ -15,11 +15,11 @@ namespace KS_Core.Atmosphere
     public class KS_DayNight : KS_Behaviour
     {
 
-        private KS_DayNight instance;
+        private static KS_DayNight instance;
         /// <summary>
         /// Current active instance of KS_DayNight
         /// </summary>
-        public KS_DayNight Instance
+        public static KS_DayNight Instance
         {
             get
             {

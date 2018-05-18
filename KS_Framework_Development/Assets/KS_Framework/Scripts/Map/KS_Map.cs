@@ -373,7 +373,10 @@ namespace KS_Mapping
             UIOverlayCamera.SetActive(true);
             mapCamera.SetActive(true);
 
-            UICam.targetTexture = miniMapTexture;
+            if (UICam && miniMapTexture)
+            {
+                UICam.targetTexture = miniMapTexture;
+            }
             mapCamera.GetComponent<Camera>().targetTexture = miniMapTexture;
 
             miniMapActive = true;
@@ -477,6 +480,17 @@ namespace KS_Mapping
             get
             {
                 return miniMapTexture;
+            }
+        }
+
+        /// <summary>
+        /// Is the map currently showing
+        /// </summary>
+        public bool MapActive
+        {
+            get
+            {
+                return mapActive;
             }
         }
 

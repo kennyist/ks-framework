@@ -84,6 +84,8 @@ namespace KS_Utility
             LoadScreenContainer.SetActive(true);
             loading = true;
 
+            yield return new WaitForSeconds(2);
+
             AsyncOperation async = SceneManager.LoadSceneAsync(scene);
 
             while (async.isDone)

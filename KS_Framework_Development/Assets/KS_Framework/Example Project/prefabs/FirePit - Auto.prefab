@@ -728,7 +728,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8bccaaa47ce594e9f3d13ed4334471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnHour: 19
+  OnHour: 16
   OffHour: 7
   toggleObject: {fileID: 1936897409432922}
 --- !u!114 &114140355375103560

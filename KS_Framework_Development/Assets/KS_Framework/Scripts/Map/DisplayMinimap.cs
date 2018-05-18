@@ -27,12 +27,14 @@ namespace KS_Mapping
         {
             map = KS_Map.Instance;
             minimapRender.texture = map.MiniMapTexture;
-            map.EnableMinimap();
+            //map.EnableMinimap();
         }
 
         // Update is called once per frame
         void Update()
         {
+            if (!map.useMiniMap) minimapContainer.SetActive(false);
+
             if (map.MiniMapActive)
             {
                 if (!minimapContainer.activeSelf)

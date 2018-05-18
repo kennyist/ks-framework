@@ -36,6 +36,33 @@ MonoBehaviour:
       lineText: 'Master Volume:'
     - lineID: ui_loadinglevel
       lineText: Loading, Please wait...
+    - lineID: tut_line1
+      lineText: Game text
+    - lineID: tut_line2
+      lineText: 'Objective: Find the key'
+    - lineID: tut_line3
+      lineText: 'Bob: Is this going to be translated?'
+    - lineID: tut_line4
+      lineText: 'Another example text line '
+    - lineID: tut_line5
+      lineText: You win this round!
+    - lineID: tut_language
+      lineText: Current Language
+    - lineID: tut_local
+      lineText: Localisation
+    - lineID: tut_description
+      lineText: Localisation system using translation database editable in the Unity
+        Editor. Auto text translate object is provided that updates its translation
+        on lanugage change. Easy to use scripting interface for use anywhere else.
+        Subtitle system also provided with translation support.
+    - lineID: tut_control
+      lineText: 'Controls:'
+    - lineID: tut_control1
+      lineText: Change Language - Q - Triangle
+    - lineID: tut_control2
+      lineText: Trigger Subtitle - E - Square
+    - lineID: tut_sub
+      lineText: 'Example subtitle with timer '
   - language: German
     strings:
     - lineID: ui_continue
@@ -60,6 +87,35 @@ MonoBehaviour:
       lineText: 'Hauptvolumen:'
     - lineID: ui_loadinglevel
       lineText: Laden, bitte warten...
+    - lineID: tut_line1
+      lineText: Spieltext
+    - lineID: tut_line2
+      lineText: "Ziel: Finde den Schl\xFCssel"
+    - lineID: tut_line3
+      lineText: "Bob: Wird das \xFCbersetzt?"
+    - lineID: tut_line4
+      lineText: "Ein weiteres Beispiel f\xFCr eine Textzeile"
+    - lineID: tut_line5
+      lineText: Du gewinnst diese Runde!
+    - lineID: tut_language
+      lineText: Aktuelle Sprache
+    - lineID: tut_local
+      lineText: Lage
+    - lineID: tut_description
+      lineText: "Lokalisierungssystem, bei dem die \xDCbersetzungsdatenbank im Unity
+        Editor bearbeitet werden kann. Es wird ein automatisches Text\xFCbersetzungsobjekt
+        bereitgestellt, das seine \xDCbersetzung bei einer Sprach\xE4nderung aktualisiert.
+        Einfach zu verwendende Scripting-Schnittstelle f\xFCr den Einsatz an anderer
+        Stelle. Untertitel System auch mit \xDCbersetzungsunterst\xFCtzung zur Verf\xFCgung
+        gestellt."
+    - lineID: tut_control
+      lineText: 'Kontrollen:'
+    - lineID: tut_control1
+      lineText: "Sprache \xE4ndern - Q - Dreieck"
+    - lineID: tut_control2
+      lineText: "Ausl\xF6ser Untertitel - E - Quadrat"
+    - lineID: tut_sub
+      lineText: '# Not Set #'
   - language: French
     strings:
     - lineID: ui_continue
@@ -84,4 +140,32 @@ MonoBehaviour:
       lineText: 'Volume principal:'
     - lineID: ui_loadinglevel
       lineText: Chargement, veuillez patienter...
+    - lineID: tut_line1
+      lineText: texte du jeu
+    - lineID: tut_line2
+      lineText: "Objectif: Trouver la cl\xE9"
+    - lineID: tut_line3
+      lineText: "Bob: Est-ce que \xE7a va \xEAtre traduit?"
+    - lineID: tut_line4
+      lineText: Un autre exemple de ligne de texte
+    - lineID: tut_line5
+      lineText: Vous gagnez ce tour!
+    - lineID: tut_language
+      lineText: Langue courante
+    - lineID: tut_local
+      lineText: Localisation
+    - lineID: tut_description
+      lineText: "Syst\xE8me de localisation utilisant une base de donn\xE9es de traduction
+        modifiable dans l'\xE9diteur Unity. Un objet de traduction de texte automatique
+        est fourni qui met \xE0 jour sa traduction lors du changement de lanugage.
+        Interface de script facile \xE0 utiliser pour une utilisation nulle part ailleurs.
+        Syst\xE8me de sous-titres \xE9galement fourni avec un support de traduction."
+    - lineID: tut_control
+      lineText: "Contr\xF4les:"
+    - lineID: tut_control1
+      lineText: Changer la langue - Q - Triangle
+    - lineID: tut_control2
+      lineText: "Trigger Subtitle - E - Carr\xE9"
+    - lineID: tut_sub
+      lineText: '# Not Set #'
   DefaultLanguage: English

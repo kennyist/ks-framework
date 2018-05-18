@@ -115,6 +115,7 @@ namespace KS_Character
             Dictionary<string, string> toSave = new Dictionary<string, string>();
             toSave.Add("pitch", pitch.ToString());
             toSave.Add("yaw", yaw.ToString());
+            saveGame.Add("TUT_CAM_TEST", camera.transform.localRotation);
             saveGame.Add("KS_CC", toSave);
         }
 
@@ -131,6 +132,8 @@ namespace KS_Character
             cam.transform.rotation = oldcam.transform.rotation;
 
             Destroy(oldcam);
+
+            camera.transform.localRotation = (Quaternion)save.SaveData["TUT_CAM_TEST"];
 
             Dictionary<string, string> fromSave = (Dictionary<string, string>)save.SaveData["KS_CC"];
 
