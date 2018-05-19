@@ -8,9 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/KS_Framework/Example Project/Scenes/SplashMenu.unity
     guid: c745221460f2c1842842365bb554b5c5
-  - enabled: 0
-    path: Assets/KS_Framework/Example Project/Scenes/Level.unity
-    guid: 033847098d755614e9bdce8314035a51
   - enabled: 1
-    path: Assets/tutorial.unity
+    path: Assets/KS_Framework/Example Project/Scenes/tutorial.unity
     guid: eaa3d63035ea6ee4991d64e969b96dc0

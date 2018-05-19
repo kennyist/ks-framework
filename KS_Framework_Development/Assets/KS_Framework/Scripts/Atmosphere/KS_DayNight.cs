@@ -141,6 +141,7 @@ namespace KS_Core.Atmosphere
         void Start()
         {
             StarStart();
+            instance = this;
 
             timeManager = KS_TimeManager.Instance;
 
